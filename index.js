@@ -109,10 +109,10 @@ async function modifyHtmlStrings(rootElement, language, apiKey) {
 }
 
 
-export function getTranslations(rawHTML, language, apiKey) {
+function getTranslations(rawHTML, language, apiKey) {
   //TODO check if language is set in localstorage 
   //If no lang set check browser setting and use that 
-  
+
 
   console.log("rawHTML:", rawHTML)
   const modifiedHtmlString = modifyHtmlStrings(rawHTML, language, apiKey)
