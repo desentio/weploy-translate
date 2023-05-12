@@ -20,7 +20,7 @@ function saveLanguageToLocalStorage() {
 }
 
 function getLanguageFromLocalStorage() {
-  language = localStorage.getItem('language') 
+  language = localStorage.getItem('language')
   console.log("language in local storage:", language)
   return language; // Get the language from local storage
 }
@@ -127,10 +127,10 @@ function getTranslations(rawHTML, apiKey) {
   //TODO check if language is set in localstorage 
   //If no lang set check browser setting and use that 
   console.log("getLanguageFromLocalStorage()", getLanguageFromLocalStorage())
-  if(getLanguageFromLocalStorage() === null){
+  if (getLanguageFromLocalStorage() === null) {
     saveLanguageToLocalStorage()
-  } 
-  
+  }
+
   modifyHtmlStrings(rawHTML, getLanguageFromLocalStorage(), apiKey)
 }
 
@@ -145,25 +145,21 @@ function switchLanguage(language) {
   //reload page
 }
 
-// function getSelectedLanguage() {
-//   let checkInterval = setInterval(function() {
-//     if (localStorage) {
-//       console.log('Language found in local storage:');
-//       clearInterval(checkInterval); // Stop the interval
-//       return localStorage.getItem('language')
-//     } else {
-//       console.log('Language not found in local storage.');
-//     }
-//   }, 500);
-// }
 
-
-// function getTranslations() {
-//   return "hello NPM"
-// }
+function getSelectedLanguage() {
+  return new Promise((resolve, reject) => {
+    let language = localStorage.getItem('language');
+    if (language) {
+      console.log('Language found in local storage:', language);
+      resolve(language); // Resolve the promise
+    } else {
+      console.log('Language not found in local storage.');
+    }
+  })
+}
 
 module.exports = {
   getTranslations,
   switchLanguage,
-  // getSelectedLanguage
+  getSelectedLanguage
 }
