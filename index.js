@@ -12,6 +12,21 @@
 //   return stringChunks;
 // }
 
+function saveLanguageToLocalStorage() {
+  var language = navigator.language || navigator.userLanguage; // Get browser language
+  console.log("language in local storage:", language)
+  // Save the language to local storage
+  localStorage.setItem('language', language);
+}
+
+function getLanguageFromLocalStorage() {
+  language = localStorage.getItem('language') 
+  console.log("language in local storage:", language)
+  return language; // Get the language from local storage
+}
+
+
+
 function getTranslationsFromAPI(strings, language, apiKey) {
 
   const finalPayload = {
@@ -108,21 +123,47 @@ async function modifyHtmlStrings(rootElement, language, apiKey) {
 }
 
 
-function getTranslations(rawHTML, language, apiKey) {
+function getTranslations(rawHTML, apiKey) {
   //TODO check if language is set in localstorage 
   //If no lang set check browser setting and use that 
-
-
-  console.log("rawHTML:", rawHTML)
-  const modifiedHtmlString = modifyHtmlStrings(rawHTML, language, apiKey)
-  console.log("modifiedHtmlString:", modifiedHtmlString)
-  // return modifiedHtmlString
+  console.log("getLanguageFromLocalStorage()", getLanguageFromLocalStorage())
+  if(getLanguageFromLocalStorage() === null){
+    saveLanguageToLocalStorage()
+  } 
+  
+  modifyHtmlStrings(rawHTML, getLanguageFromLocalStorage(), apiKey)
 }
 
+
+function switchLanguage(language) {
+  //set new language in local storage
+  localStorage.setItem('language', language)
+  setTimeout(() => {
+    location.reload()
+  }, 1000)
+
+  //reload page
+}
+
+// function getSelectedLanguage() {
+//   let checkInterval = setInterval(function() {
+//     if (localStorage) {
+//       console.log('Language found in local storage:');
+//       clearInterval(checkInterval); // Stop the interval
+//       return localStorage.getItem('language')
+//     } else {
+//       console.log('Language not found in local storage.');
+//     }
+//   }, 500);
+// }
 
 
 // function getTranslations() {
 //   return "hello NPM"
 // }
 
-module.exports = getTranslations
+module.exports = {
+  getTranslations,
+  switchLanguage,
+  // getSelectedLanguage
+}
