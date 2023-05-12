@@ -21,7 +21,6 @@ function getTranslationsFromAPI(strings, language, apiKey) {
   }
 
   return new Promise((resolve) => {
-    //future: Just give mne all the nodes for page x for language Y
     fetch("http://localhost:8080/get-translations", {
       method: "POST",
       headers: {
