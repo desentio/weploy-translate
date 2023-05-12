@@ -1,7 +1,6 @@
 // function splitString(inputString) {
 //   const chunkSize = 4000;
 
-
 //   const stringChunks = [];
 //   for (let i = 0; i < inputString.length; i += chunkSize) {
 //     const currentStringChunk = inputString.slice(i, i + chunkSize);
@@ -14,21 +13,19 @@
 
 function saveLanguageToLocalStorage() {
   var language = navigator.language || navigator.userLanguage; // Get browser language
-  console.log("language in local storage:", language)
+  // var language = (navigator.language || navigator.userLanguage).substr(0, 2); // Get browser language
+  console.log("language in local storage:", language);
   // Save the language to local storage
-  localStorage.setItem('language', language);
+  localStorage.setItem("language", language);
 }
 
 function getLanguageFromLocalStorage() {
-  language = localStorage.getItem('language')
-  console.log("language in local storage:", language)
+  const language = localStorage.getItem("language");
+  console.log("language in local storage:", language);
   return language; // Get the language from local storage
 }
 
-
-
 function getTranslationsFromAPI(strings, language, apiKey) {
-
   const finalPayload = {
     strings: strings,
     language: language,
@@ -92,21 +89,29 @@ function filterValidTextNodes(textNodes) {
 }
 
 function processTextNodes(textNodes, language, apiKey) {
+  // remove empty string
+  const cleanTextNodes = textNodes.filter(
+    (textNode) =>
+      typeof textNode.textContent == "string" && !!textNode.textContent.trim()
+  );
+
   //get only text nodes textContent in array
-  const textNodesTextContent = textNodes.map((textNode) => textNode.textContent)
-  console.log("textNodesTextContent:", textNodesTextContent)
+  const textNodesTextContent = cleanTextNodes.map(
+    (textNode) => textNode.textContent
+  );
+  console.log("textNodesTextContent:", textNodesTextContent);
 
   //PROBLEM: THE NODES NEED TO COME BACK IN THE SAME ORDER AS THEY WERE SENT!!!!
-  getTranslationsFromAPI(textNodesTextContent, language, apiKey).then((response) => {
-    console.log("response:", response)
-    // make a for loop to replace textNodes textContent with the response
-    response.forEach((chunk, index) => {
-      console.log("chunk:", chunk, index, textNodes[index].textContent)
-      textNodes[index].textContent = chunk
-    })
-  })
-
-
+  getTranslationsFromAPI(textNodesTextContent, language, apiKey).then(
+    (response) => {
+      console.log("response:", response);
+      // make a for loop to replace textNodes textContent with the response
+      response.forEach((chunk, index) => {
+        console.log("chunk:", chunk, index, cleanTextNodes[index].textContent);
+        cleanTextNodes[index].textContent = chunk;
+      });
+    }
+  );
 
   // for (let textNode of textNodes) {
   //   textNode.textContent = processFunction(textNode.textContent);
