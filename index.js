@@ -44,6 +44,21 @@ function getTranslationsFromAPI(strings, language, apiKey) {
   })
 }
 
+function hasTextNodes(node) {
+  for (let child of node.childNodes) {
+      if (child.nodeType === Node.TEXT_NODE) {
+          return true;
+      }
+
+      if (child.nodeType === Node.ELEMENT_NODE && hasTextNodes(child)) {
+          return true;
+      }
+  }
+
+  return false;
+}
+
+
 // function getTranslation(payloadChunks, language) {
 
 //   let resultChunks = []
@@ -72,6 +87,7 @@ function getTranslationsFromAPI(strings, language, apiKey) {
 // }
 
 function extractTextNodes(node, textNodes) {
+  console.log("node:", node)
   if (node.nodeType === Node.TEXT_NODE) {
     textNodes.push(node);
   } else {
@@ -119,6 +135,7 @@ function processTextNodes(textNodes, language, apiKey) {
 }
 
 async function modifyHtmlStrings(rootElement, language, apiKey) {
+  console.log("rootElement:", rootElement)
   const textNodes = [];
   extractTextNodes(rootElement, textNodes);
   console.log("textNodes:", textNodes)
@@ -127,16 +144,51 @@ async function modifyHtmlStrings(rootElement, language, apiKey) {
   processTextNodes(validTextNodes, language, apiKey);
 }
 
+function checkForWeployExcludeClasses(rawHTML) {
+  // Clone the element to not change the original DOM
+  const elementsToExclude = rawHTML.querySelectorAll('.weploy-exclude')
+  
+  elementsToExclude.forEach((element) => {
+      element.parentNode.removeChild(element);
+  });
+  
+  // Convert the element back to a string
+  const filteredHtml = rawHTML;
+  console.log("filteredHtml:", filteredHtml)
+  return filteredHtml;
+}
 
-function getTranslations(rawHTML, apiKey) {
+
+function getTranslations(apiKey) {
   //TODO check if language is set in localstorage 
+  const observer = new MutationObserver(mutations => {
+    // Iterate over all mutations that just occured
+    for(let mutation of mutations) {
+        // If the mutation was the addition of nodes
+        if(mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            for(let node of mutation.addedNodes) {
+                // If the node or any of its children are text nodes, log it
+                if (hasTextNodes(node)) {
+                    modifyHtmlStrings(checkForWeployExcludeClasses(node), getLanguageFromLocalStorage(), apiKey)
+                    console.log(node.outerHTML);
+                }
+            }
+        }
+    }
+  });
+  
   //If no lang set check browser setting and use that 
-  console.log("getLanguageFromLocalStorage()", getLanguageFromLocalStorage())
+  const observerConfig = { childList: true, subtree: true };
+  initalRawHTML = document.getElementById('weploy-translate');
+
+  observer.observe(initalRawHTML, observerConfig);
+  const pageHtml = checkForWeployExcludeClasses(initalRawHTML)
+  console.log("getLanguageFromLocalStorage()", pageHtml)
   if (getLanguageFromLocalStorage() === null) {
     saveLanguageToLocalStorage()
   }
 
-  modifyHtmlStrings(rawHTML, getLanguageFromLocalStorage(), apiKey)
+  modifyHtmlStrings(pageHtml, getLanguageFromLocalStorage(), apiKey)
 }
 
 
