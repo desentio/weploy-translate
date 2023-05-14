@@ -146,9 +146,7 @@ async function startTranslationCycle(node, apiKey, observer) {
 
 
 function getTranslations(apiKey) {
-  //TODO check if language is set in localstorage 
   let observer = new MutationObserver(mutations => {
-    // Iterate over all mutations that just occured
     for (let mutation of mutations) {
       // If the mutation was the addition of nodes
       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -168,7 +166,6 @@ function getTranslations(apiKey) {
         // startTranslationCycle(mutation.target.parentElement, apiKey)
       }
     }
-    // observer.observe(document, { childList: true, subtree: true, characterData: true });
   });
 
   //If no lang set check browser setting and use that 
