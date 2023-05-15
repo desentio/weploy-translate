@@ -101,11 +101,14 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 }
 
 function checkForWeployExcludeClasses(rawHTML) {
+  
   // Clone the element to not change the original DOM
-  const elementsToExclude = Array.from(rawHTML.querySelectorAll('.weploy-exclude'))
+  const elementsToExclude = Array.from(rawHTML.getElementsByClassName('weploy-exclude'))
+  console.log("Checking for weploy exclude classes", elementsToExclude)
   const parentsAndIndexes = elementsToExclude.map((element) => {
     const parent = element.parentNode;
     const index = Array.from(parent.children).indexOf(element);
+    console.log("Checking for weploy exclude classes2", { element, parent, index })
     return { element, parent, index };
   });
 
@@ -118,7 +121,7 @@ function checkForWeployExcludeClasses(rawHTML) {
 }
 
 async function startTranslationCycle(node, apiKey, observer) {
-  observer.disconnect();
+
   console.log("Translation cycle START")
 
   const { filteredHtml, parentsAndIndexes } = checkForWeployExcludeClasses(node)
@@ -129,47 +132,47 @@ async function startTranslationCycle(node, apiKey, observer) {
     parent.insertBefore(element, parent.children[index]);
   });
   console.log("Translation cycle END")
-  setTimeout (() => {
-    observer.observe(document, { childList: true, subtree: true, characterData: true });
-  }, 1000)
-}
-function createHandleMutations(apiKey) {
-  return function handleMutations(mutations, observer) {
-  console.log("lol")
 
-  for (let mutation of mutations) {
-    // If the mutation was the addition of nodes
-    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-      startTranslationCycle(mutation.addedNodes, apiKey, observer)
-      // for (let node of mutation.addedNodes) {
-      //   // If the node or any of its children are text nodes, log it
-      //   if (hasTextNodes(node)) {
-      //     console.log(node);
+}
+// function createHandleMutations(apiKey) {
+//   return function handleMutations(mutations, observer) {
+//   console.log("lol")
+
+//   for (let mutation of mutations) {
+//     // If the mutation was the addition of nodes
+//     if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+//       startTranslationCycle(mutation.addedNodes, apiKey, observer)
+//       // for (let node of mutation.addedNodes) {
+//       //   // If the node or any of its children are text nodes, log it
+//       //   if (hasTextNodes(node)) {
+//       //     console.log(node);
           
-      //   }
-      // }
-    }
+//       //   }
+//       // }
+//     }
 
-    // If the mutation was a change in text content
-    if (mutation.type === 'characterData') {
-      console.log(mutation.target.parentElement)
-      startTranslationCycle(mutation.target.parentElement, apiKey, observer)
-      // startTranslationCycle(mutation.target.parentElement, apiKey)
-    }
-  }
-}
-}
+//     // If the mutation was a change in text content
+//     if (mutation.type === 'characterData') {
+//       console.log(mutation.target.parentElement)
+//       startTranslationCycle(mutation.target.parentElement, apiKey, observer)
+//       // startTranslationCycle(mutation.target.parentElement, apiKey)
+//     }
+//   }
+// }
+// }
 
 function getTranslations(apiKey) { //Remove observer again because of client side h8rt
-  let observerHandler = createHandleMutations(apiKey)
-  let observer = new MutationObserver(observerHandler);
+  // let observerHandler = createHandleMutations(apiKey)
+  // let observer = new MutationObserver(observerHandler);
 
   initalRawHTML = document.getElementById('weploy-translate');
 
   if (getLanguageFromLocalStorage() === null) {
     saveLanguageToLocalStorage()
   }
-  startTranslationCycle(initalRawHTML, apiKey, observer)
+  setTimeout(() => {
+  startTranslationCycle(initalRawHTML, apiKey, null)
+  }, 500)
 }
 
 
