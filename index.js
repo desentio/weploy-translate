@@ -41,14 +41,15 @@ function getTranslationsFromAPI(strings, language, apiKey) {
   const finalPayload = {
     strings: strings,
     language: language,
-    apiKey: apiKey
+    // apiKey: apiKey
   };
 
   return new Promise((resolve) => {
     fetch("https://api.tasksource.io/get-translations", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "apikey": apiKey
       },
       body: JSON.stringify(finalPayload)
     })
