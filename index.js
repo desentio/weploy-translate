@@ -1,3 +1,31 @@
+// check if code runs on server or client
+const isBrowser = typeof window !== 'undefined'
+
+// initialize new event "locationchange"
+if (isBrowser) {
+  (() => {
+    let oldPushState = history.pushState;
+    history.pushState = function pushState() {
+        let ret = oldPushState.apply(this, arguments);
+        window.dispatchEvent(new Event('pushstate'));
+        window.dispatchEvent(new Event('locationchange'));
+        return ret;
+    };
+  
+    let oldReplaceState = history.replaceState;
+    history.replaceState = function replaceState() {
+        let ret = oldReplaceState.apply(this, arguments);
+        window.dispatchEvent(new Event('replacestate'));
+        window.dispatchEvent(new Event('locationchange'));
+        return ret;
+    };
+  
+    window.addEventListener('popstate', () => {
+        window.dispatchEvent(new Event('locationchange'));
+    });
+  })();
+}
+
 function saveLanguageToLocalStorage() {
   var language = navigator.language || navigator.userLanguage; // Get browser language
   // Save the language to local storage
@@ -13,19 +41,22 @@ function getTranslationsFromAPI(strings, language, apiKey) {
   const finalPayload = {
     strings: strings,
     language: language,
-    apiKey: apiKey,
-  }
+    apiKey: apiKey
+  };
 
   return new Promise((resolve) => {
-    fetch("http://localhost:8080/get-translations", {
+    fetch("https://api.tasksource.io/get-translations", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(finalPayload),
-    }).then((response) => response.json())
-      .then((data) => { resolve(data) });
-  })
+      body: JSON.stringify(finalPayload)
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        resolve(data);
+      });
+  });
 }
 
 function hasTextNodes(node) {
@@ -59,37 +90,42 @@ function extractTextNodes(node, textNodes) {
 }
 
 function filterValidTextNodes(textNodes) {
-  return textNodes.filter(textNode => {
+  return textNodes.filter((textNode) => {
     const trimmedContent = textNode.textContent.trim();
-    return trimmedContent.length > 1 || (trimmedContent !== '.' && trimmedContent !== '!' && trimmedContent !== '?');
+    return (
+      trimmedContent.length > 1 ||
+      (trimmedContent !== "." &&
+        trimmedContent !== "!" &&
+        trimmedContent !== "?")
+    );
   });
 }
 
 function processTextNodes(textNodes, language, apiKey) {
   return new Promise(async (resolve, reject) => {
-  // remove empty string
-  const cleanTextNodes = textNodes.filter(
-    (textNode) =>
-      typeof textNode.textContent == "string" && !!textNode.textContent.trim()
-  );
+    // remove empty string
+    const cleanTextNodes = textNodes.filter(
+      (textNode) =>
+        typeof textNode.textContent == "string" && !!textNode.textContent.trim()
+    );
 
-  //get only text nodes textContent in array
-  const textNodesTextContent = cleanTextNodes.map(
-    (textNode) => textNode.textContent
-  );
+    //get only text nodes textContent in array
+    const textNodesTextContent = cleanTextNodes.map(
+      (textNode) => textNode.textContent
+    );
 
-  //PROBLEM: THE NODES NEED TO COME BACK IN THE SAME ORDER AS THEY WERE SENT!!!!
-  getTranslationsFromAPI(textNodesTextContent, language, apiKey).then(
-    (response) => {
-      // make a for loop to replace textNodes textContent with the response
-      response.forEach((chunk, index) => {
-        cleanTextNodes[index].textContent = chunk;
-      })
-      console.log("Responce was received", response)
-      resolve()
-    }
-  );
-  })
+    //PROBLEM: THE NODES NEED TO COME BACK IN THE SAME ORDER AS THEY WERE SENT!!!!
+    getTranslationsFromAPI(textNodesTextContent, language, apiKey).then(
+      (response) => {
+        // make a for loop to replace textNodes textContent with the response
+        response.forEach((chunk, index) => {
+          cleanTextNodes[index].textContent = chunk;
+        });
+        console.log("Responce was received", response);
+        resolve();
+      }
+    ).catch(err => reject(err));
+  });
 
   // for (let textNode of textNodes) {
   //   textNode.textContent = processFunction(textNode.textContent);
@@ -102,14 +138,14 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
     extractTextNodes(rootElement, textNodes);
 
     const validTextNodes = filterValidTextNodes(textNodes);
-    await processTextNodes(validTextNodes, language, apiKey);
+    await processTextNodes(validTextNodes, language, apiKey).catch(reject);
 
     resolve();
-  })
+  });
 }
 
 // function checkForWeployExcludeClasses(rawHTML) {
-  
+
 //   // Clone the element to not change the original DOM
 //   const elementsToExclude = Array.from(rawHTML.getElementsByClassName('weploy-exclude'))
 //   console.log("Checking for weploy exclude classes", elementsToExclude)
@@ -129,18 +165,16 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 // }
 
 async function startTranslationCycle(node, apiKey, observer) {
-
-  console.log("Translation cycle START")
+  console.log("Translation cycle START");
 
   // const { filteredHtml, parentsAndIndexes } = checkForWeployExcludeClasses(node)
 
-  await modifyHtmlStrings(filteredHtml, getLanguageFromLocalStorage(), apiKey)
+  await modifyHtmlStrings(node, getLanguageFromLocalStorage(), apiKey);
 
   // parentsAndIndexes.forEach(({ element, parent, index }) => {
   //   parent.insertBefore(element, parent.children[index]);
   // });
-  console.log("Translation cycle END")
-
+  console.log("Translation cycle END");
 }
 // function createHandleMutations(apiKey) {
 //   return function handleMutations(mutations, observer) {
@@ -154,7 +188,7 @@ async function startTranslationCycle(node, apiKey, observer) {
 //       //   // If the node or any of its children are text nodes, log it
 //       //   if (hasTextNodes(node)) {
 //       //     console.log(node);
-          
+
 //       //   }
 //       // }
 //     }
@@ -169,39 +203,59 @@ async function startTranslationCycle(node, apiKey, observer) {
 // }
 // }
 
-function getTranslations(apiKey) { //Remove observer again because of client side h8rt
+var isChangeLocationEventAdded;
+
+export async function getTranslations(apiKey) {
+  //Remove observer again because of client side h8rt
   // let observerHandler = createHandleMutations(apiKey)
   // let observer = new MutationObserver(observerHandler);
 
-  const initalRawHTML = document.getElementById('weploy-translate');
+  try {
+    const initalRawHTML = document.getElementById("weploy-translate");
 
-  if (getLanguageFromLocalStorage() === null) {
-    saveLanguageToLocalStorage()
+    if (getLanguageFromLocalStorage() === null) {
+      saveLanguageToLocalStorage();
+    }
+    
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        startTranslationCycle(initalRawHTML, apiKey, null).catch(reject);
+        
+        if (isBrowser && !isChangeLocationEventAdded) {
+          window.addEventListener("locationchange", function () {
+            getTranslations(apiKey).catch(reject)
+          });
+    
+          isChangeLocationEventAdded = true;
+        }
+
+        resolve();
+      }, 500);
+    })
+  } catch(err) {
+    console.error(err)
   }
-  setTimeout(() => {
-  startTranslationCycle(initalRawHTML, apiKey, null)
-  }, 500)
+
 }
 
-
-function switchLanguage(language) {
-  localStorage.setItem('language', language)
+export function switchLanguage(language) {
+  localStorage.setItem("language", language);
   setTimeout(() => {
-    location.reload()
-  }, 1000)
+    location.reload();
+  }, 1000);
 }
 
-function getSelectedLanguage() {
+export function getSelectedLanguage() {
   return new Promise((resolve, reject) => {
-    let language = localStorage.getItem('language');
+    let language = localStorage.getItem("language");
     if (language) {
       resolve(language); // Resolve the promise
     }
-  })
+  });
 }
 
-module.exports = {
+export default {
   getTranslations,
   switchLanguage,
   getSelectedLanguage
-}
+};

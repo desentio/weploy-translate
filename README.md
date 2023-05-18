@@ -13,11 +13,11 @@ Open the App.js file and import the getTranslations function from the weploy-tra
 import { getTranslations } from 'weploy-translate';
 ```
 
-Now add an ID to the app component and pass it to the getTranslations function.
+Now add ID "weploy-translate" to the root.
 ```javascript
 function App() {
   return (
-    <div id="translatableContent">
+    <div id="weploy-translate">
       <h1>Translate this text please</h1>
     </div>
   );
@@ -27,17 +27,24 @@ function App() {
 Now you just need to call the getTranslations function and pass the elements under the id.
 ```javascript
   useEffect(() => {
-    getTranslations(document.getElementById("translatableContent"), "YOUR_API_KEY");
+    getTranslations("YOUR_API_KEY");
   }, []);
 ```
 
 Done! 🚀 The website should now automatically translate to the language set in the clients browser.
 
+### Exclude specific DOM nodes
+If you want to exclude some DOM from translations, just add "weploy-exclude" className
+```html
+<div className="weploy-exclude">Don't translate me</div>
+```
+
 ### Switching languages manually
 
 If you want to add a language selector to your website you need to add the following html wherever you want the language selector to appear.
 ```html
-<select 
+<select
+  className="weploy-exclude"
   value={language} 
   onChange={(e)=> switchLanguage(e.target.value)}>
         <option value="de">🇩🇪</option>
