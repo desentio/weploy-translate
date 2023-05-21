@@ -13,7 +13,7 @@ Open the App.js file and import the getTranslations function from the weploy-tra
 import { getTranslations } from 'weploy-translate';
 ```
 
-Now add ID "weploy-translate" to the root.
+Now add "weploy-translate" to the pages or elements you want to translate.
 ```javascript
 function App() {
   return (

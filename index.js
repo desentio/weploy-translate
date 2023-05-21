@@ -60,18 +60,6 @@ function getTranslationsFromAPI(strings, language, apiKey) {
   });
 }
 
-function hasTextNodes(node) {
-  for (let child of node.childNodes) {
-    if (child.nodeType === Node.TEXT_NODE) {
-      return true;
-    }
-    if (child.nodeType === Node.ELEMENT_NODE && hasTextNodes(child)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function extractTextNodes(node, textNodes) {
   if (node.nodeType === Node.TEXT_NODE) {
     textNodes.push(node);
@@ -127,10 +115,6 @@ function processTextNodes(textNodes, language, apiKey) {
       }
     ).catch(err => reject(err));
   });
-
-  // for (let textNode of textNodes) {
-  //   textNode.textContent = processFunction(textNode.textContent);
-  // }
 }
 
 function modifyHtmlStrings(rootElement, language, apiKey) {
@@ -145,71 +129,15 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
   });
 }
 
-// function checkForWeployExcludeClasses(rawHTML) {
-
-//   // Clone the element to not change the original DOM
-//   const elementsToExclude = Array.from(rawHTML.getElementsByClassName('weploy-exclude'))
-//   console.log("Checking for weploy exclude classes", elementsToExclude)
-//   const parentsAndIndexes = elementsToExclude.map((element) => {
-//     const parent = element.parentNode;
-//     const index = Array.from(parent.children).indexOf(element);
-//     console.log("Checking for weploy exclude classes2", { element, parent, index })
-//     return { element, parent, index };
-//   });
-
-//   elementsToExclude.forEach((element) => {
-//     console.log("There was an element to exclude")
-//     element.parentNode.removeChild(element);
-//   });
-
-//   return { filteredHtml: rawHTML, parentsAndIndexes };
-// }
-
 async function startTranslationCycle(node, apiKey, observer) {
   console.log("Translation cycle START");
-
-  // const { filteredHtml, parentsAndIndexes } = checkForWeployExcludeClasses(node)
-
   await modifyHtmlStrings(node, getLanguageFromLocalStorage(), apiKey);
-
-  // parentsAndIndexes.forEach(({ element, parent, index }) => {
-  //   parent.insertBefore(element, parent.children[index]);
-  // });
   console.log("Translation cycle END");
 }
-// function createHandleMutations(apiKey) {
-//   return function handleMutations(mutations, observer) {
-//   console.log("lol")
-
-//   for (let mutation of mutations) {
-//     // If the mutation was the addition of nodes
-//     if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-//       startTranslationCycle(mutation.addedNodes, apiKey, observer)
-//       // for (let node of mutation.addedNodes) {
-//       //   // If the node or any of its children are text nodes, log it
-//       //   if (hasTextNodes(node)) {
-//       //     console.log(node);
-
-//       //   }
-//       // }
-//     }
-
-//     // If the mutation was a change in text content
-//     if (mutation.type === 'characterData') {
-//       console.log(mutation.target.parentElement)
-//       startTranslationCycle(mutation.target.parentElement, apiKey, observer)
-//       // startTranslationCycle(mutation.target.parentElement, apiKey)
-//     }
-//   }
-// }
-// }
 
 var isChangeLocationEventAdded;
 
 export async function getTranslations(apiKey) {
-  //Remove observer again because of client side h8rt
-  // let observerHandler = createHandleMutations(apiKey)
-  // let observer = new MutationObserver(observerHandler);
 
   try {
     const initalRawHTML = document.getElementById("weploy-translate");
