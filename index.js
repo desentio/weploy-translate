@@ -137,7 +137,7 @@ async function startTranslationCycle(node, apiKey, observer) {
 
 var isChangeLocationEventAdded;
 
-export async function getTranslations(apiKey) {
+async function getTranslations(apiKey) {
 
   try {
     const initalRawHTML = document.getElementById("weploy-translate");
@@ -167,14 +167,14 @@ export async function getTranslations(apiKey) {
 
 }
 
-export function switchLanguage(language) {
+function switchLanguage(language) {
   localStorage.setItem("language", language);
   setTimeout(() => {
     location.reload();
   }, 1000);
 }
 
-export function getSelectedLanguage() {
+function getSelectedLanguage() {
   return new Promise((resolve, reject) => {
     let language = localStorage.getItem("language");
     if (language) {
@@ -183,8 +183,11 @@ export function getSelectedLanguage() {
   });
 }
 
-export default {
-  getTranslations,
-  switchLanguage,
-  getSelectedLanguage
-};
+module.exports.getTranslations = getTranslations;
+module.exports.switchLanguage = switchLanguage;
+module.exports.getSelectedLanguage = getSelectedLanguage;
+// export default {
+//   getTranslations,
+//   switchLanguage,
+//   getSelectedLanguage
+// };
