@@ -103,6 +103,8 @@ function processTextNodes(textNodes, language, apiKey) {
       (textNode) => textNode.textContent
     );
 
+    console.log("Input textNodesTextContent:", textNodesTextContent);
+
     //PROBLEM: THE NODES NEED TO COME BACK IN THE SAME ORDER AS THEY WERE SENT!!!!
     getTranslationsFromAPI(textNodesTextContent, language, apiKey).then(
       (response) => {
