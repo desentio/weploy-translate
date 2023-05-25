@@ -1,3 +1,4 @@
+const CheckIfTranslatable = require('./utility.js');
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
@@ -83,10 +84,8 @@ function filterValidTextNodes(textNodes) {
   return textNodes.filter((textNode) => {
     const trimmedContent = textNode.textContent.trim();
     return (
-      trimmedContent.length > 1 ||
-      (trimmedContent !== "." &&
-        trimmedContent !== "!" &&
-        trimmedContent !== "?")
+      trimmedContent.length > 1 || 
+      CheckIfTranslatable(trimmedContent) !== "inValid"
     );
   });
 }
