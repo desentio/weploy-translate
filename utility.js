@@ -1,4 +1,12 @@
 function CheckIfTranslatable(input) {
+  //Check if string is just spaces 
+  let trimmedContent = input.trim();
+  if (trimmedContent.length < 1) {
+    return "inValid";
+  }
+
+
+
   // Single Word
   let singleWordRegex = /^\w+$/;
   if (!singleWordRegex.test(input)) {
