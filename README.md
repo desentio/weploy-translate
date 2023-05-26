@@ -1,8 +1,9 @@
 # weploy-translate
+![alt text](https://www.weploy.ai/perma-store/logo-black.png)
 
-Link to the [weploy-translate](https://www.npmjs.com/package/weploy-translate) package on npm.
+Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Website.
 
-### Installation
+### Installation (React & Next.js)
 
 ```bash
 npm install weploy-translate
@@ -13,9 +14,20 @@ Open the App.js file and import the getTranslations function from the weploy-tra
 import { getTranslations } from 'weploy-translate';
 ```
 
-Now add "weploy-translate" to the pages or elements you want to translate.
+
+Now you just need to call the getTranslations function and pass your API KEY as an argument. Please make sure getTranslations is only called once. We recommend to call it in the useEffect hook.
+
 ```javascript
-function App() {
+  useEffect(() => {
+    getTranslations("YOUR_API_KEY");
+  }, []);
+```
+
+
+
+Now add "weploy-translate" to the pages or elements you want to translate. Do not nest them. This can result in unexpected behaviour.
+```javascript
+function HomePage() {
   return (
     <div id="weploy-translate">
       <h1>Translate this text please</h1>
@@ -24,16 +36,10 @@ function App() {
 }
 ```
 
-Now you just need to call the getTranslations function and pass the elements under the id.
-```javascript
-  useEffect(() => {
-    getTranslations("YOUR_API_KEY");
-  }, []);
-```
 
 Done! 🚀 The website should now automatically translate to the language set in the clients browser.
 
-### Exclude specific DOM nodes
+### Exclude specific components
 If you want to exclude some DOM from translations, just add "weploy-exclude" className
 ```html
 <div className="weploy-exclude">Don't translate me</div>
