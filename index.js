@@ -2,30 +2,6 @@ const CheckIfTranslatable = require('./utility.js');
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
-// initialize new event "locationchange"
-if (isBrowser) {
-  (() => {
-    let oldPushState = history.pushState;
-    history.pushState = function pushState() {
-        let ret = oldPushState.apply(this, arguments);
-        window.dispatchEvent(new Event('pushstate'));
-        window.dispatchEvent(new Event('locationchange'));
-        return ret;
-    };
-  
-    let oldReplaceState = history.replaceState;
-    history.replaceState = function replaceState() {
-        let ret = oldReplaceState.apply(this, arguments);
-        window.dispatchEvent(new Event('replacestate'));
-        window.dispatchEvent(new Event('locationchange'));
-        return ret;
-    };
-  
-    window.addEventListener('popstate', () => {
-        window.dispatchEvent(new Event('locationchange'));
-    });
-  })();
-}
 
 function saveLanguageToLocalStorage() {
   var language = navigator.language || navigator.userLanguage; // Get browser language
@@ -140,8 +116,6 @@ async function startTranslationCycle(node, apiKey, observer) {
   console.log("Translation cycle END");
 }
 
-var isChangeLocationEventAdded;
-
 async function getTranslations(apiKey) {
 
   try {
@@ -154,15 +128,6 @@ async function getTranslations(apiKey) {
     await new Promise((resolve, reject) => {
       setTimeout(() => {
         startTranslationCycle(initalRawHTML, apiKey, null).catch(reject);
-        
-        if (isBrowser && !isChangeLocationEventAdded) {
-          window.addEventListener("locationchange", function () {
-            getTranslations(apiKey).catch(reject)
-          });
-    
-          isChangeLocationEventAdded = true;
-        }
-
         resolve();
       }, 500);
     })
