@@ -58,7 +58,11 @@ function getTranslationsFromAPI(strings, language, apiKey) {
       .then((response) => response.json())
       .then((data) => {
         resolve(data);
-      });
+      })
+      .catch((err) => {
+        console.error(err);
+        resolve("error");
+      })
   });
 }
 
