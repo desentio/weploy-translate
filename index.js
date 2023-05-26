@@ -82,10 +82,10 @@ function extractTextNodes(node, textNodes) {
 
 function filterValidTextNodes(textNodes) {
   return textNodes.filter((textNode) => {
-    const trimmedContent = textNode.textContent.trim();
+    const trimmedContent = textNode.textContent.trim(); //to check if it is only a space
     return (
       trimmedContent.length > 1 || 
-      CheckIfTranslatable(trimmedContent) !== "inValid"
+      CheckIfTranslatable(textNode) !== "inValid"
     );
   });
 }
