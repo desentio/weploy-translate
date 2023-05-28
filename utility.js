@@ -50,7 +50,7 @@ function CheckIfTranslatable(input) {
 
   // Single character
   let specialCharacterRegex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-  if (!specialCharacterRegex.test(trimmedContent)) {
+  if (specialCharacterRegex.test(trimmedContent)) {
     return "inValid";
   }
 
