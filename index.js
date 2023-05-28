@@ -43,6 +43,8 @@ function getTranslationsFromAPI(strings, language, apiKey) {
 }
 
 function extractTextNodes(node, textNodes) {
+  // console.log("extractTextNodes", node);
+  if (!node) return;
   if (node.nodeType === Node.TEXT_NODE) {
     textNodes.push(node);
   } else {
@@ -120,6 +122,11 @@ async function getTranslations(apiKey) {
 
   try {
     const initalRawHTML = document.getElementById("weploy-translate");
+
+    if(!initalRawHTML) {
+      console.error("No element with id 'weploy-translate' found");
+      return;
+    }
 
     if (getLanguageFromLocalStorage() === null) {
       saveLanguageToLocalStorage();
