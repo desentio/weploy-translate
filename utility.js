@@ -1,7 +1,7 @@
 function CheckIfTranslatable(input) {
   //Check if string is just spaces 
   let trimmedContent = input.trim();
-  if (trimmedContent.length < 1) {
+  if (trimmedContent.length == 0 ) {
     return "inValid";
   }
 
