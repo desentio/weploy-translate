@@ -18,7 +18,7 @@ function getTranslationsFromAPI(strings, language, apiKey) {
   const finalPayload = {
     strings: strings,
     language: language,
-    url: window.location.pathname + window.location.search,
+    url: window.location.pathname,
     // apiKey: apiKey
   };
 
