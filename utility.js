@@ -5,8 +5,8 @@ function CheckIfTranslatable(input) {
     return "inValid";
   }
 
-  //Check if string contains text
-  let containsText = /[A-Za-z]/;
+  //Check if string contains at least one character that represent letter in any language excluding emoji
+  let containsText = /[\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nl}]/gu;
   if (!containsText.test(trimmedContent)) {
     return "inValid";
   }
