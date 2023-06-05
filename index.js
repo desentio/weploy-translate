@@ -2,6 +2,44 @@ const CheckIfTranslatable = require('./utility.js');
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
+if (isBrowser) {
+  window.currentPathname = isBrowser ? window.location.pathname : null
+}
+
+// initialize new event "pathnamechange"
+if (isBrowser) {
+  (() => {
+    let oldPushState = history.pushState;
+    history.pushState = function pushState() {
+        let ret = oldPushState.apply(this, arguments);
+        window.dispatchEvent(new Event('pushstate'));
+        if (window.location.pathname != currentPathname) {
+          window.dispatchEvent(new Event('pathnamechange'));
+          window.currentPathname = window.location.pathname
+        }
+        return ret;
+    };
+  
+    let oldReplaceState = history.replaceState;
+    history.replaceState = function replaceState() {
+        let ret = oldReplaceState.apply(this, arguments);
+        window.dispatchEvent(new Event('replacestate'));
+        if (window.location.pathname != currentPathname) {
+          window.dispatchEvent(new Event('pathnamechange'));
+          window.currentPathname = window.location.pathname
+        }
+        return ret;
+    };
+  
+    window.addEventListener('popstate', () => {
+        if (window.location.pathname != currentPathname) {
+          window.dispatchEvent(new Event('pathnamechange'));
+          window.currentPathname = window.location.pathname
+        }
+    });
+  })();
+}
+
 
 function saveLanguageToLocalStorage() {
   var language = navigator.language || navigator.userLanguage; // Get browser language
@@ -118,6 +156,8 @@ async function startTranslationCycle(node, apiKey, observer) {
   console.log("Translation cycle END");
 }
 
+var isChangeLocationEventAdded;
+
 async function getTranslations(apiKey) {
 
   try {
@@ -135,6 +175,15 @@ async function getTranslations(apiKey) {
     await new Promise((resolve, reject) => {
       setTimeout(() => {
         startTranslationCycle(initalRawHTML, apiKey, null).catch(reject);
+
+        if (isBrowser && !isChangeLocationEventAdded) {
+          window.addEventListener("pathnamechange", function () {
+            getTranslations(apiKey).catch(reject)
+          });
+    
+          isChangeLocationEventAdded = true;
+        }
+
         resolve();
       }, 500);
     })
