@@ -3,6 +3,7 @@ const CheckIfTranslatable = require('./utility.js');
 const isBrowser = typeof window !== 'undefined'
 
 if (isBrowser) {
+  window.translationCache = {}
   window.currentPathname = isBrowser ? window.location.pathname : null
 }
 
@@ -124,13 +125,76 @@ function processTextNodes(textNodes, language, apiKey) {
 
     console.log("Input textNodesTextContent:", textNodesTextContent);
 
+    if (!window.translationCache[window.location.pathname]) {
+      window.translationCache[window.location.pathname] = {}
+    }
+
+    // cache the initial texts if not exist yet
+    if (!window.translationCache[window.location.pathname].initial) {
+      window.translationCache[window.location.pathname].initial = textNodesTextContent
+    }
+    
+    // this will prevent english -> german -> spanish problem
+    // in other words this will make sure (english -> german) -> (english -> spanish)
+    // needed if the lang picker is not reloading the page
+    // react developer usually will prevent any rerender to improve performance
+    // so high chance they will call the getTranslation again on lang change
+    let initialTexts = window.translationCache[window.location.pathname].initial
+
+
+    // TODO: uncomment these if needed
+    // currently we only change the initial nodes
+    // any new nodes will keep untranslated
+    // NOTE: if this uncommented, website with random generated content will always doing calls to API becuse the nodes is always changing
+
+    // let shouldUseCache = false;
+
+    // if route changed
+    // check if the cached initial text equals textNodesTextContent
+    // if yes then use cache, otherwise dont use cache and we need to reset the inital text cache for current route
+    // this needed to sync initial text for the following case:
+    // page A -> page B -> something changing in database -> page A (the initial text updated)
+    // if (!window.cacheAlreadyChecked) {      
+    //   window.stringifiedInitialTexts = JSON.stringify(initialTexts)
+    //   window.stringifiedCurrentTextContent = JSON.stringify(textNodesTextContent)
+    //   const isInitialTextStillSame = window.stringifiedInitialTexts == window.stringifiedCurrentTextContent
+    //   console.log("isInitialTextStillSame", isInitialTextStillSame)
+
+    //   if (isInitialTextStillSame) {
+    //     shouldUseCache = true;
+    //   } else {
+    //     window.translationCache[window.location.pathname].initial = textNodesTextContent
+    //     initialTexts = textNodesTextContent
+    //   }
+    // }
+
+    let shouldUseCache = true;
+
+    // try get the cache first
+    const cache = window.translationCache[window.location.pathname][language]
+    if (shouldUseCache && cache) {
+      cache.forEach((chunk, index) => {
+        const relatedNode = cleanTextNodes.find(n => n.textContent == initialTexts[index])
+        if (relatedNode) {
+          relatedNode.textContent = chunk;
+        }
+        // cleanTextNodes[index].textContent = chunk;
+      });
+      resolve();
+      return;
+    }
+
     //PROBLEM: THE NODES NEED TO COME BACK IN THE SAME ORDER AS THEY WERE SENT!!!!
-    getTranslationsFromAPI(textNodesTextContent, language, apiKey).then(
+    getTranslationsFromAPI(initialTexts, language, apiKey).then(
       (response) => {
         // make a for loop to replace textNodes textContent with the response
         response.forEach((chunk, index) => {
           cleanTextNodes[index].textContent = chunk;
         });
+
+        // cache result
+        window.translationCache[window.location.pathname][language] = response
+
         console.log("Responce was received", response);
         resolve();
       }
@@ -154,6 +218,7 @@ async function startTranslationCycle(node, apiKey, observer) {
   console.log("Translation cycle START");
   await modifyHtmlStrings(node, getLanguageFromLocalStorage(), apiKey);
   console.log("Translation cycle END");
+  // window.cacheAlreadyChecked = true;
 }
 
 var isChangeLocationEventAdded;
@@ -178,7 +243,11 @@ async function getTranslations(apiKey) {
 
         if (isBrowser && !isChangeLocationEventAdded) {
           window.addEventListener("pathnamechange", function () {
-            getTranslations(apiKey).catch(reject)
+            // window.cacheAlreadyChecked = false;
+            // timeout needed to wait until route fully changed
+            setTimeout(() => {
+              getTranslations(apiKey).catch(reject)
+            }, 1000);
           });
     
           isChangeLocationEventAdded = true;
