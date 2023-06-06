@@ -2,6 +2,9 @@ const CheckIfTranslatable = require('./utility.js');
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
+var isChangeLocationEventAdded;
+var weployOptions;
+
 if (isBrowser) {
   window.translationCache = {}
   window.currentPathname = isBrowser ? window.location.pathname : null
@@ -221,11 +224,14 @@ async function startTranslationCycle(node, apiKey, observer) {
   // window.cacheAlreadyChecked = true;
 }
 
-var isChangeLocationEventAdded;
-
-async function getTranslations(apiKey) {
+async function getTranslations(apiKey, optsArgs = {}) {
 
   try {
+    weployOptions = {
+      timeout: optsArgs.timeout == null ? 1000 : optsArgs.timeout,
+      pathOptions: optsArgs.pathOptions || {}
+    }
+
     const initalRawHTML = document.getElementById("weploy-translate");
 
     if(!initalRawHTML) {
@@ -245,9 +251,11 @@ async function getTranslations(apiKey) {
           window.addEventListener("pathnamechange", function () {
             // window.cacheAlreadyChecked = false;
             // timeout needed to wait until route fully changed
+            const thisPathOpts = weployOptions.pathOptions[window.location.pathname]
+            const timeout = (thisPathOpts && thisPathOpts.timeout) || weployOptions.timeout
             setTimeout(() => {
-              getTranslations(apiKey).catch(reject)
-            }, 1000);
+              getTranslations(apiKey, optsArgs).catch(reject)
+            }, timeout);
           });
     
           isChangeLocationEventAdded = true;

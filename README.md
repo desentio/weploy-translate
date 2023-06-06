@@ -82,6 +82,29 @@ If you want to translate dynamic dom elements you need to add the following code
 Coming soon...
 
 
+### Custom timeout between route changes
+
+Website that has route change animation usually needs to wait longer until all dom fully rendered. To handle this case, we need to pass `timeout` to the second argument of `getTranslations` function. If we need different timeout on every pages, then we can use `pathOptions[pathname].timeout`.
+```javascript
+  useEffect(() => {
+    getTranslations("YOUR_API_KEY", {
+      timeout: 1500,
+      pathOptions: {
+        '/about': {
+          timeout: 2000
+        },
+        '/privacy': {
+          timeout: 3000
+        },
+      }
+    });
+  }, []);
+```
+
+Note: 
+1. default value of `timeout` is `1000`
+2. `pathOptions[pathname].timeout` is prioritized, if it's undefined then will fallback to `timeout`
+
 ### Available languages
 ```
 aa	Afar
