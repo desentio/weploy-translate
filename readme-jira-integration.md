@@ -1,6 +1,7 @@
 # Jira Integration
 
-## 🚀 How to setup Jira integration in tasksource
+
+## How to setup Jira integration in tasksource
 
 1. Begin by navigating to the tasksource company creation page at this URL: https://www.app.tasksource.io/companies. Here, proceed to establish a new company.
 
@@ -12,7 +13,9 @@
 4. To do this, navigate to your tasksource project, click on the "Integrations" tab, and then create a new Jira Label.
 ![alt text](http://app.tasksource.io/img/readme/Screenshot 2023-06-19 at 09.10.26.png)
 
-## 👨‍💻 Now, let's shift our attention to Jira's setup:
+
+
+## Now, let's shift our attention to Jira's setup:
 
 1. Start by copying the tasksource webhook. You can find this under the "Integrations" section at https://www.app.tasksource.io/companies.
 
@@ -36,7 +39,7 @@ Watch a Video of Jemika seting up the jira webhook here:
 
 
 
-## ✅ Outsource your first issue
+## Outsource your first issue
 
 To outsource your first issue please follow these steps:
 
@@ -46,7 +49,9 @@ To outsource your first issue please follow these steps:
 
 After these steps, the issue synchronization with tasksource will be accomplished. A developer will then commence work on the issue. You can monitor the issue's progress and ongoing activities via the comment section in tasksource, ensuring transparency and facilitating effective communication.
 
-## 🔐 Security
+
+
+## Security
 
 At our organization, we place the utmost importance on security and privacy. Our stringent security policy reflects our commitment to safeguarding your information and maintaining your trust. Below are some of the robust security measures we have implemented:
 
