@@ -65,3 +65,9 @@ At our organization, we place the utmost importance on security and privacy. Our
 - Our protocols align strictly with the Jira security webhook guidelines, demonstrating our commitment to not only adhere to but also exceed industry standards.
 
 By implementing these stringent security measures, we strive to provide a safe and secure environment for your data, ensuring peace of mind and a reliable experience.
+
+
+### Links
+More information: https://www.tasksource.ai/tasksource-blog/tasksource-io-jira-integration
+Login: https://www.app.tasksource.io/login
+Questions: info@tasksource.io
