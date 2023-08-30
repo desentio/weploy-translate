@@ -27,8 +27,7 @@ jobs:
       run: npm run build
 
     - name: Bump version
-      run: |
-        sh -c "npm version minor -m 'chore: bump version to %s'"
+      run: npm version patch
 
     - name: Publish to NPM
       run: npm publish
