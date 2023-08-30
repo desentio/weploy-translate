@@ -6,7 +6,7 @@ Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Websi
 
 ### Installation (Non React)
 
-Non react project can use this package by adding the following script tag before the closing body tag. Make sure to replace YOUR_WEPLOY_PROJECT_API_KEY with your API KEY.
+Any non react project can use this package by adding the following script tag before the closing body tag. Make sure to replace YOUR_WEPLOY_PROJECT_API_KEY with your API KEY.
 ```html
 <script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_WEPLOY_PROJECT_API_KEY"></script>
 ```
