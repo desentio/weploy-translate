@@ -1,0 +1,38 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main  # Adjust if your primary branch is different
+    paths-ignore:
+      - 'package.json' # To avoid triggering the workflow for version bump commits
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Change as per your needs
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Bump version
+      run: npm version minor -m "chore: bump version to %s"
+
+    - name: Publish to NPM
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    - name: Push bumped version
+      run: git push origin main
