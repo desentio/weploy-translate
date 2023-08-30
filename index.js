@@ -298,14 +298,16 @@ async function createLanguageSelect(apiKey) {
   if (weploySwitcher && (availableLangs || []).length > 0) {
     // Create the select element
     const selectElem = document.createElement('select');
-    selectElem.className = "weploy-exclude rounded-full border-0 bg-transparent text-gray-100 cursor-pointer";
+    selectElem.className = "weploy-exclude";
+    selectElem.style = "border-radius: 9999px; border: none; background: transparent; color: #808080; cursor: pointer;";
+
 
     // Assuming availableLangs array is available in this scope
     availableLangs.forEach(lang => {
         const langOpts = document.createElement('option');
         langOpts.value = lang;
         langOpts.textContent = lang;
-        langOpts.className = 'uppercase';
+        langOpts.style = "text-transform: uppercase;";
 
         selectElem.appendChild(langOpts);
     });
