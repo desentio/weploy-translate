@@ -277,6 +277,44 @@ function switchLanguage(language) {
   }, 1000);
 }
 
+async function createLanguageSelect(apiKey) {
+  if (!isBrowser) return;
+  if (!apiKey) {
+    console.error("Weploy API key is required");
+  }
+
+  const availableLangs = await fetch("https://api.tasksource.io/weploy-projects/by-api-key", {
+    headers: {
+      "X-Api-Key": apiKey
+    }
+  })
+  .then((res) => res.json())
+  .then((res) => ([res.language, ...res.allowedLanguages]))
+  .catch(console.error)
+
+  // <div id="weploy-select" />
+  const weploySwitcher = document.getElementById("weploy-select");
+
+  if (weploySwitcher && (availableLangs || []).length > 0) {
+    // Create the select element
+    const selectElem = document.createElement('select');
+    selectElem.className = "weploy-exclude rounded-full border-0 bg-transparent text-gray-100 cursor-pointer";
+
+    // Assuming availableLangs array is available in this scope
+    availableLangs.forEach(lang => {
+        const langOpts = document.createElement('option');
+        langOpts.value = lang;
+        langOpts.textContent = lang;
+        langOpts.className = 'uppercase';
+
+        selectElem.appendChild(langOpts);
+    });
+
+    // Append the select element to the weploySwitcher
+    weploySwitcher.appendChild(selectElem);
+  }
+}
+
 function getSelectedLanguage() {
   return new Promise((resolve, reject) => {
     let language = localStorage.getItem("language");
@@ -286,9 +324,12 @@ function getSelectedLanguage() {
   });
 }
 
+module.exports.isBrowser = isBrowser;
 module.exports.getTranslations = getTranslations;
 module.exports.switchLanguage = switchLanguage;
 module.exports.getSelectedLanguage = getSelectedLanguage;
+module.exports.createLanguageSelect = createLanguageSelect;
+
 // export default {
 //   getTranslations,
 //   switchLanguage,

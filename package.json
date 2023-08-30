@@ -1,10 +1,11 @@
 {
   "name": "weploy-translate",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Translate your React.js or Next.js app with AI",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -25,5 +26,15 @@
   "bugs": {
     "url": "https://github.com/desentio/weploy-translate/issues"
   },
-  "homepage": "https://github.com/desentio/weploy-translate#readme"
+  "homepage": "https://github.com/desentio/weploy-translate#readme",
+  "dependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.11",
+    "@babel/preset-env": "^7.22.10",
+    "babel-loader": "^9.1.3"
+  }
 }
