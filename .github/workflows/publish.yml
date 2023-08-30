@@ -26,7 +26,16 @@ jobs:
     - name: Build
       run: npm run build
 
+    - name: Git config
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --global user.email "${{ secrets.GH_ORG_EMAIL }}"
+        git config --global user.name "${{ secrets.GH_ORG_NAME }}"
+
     - name: Bump version
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: npm version patch
 
     - name: Publish to NPM
@@ -35,4 +44,6 @@ jobs:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Push bumped version
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: git push origin main
