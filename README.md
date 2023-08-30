@@ -2,6 +2,30 @@
 
 Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Website.
 
+---
+
+### Installation (Non React)
+
+Non react project can use this package by adding the following script tag before the closing body tag. Make sure to replace YOUR_WEPLOY_PROJECT_API_KEY with your API KEY.
+```html
+<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_WEPLOY_PROJECT_API_KEY"></script>
+```
+
+Now add "weploy-translate" to the pages or elements you want to translate. Do not nest them. This can result in unexpected behaviour.
+```html
+<div id="weploy-translate">
+  <h1>Translate this text please</h1>
+</div>
+```
+
+Then add "weploy-select" to any element you want to use as a language selector. Make sure to add the value attribute to the option tags.
+```html
+<div id="weploy-select"></div>
+```
+
+---
+
+
 ### Installation (React & Next.js)
 
 ```bash
