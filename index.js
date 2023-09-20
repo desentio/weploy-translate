@@ -85,7 +85,6 @@ function getTranslationsFromAPI(strings, language, apiKey) {
 }
 
 function extractTextNodes(node, textNodes) {
-  // console.log("extractTextNodes", node);
   if (!node) return;
   if (node.nodeType === Node.TEXT_NODE) {
     textNodes.push(node);
@@ -126,8 +125,6 @@ function processTextNodes(textNodes, language, apiKey) {
       (textNode) => textNode.textContent
     );
 
-    console.log("Input textNodesTextContent:", textNodesTextContent);
-
     if (!window.translationCache[window.location.pathname]) {
       window.translationCache[window.location.pathname] = {}
     }
@@ -143,33 +140,6 @@ function processTextNodes(textNodes, language, apiKey) {
     // react developer usually will prevent any rerender to improve performance
     // so high chance they will call the getTranslation again on lang change
     let initialTexts = window.translationCache[window.location.pathname].initial
-
-
-    // TODO: uncomment these if needed
-    // currently we only change the initial nodes
-    // any new nodes will keep untranslated
-    // NOTE: if this uncommented, website with random generated content will always doing calls to API becuse the nodes is always changing
-
-    // let shouldUseCache = false;
-
-    // if route changed
-    // check if the cached initial text equals textNodesTextContent
-    // if yes then use cache, otherwise dont use cache and we need to reset the inital text cache for current route
-    // this needed to sync initial text for the following case:
-    // page A -> page B -> something changing in database -> page A (the initial text updated)
-    // if (!window.cacheAlreadyChecked) {      
-    //   window.stringifiedInitialTexts = JSON.stringify(initialTexts)
-    //   window.stringifiedCurrentTextContent = JSON.stringify(textNodesTextContent)
-    //   const isInitialTextStillSame = window.stringifiedInitialTexts == window.stringifiedCurrentTextContent
-    //   console.log("isInitialTextStillSame", isInitialTextStillSame)
-
-    //   if (isInitialTextStillSame) {
-    //     shouldUseCache = true;
-    //   } else {
-    //     window.translationCache[window.location.pathname].initial = textNodesTextContent
-    //     initialTexts = textNodesTextContent
-    //   }
-    // }
 
     let shouldUseCache = true;
 
@@ -198,7 +168,6 @@ function processTextNodes(textNodes, language, apiKey) {
         // cache result
         window.translationCache[window.location.pathname][language] = response
 
-        console.log("Responce was received", response);
         resolve();
       }
     ).catch(err => reject(err));
@@ -218,9 +187,7 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 }
 
 async function startTranslationCycle(node, apiKey, observer) {
-  console.log("Translation cycle START");
   await modifyHtmlStrings(node, getLanguageFromLocalStorage(), apiKey);
-  console.log("Translation cycle END");
   // window.cacheAlreadyChecked = true;
 }
 
@@ -232,20 +199,13 @@ async function getTranslations(apiKey, optsArgs = {}) {
       pathOptions: optsArgs.pathOptions || {}
     }
 
-    const initalRawHTML = document.getElementById("weploy-translate");
-
-    if(!initalRawHTML) {
-      console.error("No element with id 'weploy-translate' found");
-      return;
-    }
-
     if (getLanguageFromLocalStorage() === null) {
       saveLanguageToLocalStorage();
     }
     
     await new Promise((resolve, reject) => {
       setTimeout(() => {
-        startTranslationCycle(initalRawHTML, apiKey, null).catch(reject);
+        startTranslationCycle(document.body, apiKey, null).catch(reject);
 
         if (isBrowser && !isChangeLocationEventAdded) {
           window.addEventListener("pathnamechange", function () {

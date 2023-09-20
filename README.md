@@ -11,13 +11,6 @@ Any non react project can use this package by adding the following script tag be
 <script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_WEPLOY_PROJECT_API_KEY"></script>
 ```
 
-Now add "weploy-translate" to the pages or elements you want to translate. Do not nest them. This can result in unexpected behaviour.
-```html
-<div id="weploy-translate">
-  <h1>Translate this text please</h1>
-</div>
-```
-
 Then add "weploy-select" to any element you want to use as a language selector. Make sure to add the value attribute to the option tags.
 ```html
 <div id="weploy-select"></div>
@@ -44,19 +37,6 @@ Now you just need to call the getTranslations function and pass your API KEY as 
   useEffect(() => {
     getTranslations("YOUR_API_KEY");
   }, []);
-```
-
-
-
-Now add "weploy-translate" to the pages or elements you want to translate. Do not nest them. This can result in unexpected behaviour.
-```javascript
-function HomePage() {
-  return (
-    <div id="weploy-translate">
-      <h1>Translate this text please</h1>
-    </div>
-  );
-}
 ```
 
 
