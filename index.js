@@ -86,6 +86,10 @@ function getTranslationsFromAPI(strings, language, apiKey) {
 
 function extractTextNodes(node, textNodes) {
   if (!node) return;
+  if (node.tagName == "SCRIPT") return;
+  if (node.tagName == "svg") return;
+  if (node.tagName == "path") return;
+  if (node.tagName == "circle") return;
   if (node.nodeType === Node.TEXT_NODE) {
     textNodes.push(node);
   } else {

@@ -5,6 +5,11 @@ function CheckIfTranslatable(input) {
     return "inValid";
   }
 
+  //check if string too big
+  if (trimmedContent.length > 50000) {
+    return "inValid";
+  }
+
   //Check if string contains at least one character that represent letter in any language excluding emoji
   let containsText = /[\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nl}]/gu;
   if (!containsText.test(trimmedContent)) {
