@@ -6,15 +6,20 @@ Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Websi
 
 ### Getting started
 
-1. Add the following script before the closing body tag. Make sure to replace YOUR_PROJECT_KEY with your API KEY.
+1. Add the following script before the closing body tag.
 ```html
 <script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY"></script>
 ```
 
-2. Add the language selector where you want to have it. This is how the user can select a language.
+2. Add the language selector. This is how the user can select a language.
 ```html
 <div id="weploy-select"></div>
 ```
+
+For Example you can add it to your navigation: 
+
+![alt text](https://www.weploy.ai/perma-store/img/header-example.png)
+
 
 ---
 
