@@ -93,8 +93,7 @@ function extractTextNodes(node, textNodes) {
   if (node.tagName == "TEXTAREA") return;
   if (node.tagName == "INPUT") return;
   if (node.tagName == "STYLE") return;
-  if (node.tagName == "SVG") return;
-
+  
   if (node.nodeType === Node.TEXT_NODE) {
     textNodes.push(node);
   } else {
