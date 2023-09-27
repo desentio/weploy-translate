@@ -19,7 +19,7 @@ Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Websi
 ---
 
 
-### Installation (React & Next.js)
+### Installation via npm
 
 ```bash
 npm install weploy-translate
