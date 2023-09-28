@@ -4,14 +4,14 @@ Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Websi
 
 ---
 
-### Installation (Non React)
+### Getting started
 
-Any non react project can use this package by adding the following script tag before the closing body tag. Make sure to replace YOUR_WEPLOY_PROJECT_API_KEY with your API KEY.
+1. Add the following script before the closing body tag. Make sure to replace YOUR_PROJECT_KEY with your API KEY.
 ```html
-<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_WEPLOY_PROJECT_API_KEY"></script>
+<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY"></script>
 ```
 
-Then add "weploy-select" to any element you want to use as a language selector. Make sure to add the value attribute to the option tags.
+2. Add the language selector where you want to have it. This is how the user can select a language.
 ```html
 <div id="weploy-select"></div>
 ```
