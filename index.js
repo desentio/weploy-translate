@@ -276,6 +276,7 @@ async function createLanguageSelect(apiKey) {
         langOpts.value = lang;
         langOpts.textContent = lang;
         langOpts.style = "text-transform: uppercase;";
+        langOpts.selected = lang == getLanguageFromLocalStorage();
 
         selectElem.appendChild(langOpts);
     });
