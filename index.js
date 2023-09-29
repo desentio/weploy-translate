@@ -86,13 +86,13 @@ function getTranslationsFromAPI(strings, language, apiKey) {
 
 function extractTextNodes(node, textNodes) {
   if (!node) return;
-  if (node.tagName.toUpperCase() == "SCRIPT") return;
-  if (node.tagName.toUpperCase() == "SVG") return;
-  if (node.tagName.toUpperCase() == "PATH") return;
-  if (node.tagName.toUpperCase() == "CIRCLE") return;
-  if (node.tagName.toUpperCase() == "TEXTAREA") return;
-  if (node.tagName.toUpperCase() == "INPUT") return;
-  if (node.tagName.toUpperCase() == "STYLE") return;
+  if (node.tagName && node.tagName.toUpperCase() == "SCRIPT") return;
+  if (node.tagName && node.tagName.toUpperCase() == "SVG") return;
+  if (node.tagName && node.tagName.toUpperCase() == "PATH") return;
+  if (node.tagName && node.tagName.toUpperCase() == "CIRCLE") return;
+  if (node.tagName && node.tagName.toUpperCase() == "TEXTAREA") return;
+  if (node.tagName && node.tagName.toUpperCase() == "INPUT") return;
+  if (node.tagName && node.tagName.toUpperCase() == "STYLE") return;
 
   if (node.nodeType === Node.TEXT_NODE) {
     textNodes.push(node);
