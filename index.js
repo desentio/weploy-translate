@@ -123,52 +123,63 @@ function filterValidTextNodes(textNodes) {
 
 function processTextNodes(textNodes, language, apiKey) {
   return new Promise(async (resolve, reject) => {
-    // remove empty string
+    // Remove empty strings
     const cleanTextNodes = textNodes.filter(
       (textNode) =>
         typeof textNode.textContent == "string" && !!textNode.textContent.trim()
     );
 
-    //get only text nodes textContent in array
-    const textNodesTextContent = cleanTextNodes.map(
-      (textNode) => textNode.textContent
-    );
-
-    // initialize cache if not exist yet
+    // Initialize cache if not exist yet
     if (!window.translationCache) {
       window.translationCache = {}
     }
-    
-    let notInCache = [];
-    let translations = [];
 
-    // check cache for each textNode
-    textNodesTextContent.forEach((text, index) => {
-      const cacheKey = `${text}-${language}`;
-      if (window.translationCache[cacheKey]) {
-        translations[index] = window.translationCache[cacheKey];
-      } else {
-        notInCache.push(index);
+    // Initialize language cache if not exist yet
+    if (!window.translationCache[language]) {
+      window.translationCache[language] = {};
+    }
+
+    let notInCache = [];
+
+    // Check cache for each textNode
+    cleanTextNodes.forEach((node) => {
+      const text = node.textContent;
+      if (!window.translationCache[language][text]) {
+        notInCache.push(text); // If not cached, add to notInCache array
       }
     });
 
-    if (notInCache.length === 0) { // all translations are cached
-      translations.forEach((translation, index) => {
-        cleanTextNodes[index].textContent = translation;
-      });
-      resolve();
-    } else { // some translations are not in cache
-      // Get the translations from API only for the uncached texts
-      getTranslationsFromAPI(notInCache.map(idx => textNodesTextContent[idx]), language, apiKey).then(
+    if (notInCache.length > 0) { 
+      // If there are translations not in cache, fetch them from the API
+      getTranslationsFromAPI(notInCache, language, apiKey).then(
         (response) => {
-          notInCache.forEach((index, responseIndex) => {
-            const cacheKey = `${textNodesTextContent[index]}-${language}`;
-            window.translationCache[cacheKey] = response[responseIndex]; // cache it
-            cleanTextNodes[index].textContent = response[responseIndex]; // update DOM
+          notInCache.forEach((text, index) => {
+            // Cache the new translations
+            window.translationCache[language][text] = response[index];
+          });
+          
+          // Update textNodes from the cache
+          cleanTextNodes.forEach((node) => {
+            const text = node.textContent;
+            if(window.translationCache[language][text]) {
+              node.textContent = window.translationCache[language][text];
+            }
           });
           resolve();
         }
-      ).catch(err => reject(err));
+      ).catch(err => {
+        console.error(err); // Log the error and resolve the promise without changing textNodes
+        resolve();
+      });
+    } else {
+      // If all translations are cached, directly update textNodes from cache
+      cleanTextNodes.forEach((node) => {
+        const text = node.textContent;
+        if(window.translationCache[language][text]) {
+          node.textContent = window.translationCache[language][text];
+        }
+      });
+      resolve();
     }
   });
 }
