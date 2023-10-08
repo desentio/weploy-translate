@@ -2,7 +2,8 @@ const CheckIfTranslatable = require('./utility.js');
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
-var isChangeLocationEventAdded;
+// var isChangeLocationEventAdded;
+var isDomListenerAdded;
 var weployOptions;
 
 if (isBrowser) {
@@ -133,52 +134,42 @@ function processTextNodes(textNodes, language, apiKey) {
       (textNode) => textNode.textContent
     );
 
-    if (!window.translationCache[window.location.pathname]) {
-      window.translationCache[window.location.pathname] = {}
-    }
-
-    // cache the initial texts if not exist yet
-    if (!window.translationCache[window.location.pathname].initial) {
-      window.translationCache[window.location.pathname].initial = textNodesTextContent
+    // initialize cache if not exist yet
+    if (!window.translationCache) {
+      window.translationCache = {}
     }
     
-    // this will prevent english -> german -> spanish problem
-    // in other words this will make sure (english -> german) -> (english -> spanish)
-    // needed if the lang picker is not reloading the page
-    // react developer usually will prevent any rerender to improve performance
-    // so high chance they will call the getTranslation again on lang change
-    let initialTexts = window.translationCache[window.location.pathname].initial
+    let notInCache = [];
+    let translations = [];
 
-    let shouldUseCache = true;
+    // check cache for each textNode
+    textNodesTextContent.forEach((text, index) => {
+      const cacheKey = `${text}-${language}`;
+      if (window.translationCache[cacheKey]) {
+        translations[index] = window.translationCache[cacheKey];
+      } else {
+        notInCache.push(index);
+      }
+    });
 
-    // try get the cache first
-    const cache = window.translationCache[window.location.pathname][language]
-    if (shouldUseCache && cache) {
-      cache.forEach((chunk, index) => {
-        const relatedNode = cleanTextNodes.find(n => n.textContent == initialTexts[index])
-        if (relatedNode) {
-          relatedNode.textContent = chunk;
-        }
-        // cleanTextNodes[index].textContent = chunk;
+    if (notInCache.length === 0) { // all translations are cached
+      translations.forEach((translation, index) => {
+        cleanTextNodes[index].textContent = translation;
       });
       resolve();
-      return;
+    } else { // some translations are not in cache
+      // Get the translations from API only for the uncached texts
+      getTranslationsFromAPI(notInCache.map(idx => textNodesTextContent[idx]), language, apiKey).then(
+        (response) => {
+          notInCache.forEach((index, responseIndex) => {
+            const cacheKey = `${textNodesTextContent[index]}-${language}`;
+            window.translationCache[cacheKey] = response[responseIndex]; // cache it
+            cleanTextNodes[index].textContent = response[responseIndex]; // update DOM
+          });
+          resolve();
+        }
+      ).catch(err => reject(err));
     }
-
-    //PROBLEM: THE NODES NEED TO COME BACK IN THE SAME ORDER AS THEY WERE SENT!!!!
-    getTranslationsFromAPI(initialTexts, language, apiKey).then(
-      (response) => {
-        // make a for loop to replace textNodes textContent with the response
-        response.forEach((chunk, index) => {
-          cleanTextNodes[index].textContent = chunk;
-        });
-
-        // cache result
-        window.translationCache[window.location.pathname][language] = response
-
-        resolve();
-      }
-    ).catch(err => reject(err));
   });
 }
 
@@ -212,25 +203,63 @@ async function getTranslations(apiKey, optsArgs = {}) {
     }
     
     await new Promise((resolve, reject) => {
-      setTimeout(() => {
         startTranslationCycle(document.body, apiKey, null).catch(reject);
 
-        if (isBrowser && !isChangeLocationEventAdded) {
-          window.addEventListener("pathnamechange", function () {
-            // window.cacheAlreadyChecked = false;
-            // timeout needed to wait until route fully changed
-            const thisPathOpts = weployOptions.pathOptions[window.location.pathname]
-            const timeout = (thisPathOpts && thisPathOpts.timeout) || weployOptions.timeout
-            setTimeout(() => {
-              getTranslations(apiKey, optsArgs).catch(reject)
-            }, timeout);
+        if (isBrowser && !isDomListenerAdded) {
+          // Select the target node
+          const targetNode = document.body;
+
+          // Create an observer instance with a callback to handle mutations
+          const observer = new MutationObserver(function(mutationsList) {
+            let nodes = [];
+            for(let mutation of mutationsList) {
+              if (mutation.type === 'childList') {
+                // Handling added nodes
+                for(let addedNode of mutation.addedNodes) {
+                  nodes.push(addedNode)
+                }
+              }
+            }
+
+            function getTextNodes(rootElement) {
+              const textNodes = [];
+              extractTextNodes(rootElement, textNodes);
+              const validTextNodes = filterValidTextNodes(textNodes);
+              return validTextNodes
+            }
+
+            const textNodes = nodes.map(x => getTextNodes(x)).reduce((acc, c) => {
+              return [...acc, ...c]
+            }, [])
+
+            processTextNodes(textNodes, getLanguageFromLocalStorage(), apiKey).catch(reject);
           });
-    
-          isChangeLocationEventAdded = true;
+
+          // Set up observer configuration: what to observe
+          const config = { childList: true, subtree: true };
+
+          // Start observing the target node with configured settings
+          observer.observe(targetNode, config);
+
+          isDomListenerAdded = true;
         }
 
+        // if (isBrowser && !isChangeLocationEventAdded) {
+        //   window.addEventListener("pathnamechange", function () {
+        //     console.log("pathnamechange event triggered")
+        //     // window.cacheAlreadyChecked = false;
+        //     // timeout needed to wait until route fully changed
+        //     const thisPathOpts = weployOptions.pathOptions[window.location.pathname]
+        //     const timeout = (thisPathOpts && thisPathOpts.timeout) || weployOptions.timeout
+        //     setTimeout(() => {
+        //       getTranslations(apiKey, optsArgs).catch(reject)
+        //     }, timeout);
+        //   });
+    
+        //   isChangeLocationEventAdded = true;
+        // }
+
         resolve();
-      }, 500);
     })
   } catch(err) {
     console.error(err)
@@ -300,9 +329,3 @@ module.exports.getTranslations = getTranslations;
 module.exports.switchLanguage = switchLanguage;
 module.exports.getSelectedLanguage = getSelectedLanguage;
 module.exports.createLanguageSelect = createLanguageSelect;
-
-// export default {
-//   getTranslations,
-//   switchLanguage,
-//   getSelectedLanguage
-// };
