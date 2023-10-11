@@ -162,7 +162,10 @@ function processTextNodes(textNodes, language, apiKey) {
           cleanTextNodes.forEach((node) => {
             const text = node.textContent;
             if(window.translationCache[language][text]) {
-              node.textContent = window.translationCache[language][text];
+              // make sure text is still the same before replacing
+              if(node.textContent == text) {
+                node.textContent = window.translationCache[language][text];
+              }
             }
           });
           resolve();
