@@ -45,6 +45,16 @@ if (isBrowser) {
   })();
 }
 
+function hasExcludedParent(node) {
+  while (node && node !== document.body) {
+      if (node.classList && node.classList.contains('weploy-exclude')) {
+          return true;
+      }
+      node = node.parentNode;
+  }
+  return false;
+}
+
 
 function saveLanguageToLocalStorage() {
   var language = navigator.language || navigator.userLanguage; // Get browser language
@@ -96,6 +106,13 @@ function extractTextNodes(node, textNodes) {
   if (node.tagName && node.tagName.toUpperCase() == "STYLE") return;
 
   if (node.nodeType === Node.TEXT_NODE) {
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "SCRIPT") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "SVG") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "PATH") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "CIRCLE") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "TEXTAREA") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "INPUT") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "STYLE") return;
     textNodes.push(node);
   } else {
     // filter out weploy-exclude
@@ -199,7 +216,7 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
   });
 }
 
-async function startTranslationCycle(node, apiKey, observer) {
+async function startTranslationCycle(node, apiKey) {
   await modifyHtmlStrings(node, getLanguageFromLocalStorage(), apiKey);
   // window.cacheAlreadyChecked = true;
 }
@@ -236,6 +253,10 @@ async function getTranslations(apiKey, optsArgs = {}) {
             }
 
             function getTextNodes(rootElement) {
+              if (hasExcludedParent(rootElement)) {
+                return [];
+              }
+
               const textNodes = [];
               extractTextNodes(rootElement, textNodes);
               const validTextNodes = filterValidTextNodes(textNodes);
