@@ -321,7 +321,14 @@ async function createLanguageSelect(apiKey) {
     }
   })
   .then((res) => res.json())
-  .then((res) => ([res.language, ...res.allowedLanguages]))
+  .then((res) => {
+    const languages =  [res.language, ...res.allowedLanguages]
+    const languagesWithFlag = languages.map((lang, index) => ({
+      lang,
+      flag: (res.flags || [])?.[index] || lang // fallback to text if flag unavailable
+    }))
+    return languagesWithFlag
+  })
   .catch(console.error)
 
   // <div id="weploy-select" />
@@ -337,10 +344,10 @@ async function createLanguageSelect(apiKey) {
     // Assuming availableLangs array is available in this scope
     availableLangs.forEach(lang => {
         const langOpts = document.createElement('option');
-        langOpts.value = lang;
-        langOpts.textContent = lang;
+        langOpts.value = lang.lang;
+        langOpts.textContent = lang.flag;
         langOpts.style = "text-transform: uppercase;";
-        langOpts.selected = lang == getLanguageFromLocalStorage();
+        langOpts.selected = lang.lang == getLanguageFromLocalStorage();
 
         selectElem.appendChild(langOpts);
     });
