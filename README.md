@@ -83,12 +83,22 @@ import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
 Done. Now you should be able to switch the language manually.
 
 
-### Translate Dynamic Dom Elements
+### Disable auto translate on first time visit
 
-If you want to translate dynamic dom elements you need to add the following code to the element you want to translate.
+By default, weploy-translate will auto translate your website based on user's browser language on first time visit.
 
-
-Coming soon...
+If you want to disable auto translate on first time visit, you can pass `disableAutoTranslate: true` to the second argument of `getTranslations` function.
+```javascript
+  useEffect(() => {
+    getTranslations("YOUR_API_KEY", {
+      disableAutoTranslate: true
+    });
+  }, []);
+```
+For script tag, you can add `data-disable-auto-translate="true"` attribute to the script tag
+```html
+<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-disable-auto-translate="true"></script>
+```
 
 
 ### Custom timeout between route changes

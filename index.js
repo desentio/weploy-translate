@@ -238,7 +238,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
     const availableLangs = await fetchLanguageList(apiKey)
     if (getLanguageFromLocalStorage() === null) {
-      saveLanguageToLocalStorage(availableLangs, optsArgs.useBaseLang);
+      saveLanguageToLocalStorage(availableLangs, optsArgs.disableAutoTranslate);
     }
 
     await new Promise((resolve, reject) => {
