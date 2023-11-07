@@ -344,33 +344,53 @@ async function createLanguageSelect(apiKey) {
   if (!isBrowser) return;
   if (!apiKey) {
     console.error("Weploy API key is required");
+    return;
   }
 
-  const availableLangs = window.weployLanguages || await fetchLanguageList(apiKey)
-  
-  // <div id="weploy-select" />
-  const weploySwitcher = document.getElementById("weploy-select");
+  const availableLangs = window.weployLanguages || await fetchLanguageList(apiKey);
 
-  if (weploySwitcher && (availableLangs || []).length > 0) {
-    // Create the select element
-    const selectElem = document.createElement('select');
-    selectElem.className = "weploy-exclude";
-    selectElem.style = "text-transform: uppercase; border: none; background: transparent; cursor: pointer; outline: none;";
-    selectElem.onchange = (e) => switchLanguage(e.target.value)
+  // Get elements by class
+  const classElements = document.getElementsByClassName("weploy-select");
+  // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
+  const idElements = Array.from(document.querySelectorAll('[id^="weploy-select"]'));
+  // Combine and deduplicate elements
+  const weploySwitchers = Array.from(new Set([...classElements, ...idElements]));
 
-    // Assuming availableLangs array is available in this scope
-    availableLangs.forEach(lang => {
-        const langOpts = document.createElement('option');
-        langOpts.value = lang.lang;
-        langOpts.textContent = lang.flag;
-        langOpts.style = "text-transform: uppercase;";
-        langOpts.selected = lang.lang == getLanguageFromLocalStorage();
+  if (weploySwitchers.length > 0 && availableLangs && availableLangs.length > 0) {
+    weploySwitchers.forEach(weploySwitcher => {
+      // Create the select element if not already present
+      let selectElem = weploySwitcher.querySelector('select.weploy-exclude');
+      if (!selectElem) {
+        selectElem = document.createElement('select');
+        selectElem.className = "weploy-exclude";
+        selectElem.style = "text-transform: uppercase; border: none; background: transparent; cursor: pointer; outline: none;";
+        selectElem.onchange = (e) => {
+          const newValue = e.target.value;
+          // Update only the select elements within weploySwitchers
+          weploySwitchers.forEach(sw => {
+            const selects = sw.querySelector('select.weploy-exclude');
+            if (selects && selects !== e.target) {
+              selects.value = newValue;
+            }
+          });
+          switchLanguage(newValue);
+        };
 
-        selectElem.appendChild(langOpts);
+        // Populate the select element with options
+        availableLangs.forEach(lang => {
+          const langOpts = document.createElement('option');
+          langOpts.value = lang.lang;
+          langOpts.textContent = lang.flag;
+          langOpts.style = "text-transform: uppercase;";
+          langOpts.selected = lang.lang === getLanguageFromLocalStorage();
+
+          selectElem.appendChild(langOpts);
+        });
+
+        // Append the select element to each weploySwitcher
+        weploySwitcher.appendChild(selectElem);
+      }
     });
-
-    // Append the select element to the weploySwitcher
-    weploySwitcher.appendChild(selectElem);
   }
 }
 
