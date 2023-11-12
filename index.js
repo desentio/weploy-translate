@@ -267,7 +267,7 @@ async function createLanguageSelect(apiKey) {
     // Create the select element
     const selectElem = document.createElement('select');
     selectElem.className = "weploy-exclude";
-    selectElem.style = "text-transform: uppercase; border: none; background: transparent; cursor: pointer; outline: none;";
+    selectElem.style = "text-transform: uppercase; border: none; background-color: transparent; cursor: pointer; outline: none;";
     selectElem.onchange = (e) => switchLanguage(e.target.value)
 
     // Assuming availableLangs array is available in this scope
