@@ -2,8 +2,10 @@ const CheckIfTranslatable = require('./utility.js');
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
-var isChangeLocationEventAdded;
+// var isChangeLocationEventAdded;
+var isDomListenerAdded;
 var weployOptions;
+const API_URL = "https://api.tasksource.io"
 
 if (isBrowser) {
   window.translationCache = {}
@@ -44,11 +46,24 @@ if (isBrowser) {
   })();
 }
 
+function hasExcludedParent(node) {
+  while (node && node !== document.body) {
+      if (node.classList && node.classList.contains('weploy-exclude')) {
+          return true;
+      }
+      node = node.parentNode;
+  }
+  return false;
+}
 
-function saveLanguageToLocalStorage() {
-  var language = navigator.language || navigator.userLanguage; // Get browser language
+function saveLanguageToLocalStorage(availableLangs = [], useBaseLang) {
+  const language = navigator.language || navigator.userLanguage; // Get browser language (usually in this format: en-US)
+  const langIsoCode = language && language.length >= 2 ? language.substring(0, 2) : null // Get the language ISO code
+  const langInAvailableLangs = availableLangs.find(lang => lang.lang == langIsoCode) //  Check if the language is in the available languages
+  const langInAvailableLangsOrFirst = langInAvailableLangs || availableLangs[0].lang // If the language is not in the available languages, use the first available language
+  const langToSave = useBaseLang ? availableLangs[0].lang : langInAvailableLangsOrFirst // If useBaseLang is true, use the first available language, otherwise use the language from the browser
   // Save the language to local storage
-  localStorage.setItem("language", language);
+  localStorage.setItem("language", langToSave);
 }
 
 function getLanguageFromLocalStorage() {
@@ -65,7 +80,7 @@ function getTranslationsFromAPI(strings, language, apiKey) {
   };
 
   return new Promise((resolve) => {
-    fetch("https://api.tasksource.io/get-translations", {
+    fetch(API_URL + "/weploy/get-translations", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -95,6 +110,13 @@ function extractTextNodes(node, textNodes) {
   if (node.tagName && node.tagName.toUpperCase() == "STYLE") return;
 
   if (node.nodeType === Node.TEXT_NODE) {
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "SCRIPT") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "SVG") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "PATH") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "CIRCLE") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "TEXTAREA") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "INPUT") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "STYLE") return;
     textNodes.push(node);
   } else {
     // filter out weploy-exclude
@@ -122,63 +144,71 @@ function filterValidTextNodes(textNodes) {
 
 function processTextNodes(textNodes, language, apiKey) {
   return new Promise(async (resolve, reject) => {
-    // remove empty string
+    // Remove empty strings
     const cleanTextNodes = textNodes.filter(
       (textNode) =>
         typeof textNode.textContent == "string" && !!textNode.textContent.trim()
     );
 
-    //get only text nodes textContent in array
-    const textNodesTextContent = cleanTextNodes.map(
-      (textNode) => textNode.textContent
-    );
-
-    if (!window.translationCache[window.location.pathname]) {
-      window.translationCache[window.location.pathname] = {}
+    // Initialize cache if not exist yet
+    if (!window.translationCache) {
+      window.translationCache = {}
     }
 
-    // cache the initial texts if not exist yet
-    if (!window.translationCache[window.location.pathname].initial) {
-      window.translationCache[window.location.pathname].initial = textNodesTextContent
+    // Initialize language cache if not exist yet
+    if (!window.translationCache[language]) {
+      window.translationCache[language] = {};
     }
-    
-    // this will prevent english -> german -> spanish problem
-    // in other words this will make sure (english -> german) -> (english -> spanish)
-    // needed if the lang picker is not reloading the page
-    // react developer usually will prevent any rerender to improve performance
-    // so high chance they will call the getTranslation again on lang change
-    let initialTexts = window.translationCache[window.location.pathname].initial
 
-    let shouldUseCache = true;
+    let notInCache = [];
 
-    // try get the cache first
-    const cache = window.translationCache[window.location.pathname][language]
-    if (shouldUseCache && cache) {
-      cache.forEach((chunk, index) => {
-        const relatedNode = cleanTextNodes.find(n => n.textContent == initialTexts[index])
-        if (relatedNode) {
-          relatedNode.textContent = chunk;
+    // Check cache for each textNode
+    cleanTextNodes.forEach((node) => {
+      const text = node.textContent;
+      const cacheValues = Object.values(window.translationCache[language] || {});
+      if (
+        !window.translationCache[language][text] // check in key
+        && !cacheValues.includes(text) // check in value (to handle nodes that already translated)
+      ) {
+        notInCache.push(text); // If not cached, add to notInCache array
+      }
+    });
+
+    if (notInCache.length > 0) { 
+      // If there are translations not in cache, fetch them from the API
+      getTranslationsFromAPI(notInCache, language, apiKey).then(
+        (response) => {
+          notInCache.forEach((text, index) => {
+            // Cache the new translations
+            window.translationCache[language][text] = response[index];
+          });
+          
+          // Update textNodes from the cache
+          cleanTextNodes.forEach((node) => {
+            const text = node.textContent;
+            if(window.translationCache[language][text]) {
+              // make sure text is still the same before replacing
+              if(node.textContent == text) {
+                node.textContent = window.translationCache[language][text];
+              }
+            }
+          });
+          resolve();
         }
-        // cleanTextNodes[index].textContent = chunk;
+      ).catch(err => {
+        console.error(err); // Log the error and resolve the promise without changing textNodes
+        resolve();
+      });
+    } else {
+      // If all translations are cached, directly update textNodes from cache
+      cleanTextNodes.forEach((node) => {
+        const text = node.textContent;
+        if(window.translationCache[language][text]) {
+          node.textContent = window.translationCache[language][text];
+        }
       });
       resolve();
-      return;
     }
-
-    //PROBLEM: THE NODES NEED TO COME BACK IN THE SAME ORDER AS THEY WERE SENT!!!!
-    getTranslationsFromAPI(initialTexts, language, apiKey).then(
-      (response) => {
-        // make a for loop to replace textNodes textContent with the response
-        response.forEach((chunk, index) => {
-          cleanTextNodes[index].textContent = chunk;
-        });
-
-        // cache result
-        window.translationCache[window.location.pathname][language] = response
-
-        resolve();
-      }
-    ).catch(err => reject(err));
   });
 }
 
@@ -194,43 +224,87 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
   });
 }
 
-async function startTranslationCycle(node, apiKey, observer) {
+async function startTranslationCycle(node, apiKey) {
   await modifyHtmlStrings(node, getLanguageFromLocalStorage(), apiKey);
   // window.cacheAlreadyChecked = true;
 }
 
 async function getTranslations(apiKey, optsArgs = {}) {
-
   try {
     weployOptions = {
       timeout: optsArgs.timeout == null ? 1000 : optsArgs.timeout,
       pathOptions: optsArgs.pathOptions || {}
     }
 
+    const availableLangs = await fetchLanguageList(apiKey)
     if (getLanguageFromLocalStorage() === null) {
-      saveLanguageToLocalStorage();
+      saveLanguageToLocalStorage(availableLangs, optsArgs.disableAutoTranslate);
     }
-    
+
     await new Promise((resolve, reject) => {
-      setTimeout(() => {
         startTranslationCycle(document.body, apiKey, null).catch(reject);
 
-        if (isBrowser && !isChangeLocationEventAdded) {
-          window.addEventListener("pathnamechange", function () {
-            // window.cacheAlreadyChecked = false;
-            // timeout needed to wait until route fully changed
-            const thisPathOpts = weployOptions.pathOptions[window.location.pathname]
-            const timeout = (thisPathOpts && thisPathOpts.timeout) || weployOptions.timeout
-            setTimeout(() => {
-              getTranslations(apiKey, optsArgs).catch(reject)
-            }, timeout);
+        if (isBrowser && !isDomListenerAdded) {
+          // Select the target node
+          const targetNode = document.body;
+
+          // Create an observer instance with a callback to handle mutations
+          const observer = new MutationObserver(function(mutationsList) {
+            let nodes = [];
+            for(let mutation of mutationsList) {
+              if (mutation.type === 'childList') {
+                // Handling added nodes
+                for(let addedNode of mutation.addedNodes) {
+                  nodes.push(addedNode)
+                }
+              }
+            }
+
+            startTranslationCycle(document.body, apiKey, null).catch(reject)
+
+            // function getTextNodes(rootElement) {
+            //   if (hasExcludedParent(rootElement)) {
+            //     return [];
+            //   }
+
+            //   const textNodes = [];
+            //   extractTextNodes(rootElement, textNodes);
+            //   const validTextNodes = filterValidTextNodes(textNodes);
+            //   return validTextNodes
+            // }
+
+            // const textNodes = nodes.map(x => getTextNodes(x)).reduce((acc, c) => {
+            //   return [...acc, ...c]
+            // }, [])
+
+            // processTextNodes(textNodes, getLanguageFromLocalStorage(), apiKey).catch(reject);
           });
-    
-          isChangeLocationEventAdded = true;
+
+          // Set up observer configuration: what to observe
+          const config = { childList: true, subtree: true };
+
+          // Start observing the target node with configured settings
+          observer.observe(targetNode, config);
+
+          isDomListenerAdded = true;
         }
 
+        // if (isBrowser && !isChangeLocationEventAdded) {
+        //   window.addEventListener("pathnamechange", function () {
+        //     console.log("pathnamechange event triggered")
+        //     // window.cacheAlreadyChecked = false;
+        //     // timeout needed to wait until route fully changed
+        //     const thisPathOpts = weployOptions.pathOptions[window.location.pathname]
+        //     const timeout = (thisPathOpts && thisPathOpts.timeout) || weployOptions.timeout
+        //     setTimeout(() => {
+        //       getTranslations(apiKey, optsArgs).catch(reject)
+        //     }, timeout);
+        //   });
+    
+        //   isChangeLocationEventAdded = true;
+        // }
+
         resolve();
-      }, 500);
     })
   } catch(err) {
     console.error(err)
@@ -245,44 +319,78 @@ function switchLanguage(language) {
   }, 1000);
 }
 
-async function createLanguageSelect(apiKey) {
-  if (!isBrowser) return;
-  if (!apiKey) {
-    console.error("Weploy API key is required");
-  }
-
-  const availableLangs = await fetch("https://api.tasksource.io/weploy-projects/by-api-key", {
+async function fetchLanguageList(apiKey) {
+  const availableLangs = await fetch(API_URL + "/weploy-projects/by-api-key", {
     headers: {
       "X-Api-Key": apiKey
     }
   })
   .then((res) => res.json())
-  .then((res) => ([res.language, ...res.allowedLanguages]))
+  .then((res) => {
+    const languages =  [res.language, ...res.allowedLanguages]
+    const languagesWithFlag = languages.map((lang, index) => ({
+      lang,
+      flag: (res.flags || [])?.[index] || lang // fallback to text if flag unavailable
+    }))
+    if (isBrowser) window.weployLanguages = languagesWithFlag // store in global scope
+    return languagesWithFlag
+  })
   .catch(console.error)
 
-  // <div id="weploy-select" />
-  const weploySwitcher = document.getElementById("weploy-select");
+  return availableLangs
+}
 
-  if (weploySwitcher && (availableLangs || []).length > 0) {
-    // Create the select element
-    const selectElem = document.createElement('select');
-    selectElem.className = "weploy-exclude";
-    selectElem.style = "text-transform: uppercase; border: none; background-color: transparent; cursor: pointer; outline: none;";
-    selectElem.onchange = (e) => switchLanguage(e.target.value)
+async function createLanguageSelect(apiKey) {
+  if (!isBrowser) return;
+  if (!apiKey) {
+    console.error("Weploy API key is required");
+    return;
+  }
 
-    // Assuming availableLangs array is available in this scope
-    availableLangs.forEach(lang => {
-        const langOpts = document.createElement('option');
-        langOpts.value = lang;
-        langOpts.textContent = lang;
-        langOpts.style = "text-transform: uppercase;";
-        langOpts.selected = lang == getLanguageFromLocalStorage();
+  const availableLangs = window.weployLanguages || await fetchLanguageList(apiKey);
 
-        selectElem.appendChild(langOpts);
+  // Get elements by class
+  const classElements = document.getElementsByClassName("weploy-select");
+  // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
+  const idElements = Array.from(document.querySelectorAll('[id^="weploy-select"]'));
+  // Combine and deduplicate elements
+  const weploySwitchers = Array.from(new Set([...classElements, ...idElements]));
+
+  if (weploySwitchers.length > 0 && availableLangs && availableLangs.length > 0) {
+    weploySwitchers.forEach(weploySwitcher => {
+      // Create the select element if not already present
+      let selectElem = weploySwitcher.querySelector('select.weploy-exclude');
+      if (!selectElem) {
+        selectElem = document.createElement('select');
+        selectElem.className = "weploy-exclude";
+        selectElem.style = "text-transform: uppercase; border: none; background-color: transparent; cursor: pointer; outline: none;";
+        selectElem.onchange = (e) => {
+          const newValue = e.target.value;
+          // Update only the select elements within weploySwitchers
+          weploySwitchers.forEach(sw => {
+            const selects = sw.querySelector('select.weploy-exclude');
+            if (selects && selects !== e.target) {
+              selects.value = newValue;
+            }
+          });
+          switchLanguage(newValue);
+        };
+
+        // Populate the select element with options
+        availableLangs.forEach(lang => {
+          const langOpts = document.createElement('option');
+          langOpts.value = lang.lang;
+          langOpts.textContent = lang.flag;
+          langOpts.style = "text-transform: uppercase;";
+          langOpts.selected = lang.lang === getLanguageFromLocalStorage();
+
+          selectElem.appendChild(langOpts);
+        });
+
+        // Append the select element to each weploySwitcher
+        weploySwitcher.appendChild(selectElem);
+      }
     });
-
-    // Append the select element to the weploySwitcher
-    weploySwitcher.appendChild(selectElem);
   }
 }
 
@@ -300,9 +408,3 @@ module.exports.getTranslations = getTranslations;
 module.exports.switchLanguage = switchLanguage;
 module.exports.getSelectedLanguage = getSelectedLanguage;
 module.exports.createLanguageSelect = createLanguageSelect;
-
-// export default {
-//   getTranslations,
-//   switchLanguage,
-//   getSelectedLanguage
-// };
