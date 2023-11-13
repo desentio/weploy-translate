@@ -94,7 +94,7 @@ function getTranslationsFromAPI(strings, language, apiKey) {
       })
       .catch((err) => {
         console.error(err);
-        resolve("error");
+        resolve([]);
       })
   });
 }
