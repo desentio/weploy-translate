@@ -16,11 +16,6 @@ Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Websi
 <div id="weploy-select"></div>
 ```
 
-For Example you can add it to your navigation: 
-
-![alt text](https://www.weploy.ai/perma-store/img/header-example.png)
-
-
 ---
 
 
