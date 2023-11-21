@@ -119,6 +119,7 @@ function extractTextNodes(node, textNodes) {
   if (node.tagName && node.tagName.toUpperCase() == "TEXTAREA") return;
   if (node.tagName && node.tagName.toUpperCase() == "INPUT") return;
   if (node.tagName && node.tagName.toUpperCase() == "STYLE") return;
+  if (node.tagName && node.tagName.toUpperCase() == "NOSCRIPT") return;
 
   if (node.nodeType === Node.TEXT_NODE) {
     if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "SCRIPT") return;
@@ -128,6 +129,7 @@ function extractTextNodes(node, textNodes) {
     if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "TEXTAREA") return;
     if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "INPUT") return;
     if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "STYLE") return;
+    if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "NOSCRIPT") return;
     textNodes.push(node);
   } else {
     // filter out weploy-exclude
