@@ -46,6 +46,11 @@ if (isBrowser) {
   })();
 }
 
+function getWeployOptions() {
+  if (isBrowser) return window.weployOptions;
+  return weployOptions;
+}
+
 function hasExcludedParent(node) {
   while (node && node !== document.body) {
       if (node.classList && node.classList.contains('weploy-exclude')) {
@@ -60,14 +65,20 @@ function saveLanguageToLocalStorage(availableLangs = [], useBaseLang) {
   const language = navigator.language || navigator.userLanguage; // Get browser language (usually in this format: en-US)
   const langIsoCode = language && language.length >= 2 ? language.substring(0, 2) : null // Get the language ISO code
   const langInAvailableLangs = availableLangs.find(lang => lang.lang == langIsoCode) //  Check if the language is in the available languages
-  const langInAvailableLangsOrFirst = langInAvailableLangs || availableLangs[0].lang // If the language is not in the available languages, use the first available language
+  const langInAvailableLangsOrFirst = langInAvailableLangs?.lang || availableLangs[0].lang // If the language is not in the available languages, use the first available language
   const langToSave = useBaseLang ? availableLangs[0].lang : langInAvailableLangsOrFirst // If useBaseLang is true, use the first available language, otherwise use the language from the browser
   // Save the language to local storage
   localStorage.setItem("language", langToSave);
 }
 
-function getLanguageFromLocalStorage() {
-  const language = localStorage.getItem("language");
+async function getLanguageFromLocalStorage() {
+  const optsArgs = getWeployOptions()
+  const apiKey = optsArgs.apiKey
+  let language = localStorage.getItem("language");
+  const availableLangs = await fetchLanguageList(apiKey);
+  if (!availableLangs.find(l => l.lang == language)) {
+    saveLanguageToLocalStorage(availableLangs, optsArgs.disableAutoTranslate);
+  }
   return language; // Get the language from local storage
 }
 
@@ -225,21 +236,33 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 }
 
 async function startTranslationCycle(node, apiKey) {
-  await modifyHtmlStrings(node, getLanguageFromLocalStorage(), apiKey);
+  await modifyHtmlStrings(node, await getLanguageFromLocalStorage(), apiKey);
   // window.cacheAlreadyChecked = true;
+}
+
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
 }
 
 async function getTranslations(apiKey, optsArgs = {}) {
   try {
-    weployOptions = {
-      timeout: optsArgs.timeout == null ? 1000 : optsArgs.timeout,
-      pathOptions: optsArgs.pathOptions || {}
+    if (!isBrowser) {
+      weployOptions = {
+        timeout: optsArgs.timeout == null ? 1000 : optsArgs.timeout,
+        pathOptions: optsArgs.pathOptions || {},
+        apiKey
+      }
+    } else {
+      window.weployOptions = {
+        timeout: optsArgs.timeout == null ? 1000 : optsArgs.timeout,
+        pathOptions: optsArgs.pathOptions || {},
+        apiKey
+      }
     }
 
-    const availableLangs = await fetchLanguageList(apiKey)
-    if (getLanguageFromLocalStorage() === null) {
-      saveLanguageToLocalStorage(availableLangs, optsArgs.disableAutoTranslate);
-    }
+    // handle google translate
+    await delay(1000)
+    if (isBrowser && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) return;
 
     await new Promise((resolve, reject) => {
         startTranslationCycle(document.body, apiKey, null).catch(reject);
@@ -320,6 +343,8 @@ function switchLanguage(language) {
 }
 
 async function fetchLanguageList(apiKey) {
+  if (window.weployLanguages && Array.isArray(window.weployLanguages) && window.weployLanguages.length) return window.weployLanguages;
+
   const availableLangs = await fetch(API_URL + "/weploy-projects/by-api-key", {
     headers: {
       "X-Api-Key": apiKey
@@ -347,7 +372,7 @@ async function createLanguageSelect(apiKey) {
     return;
   }
 
-  const availableLangs = window.weployLanguages || await fetchLanguageList(apiKey);
+  const availableLangs = await fetchLanguageList(apiKey);
 
   // Get elements by class
   const classElements = document.getElementsByClassName("weploy-select");
@@ -377,12 +402,12 @@ async function createLanguageSelect(apiKey) {
         };
 
         // Populate the select element with options
-        availableLangs.forEach(lang => {
+        availableLangs.forEach(async lang => {
           const langOpts = document.createElement('option');
           langOpts.value = lang.lang;
           langOpts.textContent = lang.flag;
           langOpts.style = "text-transform: uppercase;";
-          langOpts.selected = lang.lang === getLanguageFromLocalStorage();
+          langOpts.selected = lang.lang === await getLanguageFromLocalStorage();
 
           selectElem.appendChild(langOpts);
         });
