@@ -46,6 +46,27 @@ if (isBrowser) {
   })();
 }
 
+
+// Declare a variable called 'timer' to store the timer ID
+if (isBrowser) {
+  window.weployTimer = null;
+}
+
+const debounce = (mainFunction, delay = 3000) => {
+  if (!isBrowser) return mainFunction(...args);
+
+  // Return an anonymous function that takes in any number of arguments
+  return function (...args) {
+    // Clear the previous timer to prevent the execution of 'mainFunction'
+    clearTimeout(window.weployTimer);
+
+    // Set a new timer that will execute 'mainFunction' after the specified delay
+    window.weployTimer = setTimeout(() => {
+      mainFunction(...args);
+    }, delay);
+  };
+};
+
 function getWeployOptions() {
   if (isBrowser) return window.weployOptions;
   return weployOptions;
@@ -238,7 +259,8 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 }
 
 async function startTranslationCycle(node, apiKey) {
-  await modifyHtmlStrings(node, await getLanguageFromLocalStorage(), apiKey);
+  const lang = await getLanguageFromLocalStorage();
+  debounce(async () => modifyHtmlStrings(node, lang, apiKey))();
   // window.cacheAlreadyChecked = true;
 }
 
