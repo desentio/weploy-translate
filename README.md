@@ -1,6 +1,6 @@
 ![alt text](https://www.weploy.ai/perma-store/logo-black.png)
 
-Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Website.
+Translate your website with AI. Visit our website for more information: [Weploy.ai](https://www.weploy.ai) Website.
 
 ---
 
