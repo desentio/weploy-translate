@@ -10,18 +10,23 @@ Translate your website with AI. Visit our website for more information: [Weploy.
 ```html
 <script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" ></script>
 ```
-if you dont want to your page to be autoamticly translated into other languages add: `data-disable-auto-translate="true"` to you tag.  [See more here.](###-Disable-auto-translate-on-first-time-visit)
+if you dont want to your page to be autoamticly translated into other languages add: `data-disable-auto-translate="true"` to you tag.  [See more here.](###user-content-disable-auto-translate-on-first-time-visit)
 
 2. Add the language selector. This is how the user can select a language.
 ```html
 <div id="weploy-select"></div>
 ```
 
+---
+
+
 ### Exclude text from beeing translated
 If you want to exclude text from beeing transalted, just add "weploy-exclude" as a class to the parent element. 
 ```html
 <div className="weploy-exclude">Don't translate me</div>
 ```
+
+---
 
 ### Disable auto translate on first time visit
 
@@ -40,6 +45,9 @@ For npm, you can pass `disableAutoTranslate: true` to the second argument of `ge
       disableAutoTranslate: true
     });
   }, []);
+```
+
+---
 
 
 ### Installation via npm (NOT recommended)
@@ -89,7 +97,6 @@ import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
       setLanguage(lang)
     })
   }, []);
-
 ```
 
 Done. Now you should be able to switch the language manually.
