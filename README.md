@@ -4,7 +4,7 @@ Translate your website with AI. Visit our website for more information: [Weploy.
 
 ---
 
-### Simple setup (recommended)
+# Simple setup (recommended)
 
 1. Add the following script before the closing body tag.
 ```html
@@ -20,7 +20,7 @@ if you dont want to your page to be autoamticly translated into other languages 
 ---
 
 
-### Exclude text from beeing translated
+## Exclude text from beeing translated
 If you want to exclude text from beeing transalted, just add "weploy-exclude" as a class to the parent element. 
 ```html
 <div className="weploy-exclude">Don't translate me</div>
@@ -28,7 +28,7 @@ If you want to exclude text from beeing transalted, just add "weploy-exclude" as
 
 ---
 
-### Disable auto translate on first time visit
+## Disable auto translate on first time visit
 
 By default, weploy-translate will auto translate your website based on user's browser language on first time visit.
 
@@ -42,7 +42,11 @@ If you want to disable auto translate, you can add `data-disable-auto-translate=
 ---
 
 
-### Installation via npm (NOT recommended)
+
+
+
+
+# Installation via npm (NOT recommended)
 ⚠️ Please be advised that if you use npm you will have to update your npm package regularly since our APIs changed frequently and we cannot guarantee backwards compatibility.
 
 ```bash
