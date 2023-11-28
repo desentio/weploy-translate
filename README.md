@@ -4,7 +4,7 @@ Translate your website with AI. Visit our website for more information: [Weploy.
 
 ---
 
-# Simple setup (recommended)
+# ✅ Simple setup (recommended)
 
 1. Add the following script before the closing body tag.
 ```html
