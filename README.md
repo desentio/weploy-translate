@@ -33,24 +33,17 @@ If you want to exclude text from beeing transalted, just add "weploy-exclude" as
 By default, weploy-translate will auto translate your website based on user's browser language on first time visit.
 
 
-If you want to disable auto translate on first time visit, for script tag, you can add `data-disable-auto-translate="true"` attribute to the script tag
+If you want to disable auto translate, you can add `data-disable-auto-translate="true"` attribute to the script tag
 ```html
 <script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-disable-auto-translate="true"></script>
 ```
 
-For npm, you can pass `disableAutoTranslate: true` to the second argument of `getTranslations` function.
-```javascript
-  useEffect(() => {
-    getTranslations("YOUR_API_KEY", {
-      disableAutoTranslate: true
-    });
-  }, []);
-```
 
 ---
 
 
 ### Installation via npm (NOT recommended)
+⚠️ Please be advised that if you use npm you will have to update your npm package regularly since our APIs changed frequently and we cannot guarantee backwards compatibility.
 
 ```bash
 npm install weploy-translate
@@ -71,6 +64,15 @@ Now you just need to call the getTranslations function and pass your API KEY as 
 ```
 
 Done! 🚀 The website should now automatically translate to the language set in the clients browser.
+
+If you want to disable auto translate on first time visit, you can pass `disableAutoTranslate: true` to the second argument of `getTranslations` function.
+```javascript
+  useEffect(() => {
+    getTranslations("YOUR_API_KEY", {
+      disableAutoTranslate: true
+    });
+  }, []);
+```
 
 
 ### Switching languages manually
