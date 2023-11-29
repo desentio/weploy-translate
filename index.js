@@ -68,6 +68,15 @@ const debounce = (mainFunction, delay = 2000) => {
   };
 };
 
+function isURL(str) {
+  const pattern = new RegExp("^(https?:\\/\\/)?"+ // protocol
+      "((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,})"+ // domain name and extension
+      "(\\:\\d+)?(\\/[-a-zA-Z\\d%_.~+]*)*"+ // port and path
+      "(\\?[;&a-zA-Z\\d%_.~+=-]*)?"+ // query string
+      "(\\#[-a-zA-Z\\d_]*)?$", "i"); // fragment locator
+  return !!pattern.test(str);
+}
+
 function getWeployOptions() {
   if (isBrowser) return window.weployOptions;
   return weployOptions;
@@ -152,6 +161,16 @@ function extractTextNodes(node, textNodes) {
     if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "INPUT") return;
     if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "STYLE") return;
     if (node.parentNode.tagName && node.parentNode.tagName.toUpperCase() == "NOSCRIPT") return;
+    
+    // Check if the text node is a URL
+    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '(((a-z\\d*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    if(urlPattern.test(node.textContent)) return;
+
     textNodes.push(node);
   } else {
     // filter out weploy-exclude
