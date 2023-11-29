@@ -17,16 +17,13 @@ if you dont want to your page to be autoamticly translated into other languages 
 <div id="weploy-select"></div>
 ```
 
----
-
+<br/><br/>
 
 ## Exclude text from beeing translated
 If you want to exclude text from beeing transalted, just add "weploy-exclude" as a class to the parent element. 
 ```html
 <div className="weploy-exclude">Don't translate me</div>
 ```
-
----
 
 ## Disable auto translate on first time visit
 
@@ -39,9 +36,9 @@ If you want to disable auto translate, you can add `data-disable-auto-translate=
 ```
 
 
----
 
 
+<br/><br/>
 
 
 
