@@ -2,6 +2,7 @@ const CheckIfTranslatable = require('./utility.js');
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
+
 // var isChangeLocationEventAdded;
 var isDomListenerAdded;
 var weployOptions;
