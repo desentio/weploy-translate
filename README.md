@@ -2,7 +2,7 @@
 
 Translate your website with AI. Visit our website for more information: [Weploy.ai](https://www.weploy.ai).
 
----
+<br/><br/>
 
 # ✅ Simple setup (recommended)
 
@@ -75,6 +75,7 @@ If you want to disable auto translate on first time visit, you can pass `disable
   }, []);
 ```
 
+<br/>
 
 ### Switching languages manually
 
@@ -89,6 +90,7 @@ If you want to add a language selector to your website you need to add the follo
         <option value="es">🇪🇸</option>
 </select>
 ```
+<br/>
 
 also you need to add the following js code:
 ```javascript
@@ -104,6 +106,7 @@ import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
 
 Done. Now you should be able to switch the language manually.
 
+<br/>
 
 ### Disable auto translate on first time visit
 
@@ -123,7 +126,7 @@ For npm, you can pass `disableAutoTranslate: true` to the second argument of `ge
     });
   }, []);
 ```
-
+<br/>
 
 ### Custom timeout between route changes
 
@@ -143,7 +146,7 @@ Website that has route change animation usually needs to wait longer until all d
     });
   }, []);
 ```
-
+<br/>
 Note: 
 1. default value of `timeout` is `1000`
 2. `pathOptions[pathname].timeout` is prioritized, if it's undefined then will fallback to `timeout`
