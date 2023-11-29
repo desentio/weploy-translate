@@ -52,7 +52,7 @@ if (isBrowser) {
   window.weployTimer = null;
 }
 
-const debounce = (mainFunction, delay = 3000) => {
+const debounce = (mainFunction, delay = 2000) => {
   if (!isBrowser) return mainFunction(...args);
 
   // Return an anonymous function that takes in any number of arguments
@@ -258,9 +258,14 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
   });
 }
 
-async function startTranslationCycle(node, apiKey) {
+async function startTranslationCycle(node, apiKey, delay) {
   const lang = await getLanguageFromLocalStorage();
-  debounce(async () => modifyHtmlStrings(node, lang, apiKey))();
+
+  if (!delay) {
+    modifyHtmlStrings(node, lang, apiKey)
+  } else {
+    debounce(async () => modifyHtmlStrings(node, lang, apiKey), delay)();
+  }
   // window.cacheAlreadyChecked = true;
 }
 
@@ -272,24 +277,34 @@ async function getTranslations(apiKey, optsArgs = {}) {
   try {
     if (!isBrowser) {
       weployOptions = {
-        timeout: optsArgs.timeout == null ? 1000 : optsArgs.timeout,
+        timeout: optsArgs.timeout == null ? 0 : optsArgs.timeout,
         pathOptions: optsArgs.pathOptions || {},
         apiKey
       }
     } else {
       window.weployOptions = {
-        timeout: optsArgs.timeout == null ? 1000 : optsArgs.timeout,
+        timeout: optsArgs.timeout == null ? 0 : optsArgs.timeout,
         pathOptions: optsArgs.pathOptions || {},
         apiKey
       }
     }
 
+    // save language to local storage & delay 1 second to wait google translate
+    await Promise.allSettled([
+      fetchLanguageList(apiKey),
+      delay(1000)
+    ]);
+
+    if (optsArgs.createSelector) {
+      await createLanguageSelect(apiKey);
+    }
+
     // handle google translate
-    await delay(1000)
     if (isBrowser && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) return;
 
     await new Promise((resolve, reject) => {
-        startTranslationCycle(document.body, apiKey, null).catch(reject);
+        const timeout = getWeployOptions().timeout;
+        startTranslationCycle(document.body, apiKey, timeout).catch(reject);
 
         if (isBrowser && !isDomListenerAdded) {
           // Select the target node
@@ -307,7 +322,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
               }
             }
 
-            startTranslationCycle(document.body, apiKey, null).catch(reject)
+            startTranslationCycle(document.body, apiKey, 2000).catch(reject)
 
             // function getTextNodes(rootElement) {
             //   if (hasExcludedParent(rootElement)) {

@@ -6,7 +6,6 @@ if (isBrowser) {
     const apiKey = window.weployScriptTag.getAttribute("data-weploy-key");
     const disableAutoTranslateAttr = window.weployScriptTag.getAttribute("data-disable-auto-translate")
     const disableAutoTranslate = disableAutoTranslateAttr == "true";
-    getTranslations(apiKey, {disableAutoTranslate});
-    createLanguageSelect(apiKey);
+    getTranslations(apiKey, {disableAutoTranslate, createSelector: true})
   });
 }
