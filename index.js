@@ -412,12 +412,13 @@ async function fetchLanguageList(apiKey) {
   .then((res) => res.json())
   .then((res) => {
     const languages =  [res.language, ...res.allowedLanguages]
-    const languagesWithFlag = languages.map((lang, index) => ({
+    const languagesWithFlagAndLabel = languages.map((lang, index) => ({
       lang,
-      flag: (res.flags || [])?.[index] || lang // fallback to text if flag unavailable
+      flag: (res.flags || [])?.[index] || lang, // fallback to text if flag unavailable
+      label: (res.labels || [])?.[index] || lang // fallback to text if flag unavailable
     }))
-    if (isBrowser) window.weployLanguages = languagesWithFlag // store in global scope
-    return languagesWithFlag
+    if (isBrowser) window.weployLanguages = languagesWithFlagAndLabel // store in global scope
+    return languagesWithFlagAndLabel
   })
   .catch(console.error)
 
@@ -433,49 +434,54 @@ async function createLanguageSelect(apiKey) {
 
   const availableLangs = await fetchLanguageList(apiKey);
 
-  // Get elements by class
-  const classElements = document.getElementsByClassName("weploy-select");
-  // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
-  const idElements = Array.from(document.querySelectorAll('[id^="weploy-select"]'));
-  // Combine and deduplicate elements
-  const weploySwitchers = Array.from(new Set([...classElements, ...idElements]));
+  ['weploy-select', 'weploy-select-with-name'].forEach(className => {
+    const isWithLangLabel = className == "weploy-select-with-name";
+    // Get elements by class
+    const classElements = document.getElementsByClassName(className);
+    // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
+    const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="weploy-select"]`));
+    const idElements = isWithLangLabel ? idElementsStartsWithClassName : idElementsStartsWithClassName.filter(el => !el.id.includes("weploy-select-with-name")); 
+    // Combine and deduplicate elements
+    const weploySwitchers = Array.from(new Set([...classElements, ...idElements]));
 
-  if (weploySwitchers.length > 0 && availableLangs && availableLangs.length > 0) {
-    weploySwitchers.forEach(weploySwitcher => {
-      // Create the select element if not already present
-      let selectElem = weploySwitcher.querySelector('select.weploy-exclude');
-      if (!selectElem) {
-        selectElem = document.createElement('select');
-        selectElem.className = "weploy-exclude";
-        selectElem.style = "text-transform: uppercase; border: none; background-color: transparent; cursor: pointer; outline: none;";
-        selectElem.onchange = (e) => {
-          const newValue = e.target.value;
-          // Update only the select elements within weploySwitchers
-          weploySwitchers.forEach(sw => {
-            const selects = sw.querySelector('select.weploy-exclude');
-            if (selects && selects !== e.target) {
-              selects.value = newValue;
-            }
+    if (weploySwitchers.length > 0 && availableLangs && availableLangs.length > 0) {
+      weploySwitchers.forEach(weploySwitcher => {
+        // Create the select element if not already present
+        let selectElem = weploySwitcher.querySelector('select.weploy-exclude');
+        if (!selectElem) {
+          selectElem = document.createElement('select');
+          selectElem.className = "weploy-exclude";
+          selectElem.style = "border: none; background-color: transparent; cursor: pointer; outline: none;";
+          selectElem.onchange = (e) => {
+            const newValue = e.target.value;
+            // Update only the select elements within weploySwitchers
+            weploySwitchers.forEach(sw => {
+              const selects = sw.querySelector('select.weploy-exclude');
+              if (selects && selects !== e.target) {
+                selects.value = newValue;
+              }
+            });
+            switchLanguage(newValue);
+          };
+
+          // Populate the select element with options
+          availableLangs.forEach(async lang => {
+            const langOpts = document.createElement('option');
+            langOpts.value = lang.lang;
+            langOpts.textContent = isWithLangLabel ? `${lang.flag} ${lang.label}` : lang.flag;
+            // langOpts.style = "text-transform: uppercase;";
+            langOpts.selected = lang.lang === await getLanguageFromLocalStorage();
+
+            selectElem.appendChild(langOpts);
           });
-          switchLanguage(newValue);
-        };
 
-        // Populate the select element with options
-        availableLangs.forEach(async lang => {
-          const langOpts = document.createElement('option');
-          langOpts.value = lang.lang;
-          langOpts.textContent = lang.flag;
-          langOpts.style = "text-transform: uppercase;";
-          langOpts.selected = lang.lang === await getLanguageFromLocalStorage();
-
-          selectElem.appendChild(langOpts);
-        });
-
-        // Append the select element to each weploySwitcher
-        weploySwitcher.appendChild(selectElem);
-      }
-    });
-  }
+          // Append the select element to each weploySwitcher
+          weploySwitcher.appendChild(selectElem);
+        }
+      });
+    }
+  })
+  
 }
 
 function getSelectedLanguage() {
