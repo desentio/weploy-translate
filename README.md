@@ -17,6 +17,11 @@ if you dont want to your page to be autoamticly translated into other languages 
 <div id="weploy-select"></div>
 ```
 
+Or use weploy-select-with-name to show the language name along with the flag 
+```html
+<div id="weploy-select-with-name"></div>
+```
+
 <br/><br/>
 
 ## Exclude text from beeing translated
