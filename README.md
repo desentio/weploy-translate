@@ -98,6 +98,20 @@ import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
 
 Done. Now you should be able to switch the language manually.
 
+### Add loading indicator
+
+Our package does not include a built-in loading indicator. However, you can easily add one manually by utilizing state. Here’s an example of how you can do it:
+
+```javascript
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    getTranslations("YOUR_API_KEY").finally(() => setLoading(false));
+  }, []);
+
+  return loading ? <div>Loading...</div> : <div>The content</div>
+```
 
 ### Disable auto translate on first time visit
 
