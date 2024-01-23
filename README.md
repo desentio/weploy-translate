@@ -4,7 +4,7 @@ Translate your website with AI. Visit our website for more information: [Weploy.
 
 <br/><br/>
 
-# ✅ Simple setup (recommended)
+# Simple setup (recommended)
 
 1. Add the following script before the closing body tag.
 ```html
@@ -44,7 +44,9 @@ If you want to disable auto translate, you can add `data-disable-auto-translate=
 <br/><br/>
 
 
-# NPM Setup (Expert)
+# npm setup (proceed with caution ⚠️)
+Our codebase and Backend is being optimized daily. There might be unavoidable breaking changes in the future. We will send an email to your account about these changes. 
+
 1. Install the npm package
 ```bash
 npm install weploy-translate
