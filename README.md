@@ -39,7 +39,10 @@ If you want to disable auto translate, you can add `data-disable-auto-translate=
 <script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-disable-auto-translate="true"></script>
 ```
 
-----------------------------------------
+
+<br/><br/>
+<br/><br/>
+
 
 # NPM Setup (Expert)
 1. Install the npm package
