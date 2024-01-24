@@ -8,7 +8,7 @@ Translate your website with GPT-4. Visit our website for more information: [Wepl
 
 #### 1. Add the following script before the closing body tag.
 ```html
-<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" ></script>
+<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-disable-auto-translate="false"></script>
 ```
 if you dont want to your page to be autoamticly translated into other languages add: `data-disable-auto-translate="true"` to you tag.  [See more here.](#user-content-disable-auto-translate-on-first-time-visit)
 
