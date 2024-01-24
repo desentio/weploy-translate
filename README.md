@@ -62,7 +62,7 @@ import { getTranslations } from 'weploy-translate';
 
 ```javascript
   useEffect(() => {
-    getTranslations("fe87f665-e260-4021-a973-619d794f8c0d", { 
+    getTranslations("YOUR_PROJECT_KEY", { 
       timeout: 0, // All text on the website should be visible before you get the translations. (Default is 0)
       disableAutoTranslate: false // This will disable auto translation on the first load (Default is false)
     });
