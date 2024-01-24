@@ -342,7 +342,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
               }
             }
 
-            await startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+            startTranslationCycle(document.body, apiKey, 2000).catch(reject)
 
             // function getTextNodes(rootElement) {
             //   if (hasExcludedParent(rootElement)) {
