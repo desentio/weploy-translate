@@ -322,7 +322,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
     // handle google translate
     if (isBrowser && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) return;
 
-    return await new Promise((resolve, reject) => {
+    return await new Promise(async (resolve, reject) => {
         const timeout = getWeployOptions().timeout;
         await startTranslationCycle(document.body, apiKey, timeout).catch(reject);
 
