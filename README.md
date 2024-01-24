@@ -47,18 +47,18 @@ If you want to disable auto translate, you can add `data-disable-auto-translate=
 # Npm setup 
 Our codebase and backend is being optimized daily. There might be unavoidable breaking changes in the future. We will send an email to your account about these changes. 
 
-1. Install the npm package
+#### 1. Install the npm package
 ```bash
 npm install weploy-translate
 ```
 
-2. Open the App.js file and import the getTranslations function from the weploy-translate package.
+#### 2. Open the App.js file and import the getTranslations function from the weploy-translate package.
 ```javascript
 import { getTranslations } from 'weploy-translate';
 ```
 
 
-3. Now in the App.js call the "getTranslations" function and pass your API KEY as an argument. Please make sure getTranslations is only called once. We recommend to call it in the useEffect hook.
+#### 3. Now in the App.js call the "getTranslations" function and pass your API KEY as an argument. Please make sure getTranslations is only called once. We recommend to call it in the useEffect hook.
 
 ```javascript
   useEffect(() => {
@@ -74,12 +74,12 @@ Done! 🚀 The website should now automatically translate to the language set in
 
 ### Adding language switcher
 
-1. Import the "switchLanguage" and "getSelectedLanguage" methods.
+#### 1. Import the "switchLanguage" and "getSelectedLanguage" methods.
 ```javascript
 import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
 ```
 
-2. Here is an example for the switch. However, feel free to build your own you only need to call switchLanguage(ISO639_Code) to let us know a new language was selected. We will save it to the users localstorage. Make sure you pass the ISO 639 Language code (See list below).
+#### 2. Here is an example for the switch. However, feel free to build your own you only need to call switchLanguage(ISO639_Code) to let us know a new language was selected. We will save it to the users localstorage. Make sure you pass the ISO 639 Language code (See list below).
 ```html
 <select
   className="weploy-exclude"
@@ -91,7 +91,7 @@ import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
 </select>
 ```
 
-3. We also have to listen to the switch changes and get the correct translations
+#### 3. We also have to listen to the switch changes and get the correct translations
 ```javascript
 import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
 
@@ -111,10 +111,9 @@ Done. Now you should be able to switch the language manually.
 Our package does not include a built-in loading indicator. However, you can easily add one manually by utilizing state. Here’s an example of how you can do it:
 
 ```javascript
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     getTranslations("YOUR_API_KEY").finally(() => setLoading(false));
   }, []);
 
