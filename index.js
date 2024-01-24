@@ -324,7 +324,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
     return await new Promise((resolve, reject) => {
         const timeout = getWeployOptions().timeout;
-        startTranslationCycle(document.body, apiKey, timeout).catch(reject);
+        await startTranslationCycle(document.body, apiKey, timeout).catch(reject);
 
         if (isBrowser && !isDomListenerAdded) {
           // Select the target node
@@ -342,7 +342,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
               }
             }
 
-            startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+            await startTranslationCycle(document.body, apiKey, 2000).catch(reject)
 
             // function getTextNodes(rootElement) {
             //   if (hasExcludedParent(rootElement)) {
