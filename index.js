@@ -281,11 +281,18 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 async function startTranslationCycle(node, apiKey, delay) {
   const lang = await getLanguageFromLocalStorage();
 
-  if (!delay) {
-    modifyHtmlStrings(node, lang, apiKey)
-  } else {
-    debounce(async () => modifyHtmlStrings(node, lang, apiKey), delay)();
-  }
+  return new Promise(async (resolve, reject) => {
+    if (!delay) {
+      await modifyHtmlStrings(node, lang, apiKey)
+      resolve()
+    } else {
+      debounce(async () => {
+        await modifyHtmlStrings(node, lang, apiKey);
+        resolve();
+      }, delay)();
+    }
+  })
+  
   // window.cacheAlreadyChecked = true;
 }
 
