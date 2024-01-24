@@ -1,6 +1,6 @@
 ![alt text](https://www.weploy.ai/perma-store/logo-black.png)
 
-Translate your website with AI. Visit our website for more information: [Weploy.ai](https://www.weploy.ai).
+Translate your website with GPT-4. Visit our website for more information: [Weploy.ai](https://www.weploy.ai).
 
 <br/><br/>
 
@@ -44,8 +44,8 @@ If you want to disable auto translate, you can add `data-disable-auto-translate=
 <br/><br/>
 
 
-# npm setup (proceed with caution ⚠️)
-Our codebase and Backend is being optimized daily. There might be unavoidable breaking changes in the future. We will send an email to your account about these changes. 
+# Npm setup 
+Our codebase and backend is being optimized daily. There might be unavoidable breaking changes in the future. We will send an email to your account about these changes. 
 
 1. Install the npm package
 ```bash
@@ -62,7 +62,10 @@ import { getTranslations } from 'weploy-translate';
 
 ```javascript
   useEffect(() => {
-    getTranslations("YOUR_API_KEY");
+    getTranslations("fe87f665-e260-4021-a973-619d794f8c0d", { 
+      timeout: 0, // All text on the website should be visible before you get the translations. (Default is 0)
+      disableAutoTranslate: false // This will disable auto translation on the first load (Default is false)
+    });
   }, []);
 ```
 
