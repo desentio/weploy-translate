@@ -79,7 +79,8 @@ Done! 🚀 The website should now automatically translate to the language set in
 import {switchLanguage, getSelectedLanguage} from 'weploy-translate';
 ```
 
-#### 2. Here is an example for the switch. However, feel free to build your own you only need to call switchLanguage(ISO639_Code) to let us know a new language was selected. We will save it to the users localstorage. Make sure you pass the ISO 639 Language code (See list below).
+#### 2. Call switchLanguage()
+This is just an example code, feel free to build your own you only need to call switchLanguage(ISO639_Code) to let us know a new language was selected. We will save it to the users localstorage. Make sure you pass the ISO 639 Language code (See list below).
 ```html
 <select
   className="weploy-exclude"
@@ -114,6 +115,7 @@ Our package does not include a built-in loading indicator. However, you can easi
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true)
     getTranslations("YOUR_API_KEY").finally(() => setLoading(false));
   }, []);
 
