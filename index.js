@@ -105,7 +105,11 @@ function saveLanguageToLocalStorage(availableLangs = [], useBaseLang) {
 async function getLanguageFromLocalStorage() {
   const optsArgs = getWeployOptions()
   const apiKey = optsArgs.apiKey
-  let language = localStorage.getItem("language");
+
+  const search = window.location.search;
+  const params = new URLSearchParams(search);
+  let language = params.get('lang') || localStorage.getItem("language");
+  
   const availableLangs = await fetchLanguageList(apiKey);
   if (!availableLangs.find(l => l.lang == language)) {
     saveLanguageToLocalStorage(availableLangs, optsArgs.disableAutoTranslate);
@@ -493,7 +497,9 @@ async function createLanguageSelect(apiKey) {
 
 function getSelectedLanguage() {
   return new Promise((resolve, reject) => {
-    let language = localStorage.getItem("language");
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    let language = params.get('lang') || localStorage.getItem("language");
     if (language) {
       resolve(language); // Resolve the promise
     }
