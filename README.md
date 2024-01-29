@@ -22,7 +22,15 @@ Alternatively, to display language names alongside flags, use:
 ```
 
 ## Excluding Text from Translation
-⚠️ You should put this class on **chat popups like crisp chat** any other user generated content that should not be translated!
+⚠️ **Developer Notice:** Use the class "weploy-exclude" to prevent translation of specific content, like chat pop-ups or user-generated text.
+
+**Implementation:**
+```html
+<!-- Example: Marking text to be excluded from translation -->
+<div className="weploy-exclude">Non-translatable content here</div>
+```
+
+Note: Inputs and user-generated content are not translated by default.
 
 To exclude specific text from translation, add the class "weploy-exclude" to the parent element. Note that inputs or user-generated content are always excluded by default. 
 ```html
