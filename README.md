@@ -22,6 +22,8 @@ Alternatively, to display language names alongside flags, use:
 ```
 
 ## Excluding Text from Translation
+⚠️ You should put this class on **chat popups like crisp chat** any other user generated content that should not be translated!
+
 To exclude specific text from translation, add the class "weploy-exclude" to the parent element. Note that inputs or user-generated content are always excluded by default. 
 ```html
 <div className="weploy-exclude">Don't translate me</div>
@@ -41,7 +43,7 @@ To disable this feature, add the `data-disable-auto-translate="true"` attribute 
 Direct users to a specific language version by using the /?lang=LANGUAGE_CODE URL parameter. For instance, example.com/?lang=ru will automatically translate the page into Russian.
 
 
-
+---
 
 # NPM Setup
 Our codebase and backend are continuously optimized. Future breaking changes are possible, and we will notify you about these via email.
