@@ -108,7 +108,13 @@ async function getLanguageFromLocalStorage() {
 
   const search = window.location.search;
   const params = new URLSearchParams(search);
-  let language = params.get('lang') || localStorage.getItem("language");
+  const paramsLang = params.get('lang');
+  const localStorageLang = localStorage.getItem("language");
+
+  if (paramsLang && (paramsLang != localStorageLang)) {
+    localStorage.setItem("language", paramsLang);
+  }
+  let language = paramsLang || localStorageLang;
   
   const availableLangs = await fetchLanguageList(apiKey);
   if (!availableLangs.find(l => l.lang == language)) {
@@ -405,10 +411,22 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
 }
 
+function addOrReplaceLangParam(url, lang) {
+  let urlObj = new URL(url);
+  let params = new URLSearchParams(urlObj.search);
+
+  params.set('lang', lang);
+  urlObj.search = params.toString();
+
+  return urlObj.toString();
+}
+
 function switchLanguage(language) {
   localStorage.setItem("language", language);
+  const updatedUrl = addOrReplaceLangParam(window.location.href, language);
   setTimeout(() => {
-    location.reload();
+    window.location.href = updatedUrl;
+    // location.reload();
   }, 1000);
 }
 
@@ -499,7 +517,14 @@ function getSelectedLanguage() {
   return new Promise((resolve, reject) => {
     const search = window.location.search;
     const params = new URLSearchParams(search);
-    let language = params.get('lang') || localStorage.getItem("language");
+    const paramsLang = params.get('lang');
+    const localStorageLang = localStorage.getItem("language");
+
+    if (paramsLang && (paramsLang != localStorageLang)) {
+      localStorage.setItem("language", paramsLang);
+    }
+    
+    let language = paramsLang || localStorageLang;
     if (language) {
       resolve(language); // Resolve the promise
     }
