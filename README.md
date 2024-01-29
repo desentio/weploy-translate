@@ -124,9 +124,7 @@ Our package does not include a built-in loading indicator, but you can add one u
     getTranslations("YOUR_API_KEY").finally(() => setLoading(false));
   }, []);
 
-  return loading ? <div>Loading
-
-...</div> : <div>Your content here</div>
+  return loading ? <div>Loading</div> : <div>Your content here</div>
 ```
 
 
