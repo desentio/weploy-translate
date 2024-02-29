@@ -531,6 +531,27 @@ function getSelectedLanguage() {
   });
 }
 
+function handleChangeCustomSelect(target){
+  // Get elements by class
+  const classElements = Array.from(document.getElementsByClassName("weploy-select"));
+  // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
+  const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="weploy-select"]`));
+  const isWithLangLabel = Array.from(target.classList).includes("weploy-select-with-name")
+  const idElements = isWithLangLabel ? idElementsStartsWithClassName : idElementsStartsWithClassName.filter(el => !el.id.includes("weploy-select-with-name")); 
+  // Combine and deduplicate elements
+  const weploySwitchers = Array.from(new Set([...classElements, ...idElements]));
+
+  const newValue = target.value;
+  // Update only the select elements within weploySwitchers
+  weploySwitchers.forEach(sw => { 
+    const selects = sw.querySelector('select.weploy-exclude');
+    if (selects && selects !== target) {
+      selects.value = newValue;
+    }
+  });
+  switchLanguage(newValue);
+}
+
 if (isBrowser) {
   if (!window.weployUtils) {
      window.weployUtils = {}
@@ -540,6 +561,7 @@ if (isBrowser) {
   window.weployUtils.switchLanguage = switchLanguage;
   window.weployUtils.getSelectedLanguage = getSelectedLanguage;
   window.weployUtils.createLanguageSelect = createLanguageSelect;
+  window.weployUtils.handleChangeCustomSelect= handleChangeCustomSelect;
 }
 
 module.exports.isBrowser = isBrowser;
