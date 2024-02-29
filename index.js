@@ -334,6 +334,32 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
     if (optsArgs.createSelector) {
       await createLanguageSelect(apiKey);
+    } else {
+      // set default value for custom selector
+      try {
+        // Get elements by class
+        const classElements = [
+          ...Array.from(document.getElementsByClassName("weploy-select")),
+          ...Array.from(document.getElementsByClassName("weploy-select-with-name"))
+        ];
+        // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
+        const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="weploy-select"]`));
+        // Combine and deduplicate elements
+        const weploySwitchers = Array.from(new Set([...classElements, ...idElementsStartsWithClassName]));
+
+        // Populate the select element values based on getLanguageFromLocalStorage
+        await Promise.all(weploySwitchers.map(async weploySwitcher => {
+          let selectElem = weploySwitcher.querySelector('select.weploy-exclude');
+          if (selectElem) {
+            const selectedLang = await getLanguageFromLocalStorage();
+            if (selectedLang != selectElem.value){
+              selectElem.value = selectedLang;
+            }
+          }
+        }));
+      } catch(error) {
+        console.log("error setting selector default values", error)
+      }
     }
 
     // handle google translate
