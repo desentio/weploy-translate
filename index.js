@@ -587,7 +587,8 @@ if (isBrowser) {
   window.weployUtils.switchLanguage = switchLanguage;
   window.weployUtils.getSelectedLanguage = getSelectedLanguage;
   window.weployUtils.createLanguageSelect = createLanguageSelect;
-  window.weployUtils.handleChangeCustomSelect= handleChangeCustomSelect;
+  window.weployUtils.handleChangeCustomSelect = handleChangeCustomSelect;
+  window.weployUtils.getLanguageFromLocalStorage = getLanguageFromLocalStorage
 }
 
 module.exports.isBrowser = isBrowser;
@@ -595,3 +596,4 @@ module.exports.getTranslations = getTranslations;
 module.exports.switchLanguage = switchLanguage;
 module.exports.getSelectedLanguage = getSelectedLanguage;
 module.exports.createLanguageSelect = createLanguageSelect;
+module.exports.getLanguageFromLocalStorage = getLanguageFromLocalStorage;
