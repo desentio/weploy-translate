@@ -531,6 +531,17 @@ function getSelectedLanguage() {
   });
 }
 
+if (isBrowser) {
+  if (!window.weployUtils) {
+     window.weployUtils = {}
+  }
+  window.weployUtils.isBrowser = isBrowser;
+  window.weployUtils.getTranslations = getTranslations;
+  window.weployUtils.switchLanguage = switchLanguage;
+  window.weployUtils.getSelectedLanguage = getSelectedLanguage;
+  window.weployUtils.createLanguageSelect = createLanguageSelect;
+}
+
 module.exports.isBrowser = isBrowser;
 module.exports.getTranslations = getTranslations;
 module.exports.switchLanguage = switchLanguage;
