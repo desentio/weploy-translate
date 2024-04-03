@@ -7,6 +7,7 @@ if (isBrowser) {
     const disableAutoTranslateAttr = window.weployScriptTag.getAttribute("data-disable-auto-translate")
     const disableAutoTranslate = disableAutoTranslateAttr == "true";
     const createSelector = window.weployScriptTag.getAttribute("data-auto-create-selector") != "false";
-    getTranslations(apiKey, {disableAutoTranslate, createSelector: createSelector})
+    const excludeClasses = (window.weployScriptTag.getAttribute("data-exclude-classes") || "").trim().split(" ");
+    getTranslations(apiKey, {disableAutoTranslate, createSelector: createSelector, excludeClasses})
   });
 }

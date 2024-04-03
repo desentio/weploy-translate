@@ -188,9 +188,10 @@ function extractTextNodes(node, textNodes) {
       node &&
       node.className &&
       typeof node.className == "string" &&
-      node.className.includes("weploy-exclude")
-    )
+      (node.className.includes("weploy-exclude") || window.weployExcludeClasses.length && window.weployExcludeClasses.some(excludeClass => excludeClass && node.className.includes(excludeClass)) )
+    ) {
       return;
+    }
     for (let child of node.childNodes) {
       extractTextNodes(child, textNodes);
     }
@@ -206,7 +207,14 @@ function filterValidTextNodes(textNodes) {
   });
 }
 
-function processTextNodes(textNodes, language, apiKey) {
+function processTextNodes(textNodes, language = "", apiKey) {
+  // dont translate original language
+  if (window.weployLanguages[0] && window.weployLanguages[0].lang == language.substring(0, 2).toLowerCase()) {
+    return new Promise((resolve, reject) => {
+      console.log("Original language is not translatable")
+      reject("Original language is not translatable");
+    })
+  }
   return new Promise(async (resolve, reject) => {
     // Remove empty strings
     const cleanTextNodes = textNodes.filter(
@@ -324,6 +332,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
         pathOptions: optsArgs.pathOptions || {},
         apiKey
       }
+      window.weployExcludeClasses = optsArgs.excludeClasses || [];
     }
 
     // save language to local storage & delay 1 second to wait google translate

@@ -7,7 +7,7 @@ Enhance your website with GPT-4 powered translations. For more details, visit ou
 #### 1. Insert the Script
 Place the following script before the closing body tag of your HTML:
 ```html
-<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-disable-auto-translate="false"></script>
+<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-disable-auto-translate="false" data-exclude-classes="SOME_CLASSES_TO_BE_IGNORED"></script>
 ```
 To prevent automatic translation of your page into other languages, add: `data-disable-auto-translate="true"` to the script tag. [Learn more here.](#user-content-disable-auto-translate-on-first-time-visit)
 
@@ -28,6 +28,11 @@ Alternatively, to display language names alongside flags, use:
 ```html
 <!-- Example: Marking text to be excluded from translation -->
 <div className="weploy-exclude">Non-translatable content here</div>
+```
+
+Or pass **data-exclude-classes** to the script tag:
+```html
+<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-exclude-classes="class1 class2 class3"></script>
 ```
 
 Note: Inputs and user-generated content are not translated by default.
