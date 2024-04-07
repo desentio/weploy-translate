@@ -208,6 +208,9 @@ function filterValidTextNodes(textNodes) {
 }
 
 function processTextNodes(textNodes, language = "", apiKey) {
+  // dont translate google translate
+  if (isBrowser && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) return;
+  
   // dont translate original language
   if (window.weployLanguages[0] && window.weployLanguages[0].lang == language.substring(0, 2).toLowerCase()) {
     return new Promise((resolve, reject) => {
