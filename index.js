@@ -92,12 +92,12 @@ function hasExcludedParent(node) {
   return false;
 }
 
-function saveLanguageToLocalStorage(availableLangs = [], useBaseLang) {
+function saveLanguageToLocalStorage(availableLangs = [], useBrowserLang = true) {
   const language = navigator.language || navigator.userLanguage; // Get browser language (usually in this format: en-US)
   const langIsoCode = language && language.length >= 2 ? language.substring(0, 2) : null // Get the language ISO code
   const langInAvailableLangs = availableLangs.find(lang => lang.lang == langIsoCode) //  Check if the language is in the available languages
   const langInAvailableLangsOrFirst = langInAvailableLangs?.lang || availableLangs[0].lang // If the language is not in the available languages, use the first available language
-  const langToSave = useBaseLang ? availableLangs[0].lang : langInAvailableLangsOrFirst // If useBaseLang is true, use the first available language, otherwise use the language from the browser
+  const langToSave = useBrowserLang ? langInAvailableLangsOrFirst : availableLangs[0].lang // If useBrowserLang is true, use the language from the browser, otherwise use the first available language
   // Save the language to local storage
   localStorage.setItem("language", langToSave);
 }
@@ -118,7 +118,7 @@ async function getLanguageFromLocalStorage() {
   
   const availableLangs = await fetchLanguageList(apiKey);
   if (!availableLangs.find(l => l.lang == language)) {
-    saveLanguageToLocalStorage(availableLangs, optsArgs.disableAutoTranslate);
+    saveLanguageToLocalStorage(availableLangs, optsArgs.useBrowserLanguage);
   }
   return language; // Get the language from local storage
 }
