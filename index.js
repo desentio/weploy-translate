@@ -542,6 +542,12 @@ async function createLanguageSelect(apiKey) {
             selectElem.appendChild(langOpts);
           });
 
+          // Check for "data-icon-color" attribute and use it for font color
+          const iconColor = weploySwitcher.getAttribute('data-icon-color');
+          if (iconColor) {
+            selectElem.style.color = iconColor;
+          }
+
           // Append the select element to each weploySwitcher
           weploySwitcher.appendChild(selectElem);
         }
