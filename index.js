@@ -602,7 +602,7 @@ async function createLanguageSelect(apiKey) {
           const iconColor = weploySwitcher.getAttribute('data-icon-color');
 
           let iconSvgInSummary = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-          iconSvgInSummary.setAttribute("fill", iconColor || "none");
+          iconSvgInSummary.setAttribute("fill", iconColor || "#241c15");
           iconSvgInSummary.setAttribute("height", "24");
           iconSvgInSummary.setAttribute("viewBox", "0 0 24 24");
           iconSvgInSummary.setAttribute("width", "24");
