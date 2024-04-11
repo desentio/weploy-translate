@@ -1,5 +1,5 @@
 const CheckIfTranslatable = require('./utility.js');
-const cssModule = require('/weploy.css');
+const cssModule = require('./weploy.css');
 const css = cssModule.default || cssModule;
 
 // check if code runs on server or client
