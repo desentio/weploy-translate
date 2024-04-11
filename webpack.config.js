@@ -18,6 +18,10 @@ module.exports = {
                     },
                 },
             },
+            {
+                test: /\.css$/,
+                use: 'raw-loader',
+            },
         ],
     },
 };

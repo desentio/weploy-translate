@@ -1,4 +1,7 @@
 const CheckIfTranslatable = require('./utility.js');
+const cssModule = require('/weploy.css');
+const css = cssModule.default || cssModule;
+
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
 
@@ -547,6 +550,14 @@ async function createLanguageSelect(apiKey) {
   if (!apiKey) {
     console.error("Weploy API key is required");
     return;
+  }
+
+  // Check if the style tag already exists
+  if (!document.getElementById('weploy-style')) {
+    const style = document.createElement('style');
+    style.id = 'weploy-style';
+    style.textContent = css;
+    document.body.appendChild(style);
   }
 
   const availableLangs = await fetchLanguageList(apiKey);
