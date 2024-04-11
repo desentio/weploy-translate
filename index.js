@@ -641,6 +641,25 @@ async function createLanguageSelect(apiKey) {
           let ul = document.createElement('ul');
           ul.className = 'weploy-lang-selector-menu-container';
           details.appendChild(ul);
+
+          function autoPosition() {
+            const rect = ul.getBoundingClientRect();            
+            // Check if the element is outside the viewport on the right side
+            if ((rect.x + rect.width) >= window.innerWidth) {
+              ul.style.right = '0px';
+              ul.style.left = 'auto';
+            } else {
+              ul.style.right = 'auto';
+              ul.style.left = '0px';
+            }
+
+            // Check if the element is outside the viewport on the bottom side
+            if ((rect.y + rect.height) >= window.innerHeight) {
+              ul.style.bottom = '0px';
+            } else {
+              ul.style.bottom = 'auto';
+            }
+          }
           
           languages.forEach((language, index) => {
               const isSelected = language.lang == selectedLangLowercased;
@@ -690,6 +709,8 @@ async function createLanguageSelect(apiKey) {
           weploySwitcher.appendChild(div);
           weploySwitcher.classList.add('weploy-lang-selector-wrapper')
           weploySwitcher.classList.add('weploy-exclude')
+          autoPosition();
+          window.addEventListener('resize', autoPosition);
 
           //////////
           // selectElem = document.createElement('select');
