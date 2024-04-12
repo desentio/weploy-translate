@@ -2,13 +2,931 @@ const CheckIfTranslatable = require('./utility.js');
 const cssModule = require('./weploy.css');
 const css = cssModule.default || cssModule;
 
+const allWeployLanguages = [
+  {
+      "label": "Afar",
+      "flag": "🇪🇷",
+      "lang": "aa"
+  },
+  {
+      "label": "Abkhazian",
+      "flag": null,
+      "lang": "ab"
+  },
+  {
+      "label": "Avestan",
+      "flag": "🇮🇷",
+      "lang": "ae"
+  },
+  {
+      "label": "Afrikaans",
+      "flag": "🇿🇦",
+      "lang": "af"
+  },
+  {
+      "label": "Akan",
+      "flag": "🇬🇭",
+      "lang": "ak"
+  },
+  {
+      "label": "Amharic",
+      "flag": "🇪🇹",
+      "lang": "am"
+  },
+  {
+      "label": "Aragonese",
+      "flag": null,
+      "lang": "an"
+  },
+  {
+      "label": "Arabic",
+      "flag": "🇸🇦",
+      "lang": "ar"
+  },
+  {
+      "label": "Assamese",
+      "flag": null,
+      "lang": "as"
+  },
+  {
+      "label": "Avaric",
+      "flag": null,
+      "lang": "av"
+  },
+  {
+      "label": "Aymara",
+      "flag": null,
+      "lang": "ay"
+  },
+  {
+      "label": "Azerbaijani",
+      "flag": "🇦🇿",
+      "lang": "az"
+  },
+  {
+      "label": "Bashkir",
+      "flag": null,
+      "lang": "ba"
+  },
+  {
+      "label": "Belarusian",
+      "flag": "🇧🇾",
+      "lang": "be"
+  },
+  {
+      "label": "Bulgarian",
+      "flag": "🇧🇬",
+      "lang": "bg"
+  },
+  {
+      "label": "Bihari languages",
+      "flag": null,
+      "lang": "bh"
+  },
+  {
+      "label": "Bambara",
+      "flag": "🇲🇱",
+      "lang": "bm"
+  },
+  {
+      "label": "Bislama",
+      "flag": "🇻🇺",
+      "lang": "bi"
+  },
+  {
+      "label": "Bengali",
+      "flag": "🇧🇩",
+      "lang": "bn"
+  },
+  {
+      "label": "Tibetan",
+      "flag": "🇧🇹",
+      "lang": "bo"
+  },
+  {
+      "label": "Breton",
+      "flag": null,
+      "lang": "br"
+  },
+  {
+      "label": "Bosnian",
+      "flag": "🇧🇦",
+      "lang": "bs"
+  },
+  {
+      "label": "Catalan; Valencian",
+      "flag": null,
+      "lang": "ca"
+  },
+  {
+      "label": "Chechen",
+      "flag": null,
+      "lang": "ce"
+  },
+  {
+      "label": "Chamorro",
+      "flag": "🇬🇺",
+      "lang": "ch"
+  },
+  {
+      "label": "Corsican",
+      "flag": null,
+      "lang": "co"
+  },
+  {
+      "label": "Cree",
+      "flag": null,
+      "lang": "cr"
+  },
+  {
+      "label": "Czech",
+      "flag": "🇨🇿",
+      "lang": "cs"
+  },
+  {
+      "label": "Chuvash",
+      "flag": "",
+      "lang": "cv"
+  },
+  {
+      "label": "Welsh",
+      "flag": "",
+      "lang": "cy"
+  },
+  {
+      "label": "Danish",
+      "flag": "🇩🇰",
+      "lang": "da"
+  },
+  {
+      "label": "German",
+      "flag": "🇩🇪",
+      "lang": "de"
+  },
+  {
+      "label": "Divehi",
+      "flag": "🇲🇻",
+      "lang": "dv"
+  },
+  {
+      "label": "Dzongkha",
+      "flag": "🇧🇹",
+      "lang": "dz"
+  },
+  {
+      "label": "Ewe",
+      "flag": "🇬🇭",
+      "lang": "ee"
+  },
+  {
+      "label": "Greek",
+      "flag": "🇬🇷",
+      "lang": "el"
+  },
+  {
+      "label": "English",
+      "flag": "🇺🇸",
+      "lang": "en"
+  },
+  {
+      "label": "Esperanto",
+      "flag": null,
+      "lang": "eo"
+  },
+  {
+      "label": "Spanish",
+      "flag": "🇪🇸",
+      "lang": "es"
+  },
+  {
+      "label": "Estonian",
+      "flag": "🇪🇪",
+      "lang": "et"
+  },
+  {
+      "label": "Basque",
+      "flag": null,
+      "lang": "eu"
+  },
+  {
+      "label": "Persian",
+      "flag": "🇮🇷",
+      "lang": "fa"
+  },
+  {
+      "label": "Fulah",
+      "flag": null,
+      "lang": "ff"
+  },
+  {
+      "label": "Finnish",
+      "flag": "🇫🇮",
+      "lang": "fi"
+  },
+  {
+      "label": "Fijian",
+      "flag": "🇫🇯",
+      "lang": "fj"
+  },
+  {
+      "label": "Faroese",
+      "flag": "🇫🇴",
+      "lang": "fo"
+  },
+  {
+      "label": "French",
+      "flag": "🇫🇷",
+      "lang": "fr"
+  },
+  {
+      "label": "Western Frisian",
+      "flag": null,
+      "lang": "fy"
+  },
+  {
+      "label": "Irish",
+      "flag": "🇮🇪",
+      "lang": "ga"
+  },
+  {
+      "label": "Gaelic; Scottish Gaelic",
+      "flag": null,
+      "lang": "gd"
+  },
+  {
+      "label": "Galician",
+      "flag": null,
+      "lang": "gl"
+  },
+  {
+      "label": "Guarani",
+      "flag": "🇵🇾",
+      "lang": "gn"
+  },
+  {
+      "label": "Gujarati",
+      "flag": null,
+      "lang": "gu"
+  },
+  {
+      "label": "Manx",
+      "flag": "🇮🇲",
+      "lang": "gv"
+  },
+  {
+      "label": "Hausa",
+      "flag": "🇳🇬",
+      "lang": "ha"
+  },
+  {
+      "label": "Hebrew",
+      "flag": "🇮🇱",
+      "lang": "he"
+  },
+  {
+      "label": "Hindi",
+      "flag": "🇮🇳",
+      "lang": "hi"
+  },
+  {
+      "label": "Hiri Motu",
+      "flag": "🇵🇬",
+      "lang": "ho"
+  },
+  {
+      "label": "Croatian",
+      "flag": "🇭🇷",
+      "lang": "hr"
+  },
+  {
+      "label": "Haitian",
+      "flag": "🇭🇹",
+      "lang": "ht"
+  },
+  {
+      "label": "Hungarian",
+      "flag": "🇭🇺",
+      "lang": "hu"
+  },
+  {
+      "label": "Armenian",
+      "flag": "🇦🇲",
+      "lang": "hy"
+  },
+  {
+      "label": "Herero",
+      "flag": "🇳🇦",
+      "lang": "hz"
+  },
+  {
+      "label": "Interlingua",
+      "flag": null,
+      "lang": "ia"
+  },
+  {
+      "label": "Indonesian",
+      "flag": "🇮🇩",
+      "lang": "id"
+  },
+  {
+      "label": "Interlingue",
+      "flag": null,
+      "lang": "ie"
+  },
+  {
+      "label": "Igbo",
+      "flag": "🇳🇬",
+      "lang": "ig"
+  },
+  {
+      "label": "Sichuan Yi",
+      "flag": "🇨🇳",
+      "lang": "ii"
+  },
+  {
+      "label": "Inupiaq",
+      "flag": null,
+      "lang": "ik"
+  },
+  {
+      "label": "Ido",
+      "flag": null,
+      "lang": "io"
+  },
+  {
+      "label": "Icelandic",
+      "flag": "🇮🇸",
+      "lang": "is"
+  },
+  {
+      "label": "Italian",
+      "flag": "🇮🇹",
+      "lang": "it"
+  },
+  {
+      "label": "Inuktitut",
+      "flag": null,
+      "lang": "iu"
+  },
+  {
+      "label": "Japanese",
+      "flag": "🇯🇵",
+      "lang": "ja"
+  },
+  {
+      "label": "Javanese",
+      "flag": null,
+      "lang": "jv"
+  },
+  {
+      "label": "Georgian",
+      "flag": "🇬🇪",
+      "lang": "ka"
+  },
+  {
+      "label": "Kongo",
+      "flag": "🇨🇬",
+      "lang": "kg"
+  },
+  {
+      "label": "Kikuyu; Gikuyu",
+      "flag": null,
+      "lang": "ki"
+  },
+  {
+      "label": "Kuanyama; Kwanyama",
+      "flag": "🇦🇴",
+      "lang": "kj"
+  },
+  {
+      "label": "Kazakh",
+      "flag": "🇰🇿",
+      "lang": "kk"
+  },
+  {
+      "label": "Kalaallisut; Greenlandic",
+      "flag": "🇬🇱",
+      "lang": "kl"
+  },
+  {
+      "label": "Central Khmer",
+      "flag": "🇰🇭",
+      "lang": "km"
+  },
+  {
+      "label": "Kannada",
+      "flag": null,
+      "lang": "kn"
+  },
+  {
+      "label": "Korean",
+      "flag": "🇰🇷",
+      "lang": "ko"
+  },
+  {
+      "label": "Kanuri",
+      "flag": null,
+      "lang": "kr"
+  },
+  {
+      "label": "Kashmiri",
+      "flag": null,
+      "lang": "ks"
+  },
+  {
+      "label": "Kurdish",
+      "flag": null,
+      "lang": "ku"
+  },
+  {
+      "label": "Komi",
+      "flag": null,
+      "lang": "kv"
+  },
+  {
+      "label": "Cornish",
+      "flag": null,
+      "lang": "kw"
+  },
+  {
+      "label": "Kirghiz; Kyrgyz",
+      "flag": "🇰🇬",
+      "lang": "ky"
+  },
+  {
+      "label": "Latin",
+      "flag": "🇻🇦",
+      "lang": "la"
+  },
+  {
+      "label": "Luxembourgish; Letzeburgesch",
+      "flag": "🇱🇺",
+      "lang": "lb"
+  },
+  {
+      "label": "Ganda",
+      "flag": "🇺🇬",
+      "lang": "lg"
+  },
+  {
+      "label": "Limburgan; Limburger; Limburgish",
+      "flag": null,
+      "lang": "li"
+  },
+  {
+      "label": "Lingala",
+      "flag": "🇨🇬",
+      "lang": "ln"
+  },
+  {
+      "label": "Lao",
+      "flag": "🇱🇦",
+      "lang": "lo"
+  },
+  {
+      "label": "Lithuanian",
+      "flag": "🇱🇹",
+      "lang": "lt"
+  },
+  {
+      "label": "Luba-Katanga",
+      "flag": null,
+      "lang": "lu"
+  },
+  {
+      "label": "Latvian",
+      "flag": "🇱🇻",
+      "lang": "lv"
+  },
+  {
+      "label": "Malagasy",
+      "flag": "🇲🇬",
+      "lang": "mg"
+  },
+  {
+      "label": "Marshallese",
+      "flag": "🇲🇭",
+      "lang": "mh"
+  },
+  {
+      "label": "Maori",
+      "flag": "🇳🇿",
+      "lang": "mi"
+  },
+  {
+      "label": "Macedonian",
+      "flag": "🇲🇰",
+      "lang": "mk"
+  },
+  {
+      "label": "Malayalam",
+      "flag": "",
+      "lang": "ml"
+  },
+  {
+      "label": "Mongolian",
+      "flag": "🇲🇳",
+      "lang": "mn"
+  },
+  {
+      "label": "Marathi",
+      "flag": null,
+      "lang": "mr"
+  },
+  {
+      "label": "Malay",
+      "flag": "🇲🇾",
+      "lang": "ms"
+  },
+  {
+      "label": "Maltese",
+      "flag": "🇲🇹",
+      "lang": "mt"
+  },
+  {
+      "label": "Burmese",
+      "flag": "🇲🇲",
+      "lang": "my"
+  },
+  {
+      "label": "Nauru",
+      "flag": "🇳🇷",
+      "lang": "na"
+  },
+  {
+      "label": "Bokmål, Norwegian; Norwegian Bokmål",
+      "flag": "",
+      "lang": "nb"
+  },
+  {
+      "label": "Ndebele, North; North Ndebele",
+      "flag": null,
+      "lang": "nd"
+  },
+  {
+      "label": "Nepali",
+      "flag": "🇳🇵",
+      "lang": "ne"
+  },
+  {
+      "label": "Ndonga",
+      "flag": "🇳🇦",
+      "lang": "ng"
+  },
+  {
+      "label": "Dutch",
+      "flag": "🇳🇱",
+      "lang": "nl"
+  },
+  {
+      "label": "Norwegian Nynorsk; Nynorsk, Norwegian",
+      "flag": null,
+      "lang": "nn"
+  },
+  {
+      "label": "Norwegian",
+      "flag": "🇳🇴",
+      "lang": "no"
+  },
+  {
+      "label": "Ndebele, South; South Ndebele",
+      "flag": null,
+      "lang": "nr"
+  },
+  {
+      "label": "Navajo; Navaho",
+      "flag": null,
+      "lang": "nv"
+  },
+  {
+      "label": "Chichewa; Chewa; Nyanja",
+      "flag": "🇲🇼",
+      "lang": "ny"
+  },
+  {
+      "label": "Occitan (post 1500)",
+      "flag": null,
+      "lang": "oc"
+  },
+  {
+      "label": "Ojibwa",
+      "flag": null,
+      "lang": "oj"
+  },
+  {
+      "label": "Oromo",
+      "flag": "🇪🇹",
+      "lang": "om"
+  },
+  {
+      "label": "Oriya",
+      "flag": null,
+      "lang": "or"
+  },
+  {
+      "label": "Ossetian; Ossetic",
+      "flag": null,
+      "lang": "os"
+  },
+  {
+      "label": "Panjabi; Punjabi",
+      "flag": null,
+      "lang": "pa"
+  },
+  {
+      "label": "Pali",
+      "flag": null,
+      "lang": "pi"
+  },
+  {
+      "label": "Polish",
+      "flag": "🇵🇱",
+      "lang": "pl"
+  },
+  {
+      "label": "Pushto; Pashto",
+      "flag": null,
+      "lang": "ps"
+  },
+  {
+      "label": "Portuguese",
+      "flag": "🇵🇹",
+      "lang": "pt"
+  },
+  {
+      "label": "Quechua",
+      "flag": "🇵🇪",
+      "lang": "qu"
+  },
+  {
+      "label": "Romansh",
+      "flag": "🇨🇭",
+      "lang": "rm"
+  },
+  {
+      "label": "Rundi",
+      "flag": "🇧🇮",
+      "lang": "rn"
+  },
+  {
+      "label": "Romanian",
+      "flag": "🇷🇴",
+      "lang": "ro"
+  },
+  {
+      "label": "Russian",
+      "flag": "🇷🇺",
+      "lang": "ru"
+  },
+  {
+      "label": "Kinyarwanda",
+      "flag": "🇷🇼",
+      "lang": "rw"
+  },
+  {
+      "label": "Sanskrit",
+      "flag": null,
+      "lang": "sa"
+  },
+  {
+      "label": "Sardinian",
+      "flag": null,
+      "lang": "sc"
+  },
+  {
+      "label": "Sindhi",
+      "flag": "🇵🇰",
+      "lang": "sd"
+  },
+  {
+      "label": "Northern Sami",
+      "flag": null,
+      "lang": "se"
+  },
+  {
+      "label": "Sango",
+      "flag": "🇨🇫",
+      "lang": "sg"
+  },
+  {
+      "label": "Sinhala; Sinhalese",
+      "flag": "🇱🇰",
+      "lang": "si"
+  },
+  {
+      "label": "Slovak",
+      "flag": "🇸🇰",
+      "lang": "sk"
+  },
+  {
+      "label": "Slovenian",
+      "flag": "🇸🇮",
+      "lang": "sl"
+  },
+  {
+      "label": "Samoan",
+      "flag": null,
+      "lang": "sm"
+  },
+  {
+      "label": "Shona",
+      "flag": "🇿🇼",
+      "lang": "sn"
+  },
+  {
+      "label": "Somali",
+      "flag": "🇸🇴",
+      "lang": "so"
+  },
+  {
+      "label": "Albanian",
+      "flag": "🇦🇱",
+      "lang": "sq"
+  },
+  {
+      "label": "Serbian",
+      "flag": "🇷🇸",
+      "lang": "sr"
+  },
+  {
+      "label": "Swati",
+      "flag": "🇸🇿",
+      "lang": "ss"
+  },
+  {
+      "label": "Sotho, Southern",
+      "flag": null,
+      "lang": "st"
+  },
+  {
+      "label": "Sundanese",
+      "flag": null,
+      "lang": "su"
+  },
+  {
+      "label": "Swedish",
+      "flag": "🇸🇪",
+      "lang": "sv"
+  },
+  {
+      "label": "Swahili",
+      "flag": "🇰🇪",
+      "lang": "sw"
+  },
+  {
+      "label": "Tamil",
+      "flag": null,
+      "lang": "ta"
+  },
+  {
+      "label": "Telugu",
+      "flag": null,
+      "lang": "te"
+  },
+  {
+      "label": "Tajik",
+      "flag": "🇹🇯",
+      "lang": "tg"
+  },
+  {
+      "label": "Thai",
+      "flag": "🇹🇭",
+      "lang": "th"
+  },
+  {
+      "label": "Tigrinya",
+      "flag": "🇪🇷",
+      "lang": "ti"
+  },
+  {
+      "label": "Turkmen",
+      "flag": "🇹🇲",
+      "lang": "tk"
+  },
+  {
+      "label": "Tagalog",
+      "flag": "🇵🇭",
+      "lang": "tl"
+  },
+  {
+      "label": "Tswana",
+      "flag": "🇧🇼",
+      "lang": "tn"
+  },
+  {
+      "label": "Tonga",
+      "flag": null,
+      "lang": "to"
+  },
+  {
+      "label": "Turkish",
+      "flag": "🇹🇷",
+      "lang": "tr"
+  },
+  {
+      "label": "Tsonga",
+      "flag": null,
+      "lang": "ts"
+  },
+  {
+      "label": "Tatar",
+      "flag": "",
+      "lang": "tt"
+  },
+  {
+      "label": "Twi",
+      "flag": "🇬🇭",
+      "lang": "tw"
+  },
+  {
+      "label": "Tahitian",
+      "flag": "🇵🇫",
+      "lang": "ty"
+  },
+  {
+      "label": "Uighur; Uyghur",
+      "flag": null,
+      "lang": "ug"
+  },
+  {
+      "label": "Ukrainian",
+      "flag": "🇺🇦",
+      "lang": "uk"
+  },
+  {
+      "label": "Urdu",
+      "flag": null,
+      "lang": "ur"
+  },
+  {
+      "label": "Uzbek",
+      "flag": "🇺🇿",
+      "lang": "uz"
+  },
+  {
+      "label": "Venda",
+      "flag": null,
+      "lang": "ve"
+  },
+  {
+      "label": "Vietnamese",
+      "flag": "🇻🇳",
+      "lang": "vi"
+  },
+  {
+      "label": "Volapük",
+      "flag": null,
+      "lang": "vo"
+  },
+  {
+      "label": "Walloon",
+      "flag": "🇧🇪",
+      "lang": "wa"
+  },
+  {
+      "label": "Wolof",
+      "flag": "🇸🇳",
+      "lang": "wo"
+  },
+  {
+      "label": "Xhosa",
+      "flag": null,
+      "lang": "xh"
+  },
+  {
+      "label": "Yiddish",
+      "flag": null,
+      "lang": "yi"
+  },
+  {
+      "label": "Yoruba",
+      "flag": "🇳🇬",
+      "lang": "yo"
+  },
+  {
+      "label": "Zhuang; Chuang",
+      "flag": null,
+      "lang": "za"
+  },
+  {
+      "label": "Chinese",
+      "flag": "🇨🇳",
+      "lang": "zh"
+  },
+  {
+      "label": "Zulu",
+      "flag": "",
+      "lang": "zu"
+  }
+]
+
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
-
 
 // var isChangeLocationEventAdded;
 var isDomListenerAdded;
 var weployOptions;
+var weployLanguages = [];
 const API_URL = "https://api.tasksource.io"
 
 
@@ -259,7 +1177,8 @@ function processTextNodes(textNodes, language = "", apiKey) {
   if (isBrowser && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) return;
   
   // dont translate original language
-  if (window.weployLanguages[0] && window.weployLanguages[0].lang == language.substring(0, 2).toLowerCase()) {
+  const langs = window.weployLanguages || weployLanguages;
+  if (langs[0] && langs[0].lang == language.substring(0, 2).toLowerCase()) {
     return new Promise((resolve, reject) => {
       console.log("Original language is not translatable")
       reject("Original language is not translatable");
@@ -382,6 +1301,14 @@ async function getTranslations(apiKey, optsArgs = {}) {
         pathOptions: optsArgs.pathOptions || {},
         apiKey
       }
+      if (optsArgs.originalLanguage && optsArgs.allowedLanguages && optsArgs.allowedLanguages.length) {
+        const originalLang = allWeployLanguages.find(lang => lang.lang == optsArgs.originalLanguage);
+
+        if (originalLang) {
+          const allowedLangs = allWeployLanguages.filter(lang => optsArgs.allowedLanguages.includes(lang.lang));
+          weployLanguages = [originalLang, ...allowedLangs]
+        }
+      }
     } else {
       window.weployOptions = {
         timeout: optsArgs.timeout == null ? 0 : optsArgs.timeout,
@@ -389,6 +1316,14 @@ async function getTranslations(apiKey, optsArgs = {}) {
         apiKey
       }
       window.weployExcludeClasses = optsArgs.excludeClasses || [];
+      if (optsArgs.originalLanguage && optsArgs.allowedLanguages && optsArgs.allowedLanguages.length) {
+        const originalLang = allWeployLanguages.find(lang => lang.lang == optsArgs.originalLanguage);
+
+        if (originalLang) {
+          const allowedLangs = allWeployLanguages.filter(lang => optsArgs.allowedLanguages.includes(lang.lang));
+          window.weployLanguages = [originalLang, ...allowedLangs]
+        }
+      }
     }
 
     // save language to local storage & delay 1 second to wait google translate
@@ -522,7 +1457,8 @@ function switchLanguage(language) {
 }
 
 async function fetchLanguageList(apiKey) {
-  if (window.weployLanguages && Array.isArray(window.weployLanguages) && window.weployLanguages.length) return window.weployLanguages;
+  const langs = window.weployLanguages || weployLanguages;
+  if (langs && Array.isArray(langs) && langs.length) return langs;
 
   const availableLangs = await fetch(API_URL + "/weploy-projects/by-api-key", {
     headers: {
@@ -538,6 +1474,7 @@ async function fetchLanguageList(apiKey) {
       label: (res.labels || [])?.[index] || lang // fallback to text if flag unavailable
     }))
     if (isBrowser) window.weployLanguages = languagesWithFlagAndLabel // store in global scope
+    weployLanguages = languagesWithFlagAndLabel // for npm package
     return languagesWithFlagAndLabel
   })
   .catch(console.error)
@@ -710,7 +1647,7 @@ async function createLanguageSelect(apiKey) {
           weploySwitcher.classList.add('weploy-lang-selector-wrapper')
           weploySwitcher.classList.add('weploy-exclude')
           autoPosition();
-          window.addEventListener('resize', autoPosition);
+          // window.addEventListener('resize', autoPosition);
 
           //////////
           // selectElem = document.createElement('select');
