@@ -16,10 +16,6 @@ Enable users to select a language by adding:
 ```html
 <div id="weploy-select"></div>
 ```
-Alternatively, to display language names alongside flags, use:
-```html
-<div id="weploy-select-with-name"></div>
-```
 
 ## Excluding Text from Translation
 ⚠️ **Developer Notice:** Use the class "weploy-exclude" to prevent translation of specific content, like chat pop-ups or user-generated text.
