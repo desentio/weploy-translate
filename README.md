@@ -1,4 +1,4 @@
-![alt text](https://www.weploy.ai/perma-store/logo-black.png)
+![alt text](https://assets-global.website-files.com/65fe3d690e72437309ee40e6/65fe3dee877771ed6999cca3_Frame%2041%20(1).png)
 
 Enhance your website with GPT-4 powered translations. For more details, visit our website: [Weploy.ai](https://www.weploy.ai).
 
