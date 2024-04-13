@@ -18,7 +18,7 @@ if (isBrowser) {
     const originalLang = (originalLangAttr || "").trim().toLowerCase();
 
     const allowedLangAttr = window.weployScriptTag.getAttribute("data-allowed-languages");
-    const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(" ").filter(lang => !!lang);
+    const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => !!lang);
 
     const createSelector = window.weployScriptTag.getAttribute("data-auto-create-selector") != "false";
     const excludeClasses = (window.weployScriptTag.getAttribute("data-exclude-classes") || "").trim().split(" ");
