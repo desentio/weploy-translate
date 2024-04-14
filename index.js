@@ -130,7 +130,9 @@ function renderWeployLoadingState() {
     }
 
     if (window.weployTranslating) {
-      selector.replaceChild(loadingIcon, staticIcon);
+      if (selector.contains(staticIcon)) {
+        selector.replaceChild(loadingIcon, staticIcon);
+      }
       return;
     }
 
