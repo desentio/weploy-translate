@@ -790,7 +790,7 @@ async function createLanguageSelect(apiKey) {
               span.textContent = language.lang.toUpperCase();
               a.appendChild(span);
           
-              let p = document.createElement('p');
+              let p = document.createElement('div');
               p.lang = language.lang;
               p.className = 'weploy-lang-selector-menu-container-item-locale';
               p.textContent = language.label;
