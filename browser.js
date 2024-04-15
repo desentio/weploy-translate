@@ -37,10 +37,10 @@ if (isBrowser) {
   }
 
   // create language selector first
-  // if (createSelector) {
-  //   setOptions(apiKey, options);
-  //   createLanguageSelect(apiKey, { isInit : true });
-  // }
+  if (createSelector) {
+    setOptions(apiKey, options);
+    createLanguageSelect(apiKey, { isInit : true });
+  }
 
   document.addEventListener("DOMContentLoaded", function() {
     getTranslations(apiKey, options)

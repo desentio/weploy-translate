@@ -391,6 +391,18 @@ async function getLanguageFromLocalStorage() {
 }
 
 function getTranslationsFromAPI(strings, language, apiKey) {
+  if (!strings || !Array.isArray(strings) || !strings.length) {
+    throw new Error("WeployError: Missing strings");
+  }
+
+  if (!language) {
+    throw new Error("WeployError: Missing language");
+  }
+
+  if (!apiKey) {
+    throw new Error("WeployError: Missing API Key");
+  }
+
   const finalPayload = {
     strings: strings,
     language: language,
@@ -655,7 +667,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
     ]);
 
     if (optsArgs.createSelector) {
-      await createLanguageSelect(apiKey);
+      await createLanguageSelect(apiKey, optsArgs);
     } else {
       // set default value for custom selector
       try {
@@ -781,6 +793,8 @@ function switchLanguage(language) {
 async function fetchLanguageList(apiKey) {
   const langs = window.weployOptions.definedLanguages || (weployOptions || {}).definedLanguages;
   if (langs && Array.isArray(langs) && langs.length) return langs;
+  console.log("INLANG", langs)
+  if (window.weployError) return [];
 
   const availableLangs = await fetch(API_URL + "/weploy-projects/by-api-key", {
     headers: {
@@ -829,11 +843,13 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
     style.id = 'weploy-style';
     style.textContent = css;
     var docBody = document.body || document.getElementsByTagName("body")[0];
-    docBody.appendChild(style);
+    if (docBody) docBody.appendChild(style);
   }
 
   const availableLangs = optsArgs.isInit ? [] : await fetchLanguageList(apiKey);
-  const selectedLang = await getLanguageFromLocalStorage();
+  const langInLocalStorage = optsArgs.isInit ? "" : await getLanguageFromLocalStorage();
+  const selectedLang = langInLocalStorage || availableLangs?.[0]?.lang || optsArgs.originalLanguage || "";
+  console.log("selectedLang", selectedLang)
   const selectedLangUppercased = (selectedLang || "").substring(0, 2).toUpperCase();
   const selectedLangLowercased = (selectedLang || "").substring(0, 2).toLowerCase();
 
