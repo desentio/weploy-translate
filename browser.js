@@ -10,7 +10,7 @@ if (isBrowser) {
   const originalLangAttr = window.weployScriptTag.getAttribute("data-original-language");
   const originalLang = (originalLangAttr || "").trim().toLowerCase();
   const allowedLangAttr = window.weployScriptTag.getAttribute("data-allowed-languages");
-  const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => !!lang);
+  const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => !!lang).map(lang => lang.trim());
 
   // this is backward compatibility for use browser language
   const disableAutoTranslateAttr = window.weployScriptTag.getAttribute("data-disable-auto-translate");
