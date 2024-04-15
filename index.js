@@ -256,7 +256,12 @@ function renderWeploySelectorState() {
       return;
     }
 
-    selector.replaceChild(staticIcon, loadingIcon);
+    if (selector.contains(loadingIcon)) {
+      selector.replaceChild(staticIcon, loadingIcon);
+    }
+    if (selector.contains(errorIcon)) {
+      selector.replaceChild(staticIcon, errorIcon);
+    }
   });
 }
 
