@@ -224,3 +224,8 @@
   gap: 2px;
   align-items: center;
 }
+
+@keyframes weployspin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
