@@ -22,9 +22,19 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    'css-loader',
+                oneOf: [
+                    {
+                        resourceQuery: /raw/, // foo.css?raw
+                        use: [
+                            'raw-loader',
+                        ],
+                    },
+                    {
+                        use: [
+                            MiniCssExtractPlugin.loader,
+                            'css-loader',
+                        ],
+                    },
                 ],
             },
         ],

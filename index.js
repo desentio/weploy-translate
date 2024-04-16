@@ -1,5 +1,5 @@
 const CheckIfTranslatable = require('./utility.js');
-const cssModule = require('./weploy.css');
+const cssModule = require('./weploy.css?raw');
 const css = cssModule.default || cssModule;
 
 const allWeployLanguages = [
@@ -96,53 +96,53 @@ var isDomListenerAdded;
 var weployOptions;
 const API_URL = "https://api.tasksource.io"
 
-// Convert hex color to RGB
-function hexToRgb(hex) {
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-  } : null;
-}
-// Convert named color to RGB
-function namedToRgb(color) {
-  var dummy = document.createElement("div");
-  dummy.style.color = color;
-  document.body.appendChild(dummy);
-  var cs = window.getComputedStyle(dummy),
-      pv = cs.getPropertyValue("color");
-  document.body.removeChild(dummy);
-  var rgb = pv.split("(")[1].split(")")[0].split(",");
-  return { r: rgb[0], g: rgb[1], b: rgb[2] };
-}
+// // Convert hex color to RGB
+// function hexToRgb(hex) {
+//   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+//   return result ? {
+//       r: parseInt(result[1], 16),
+//       g: parseInt(result[2], 16),
+//       b: parseInt(result[3], 16)
+//   } : null;
+// }
+// // Convert named color to RGB
+// function namedToRgb(color) {
+//   var dummy = document.createElement("div");
+//   dummy.style.color = color;
+//   document.body.appendChild(dummy);
+//   var cs = window.getComputedStyle(dummy),
+//       pv = cs.getPropertyValue("color");
+//   document.body.removeChild(dummy);
+//   var rgb = pv.split("(")[1].split(")")[0].split(",");
+//   return { r: rgb[0], g: rgb[1], b: rgb[2] };
+// }
 
-// Check if color is light
-function isLightColor(r, g, b) {
-  // Counting the perceptive luminance - human eye favors green color
-  var a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return (a < 0.5);
-}
+// // Check if color is light
+// function isLightColor(r, g, b) {
+//   // Counting the perceptive luminance - human eye favors green color
+//   var a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+//   return (a < 0.5);
+// }
 
-// Generate lighter color
-function lightenColor(color, percent) {
-  var num = parseInt(color,16),
-  amt = Math.round(2.55 * percent),
-  R = (num >> 16) + amt,
-  B = (num >> 8 & 0x00FF) + amt,
-  G = (num & 0x0000FF) + amt;
-  return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
-}
+// // Generate lighter color
+// function lightenColor(color, percent) {
+//   var num = parseInt(color,16),
+//   amt = Math.round(2.55 * percent),
+//   R = (num >> 16) + amt,
+//   B = (num >> 8 & 0x00FF) + amt,
+//   G = (num & 0x0000FF) + amt;
+//   return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
+// }
 
-// Generate darker color
-function darkenColor(color, percent) {
-  var num = parseInt(color,16),
-  amt = Math.round(2.55 * percent),
-  R = (num >> 16) - amt,
-  B = (num >> 8 & 0x00FF) - amt,
-  G = (num & 0x0000FF) - amt;
-  return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
-}
+// // Generate darker color
+// function darkenColor(color, percent) {
+//   var num = parseInt(color,16),
+//   amt = Math.round(2.55 * percent),
+//   R = (num >> 16) - amt,
+//   B = (num >> 8 & 0x00FF) - amt,
+//   G = (num & 0x0000FF) - amt;
+//   return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
+// }
 
 function getStaticGlobeIcon(strokeColor) {
     // Create a new div element
@@ -798,7 +798,6 @@ function switchLanguage(language) {
 async function fetchLanguageList(apiKey) {
   const langs = window.weployOptions.definedLanguages || (weployOptions || {}).definedLanguages;
   if (langs && Array.isArray(langs) && langs.length) return langs;
-  console.log("INLANG", langs)
   if (window.weployError) return [];
 
   const availableLangs = await fetch(API_URL + "/weploy-projects/by-api-key", {
@@ -920,7 +919,6 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
 
           const initializedSpanInSummaryByUser = initializedSummaryByUser?.querySelector?.('.weploy-lang-selector-value')
           let spanInSummary = initializedSpanInSummaryByUser || document.createElement('span');
-          console.log("initializedSpanInSummaryByUser", initializedSpanInSummaryByUser)
           if (!initializedSpanInSummaryByUser) {
             spanInSummary.setAttribute('aria-hidden', 'true');
             spanInSummary.textContent = selectedLangUppercased;
