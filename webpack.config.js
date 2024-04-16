@@ -1,4 +1,6 @@
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
     entry: './browser.js', // Update this with your entry file
@@ -20,8 +22,23 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: 'raw-loader',
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                ],
             },
+        ],
+    },
+    plugins: [
+        new MiniCssExtractPlugin({
+            filename: 'weploy-translate.css',
+            chunkFilename: '[id].css',
+        }),
+    ],
+    optimization: {
+        minimize: true,
+        minimizer: [
+            new CssMinimizerPlugin(),
         ],
     },
 };

@@ -1,19 +1,18 @@
-
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details ul.weploy-lang-selector-menu-container {
+.weploy-lang-selector-wrapper details ul.weploy-lang-selector-menu-container {
   list-style: none;
   padding: 0!important;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details ul.weploy-lang-selector-menu-container li {
+.weploy-lang-selector-wrapper details ul.weploy-lang-selector-menu-container li {
   padding: 0!important;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav {
+.weploy-lang-selector-wrapper {
   position: relative;
   z-index: 99;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details>summary {
+.weploy-lang-selector-wrapper details>summary {
   display: -ms-flexbox;
   display: flex;
   -ms-flex-align: center;
@@ -24,15 +23,15 @@
   list-style-type: none;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details>summary::-webkit-details-marker {
+.weploy-lang-selector-wrapper details>summary::-webkit-details-marker {
   display: none;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details>summary[aria-expanded=false]+ul {
+.weploy-lang-selector-wrapper details>summary[aria-expanded=false]+ul {
   display: none;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details>summary span {
+.weploy-lang-selector-wrapper details>summary span {
   font-size: .6875rem;
   font-weight: 500;
   display: -ms-flexbox;
@@ -42,7 +41,7 @@
   gap: .125rem;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container {
   position: absolute;
   display: -ms-flexbox;
   display: flex;
@@ -58,7 +57,7 @@
   box-shadow: 0 .25rem .75rem rgba(36,28,21,.12);
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item {
   display: -ms-inline-flexbox;
   display: inline-flex;
   width: 100%;
@@ -70,30 +69,30 @@
   border: .0625rem solid transparent;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item.selected,.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item.selected:hover {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item.selected,.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item.selected:hover {
   background: #efeeea;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item-selected {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item-selected {
   padding-right: 1.2rem;
   margin-left: auto;
   /* width: 1.5rem; */
   height: 1.5rem;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item-selected svg path {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item-selected svg path {
   fill: #241c15;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item.unavailable {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item.unavailable {
   color: rgba(36,28,21,.3);
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item.unavailable:hover {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item.unavailable:hover {
   background: #fff;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item-code {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item-code {
   display: -ms-flexbox;
   display: flex;
   -ms-flex-align: center;
@@ -106,7 +105,7 @@
   padding: .125rem .46875rem .125rem 1.125rem;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item-locale {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item-locale {
   display: inherit;
   -ms-flex-align: center;
   align-items: center;
@@ -114,59 +113,59 @@
   margin: 0;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item:hover {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item:hover {
   background: #f6f6f4;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item:focus {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item:focus {
   background: #007c89;
   color: #fff;
   outline: none;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item:focus svg path {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item:focus svg path {
   fill: #fff;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item:focus:hover {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item:focus:hover {
   background-color: #f6f6f4;
   color: #241c15;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item:focus:hover svg path {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item:focus:hover svg path {
   fill: #241c15;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav details .weploy-lang-selector-menu-container-item:focus.unavailable {
+.weploy-lang-selector-wrapper details .weploy-lang-selector-menu-container-item:focus.unavailable {
   background: #fff;
   color: rgba(36,28,21,.3);
   border: .0625rem solid rgba(36,28,21,.3);
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav:hover label,.weploy-lang-selector-wrapper .weploy-lang-selector-nav details:hover {
+.weploy-lang-selector-wrapper:hover label,.weploy-lang-selector-wrapper details:hover {
   cursor: pointer;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav:hover label path {
+.weploy-lang-selector-wrapper:hover label path {
   fill: #007c89;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav label {
+.weploy-lang-selector-wrapper label {
   width: 1.25rem;
   height: 1.25rem;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav label svg {
+.weploy-lang-selector-wrapper label svg {
   margin-top: .3125rem;
   width: 1.25rem;
   height: 1.25rem;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav label path {
+.weploy-lang-selector-wrapper label path {
   fill: #000;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav select {
+.weploy-lang-selector-wrapper select {
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -183,25 +182,25 @@
   padding: .625rem;
 }
 
-.weploy-lang-selector-wrapper .weploy-lang-selector-nav select option {
+.weploy-lang-selector-wrapper select option {
   background: initial;
   font-size: .875rem;
 }
 
-.weploy-lang-selector-wrapper.mobile .weploy-lang-selector-nav {
+.weploy-lang-selector-wrapper.mobile {
   padding: unset;
 }
 
-.weploy-lang-selector-wrapper.mobile .weploy-lang-selector-nav details>summary span {
+.weploy-lang-selector-wrapper.mobile details>summary span {
   font-size: .8125rem;
   font-weight: 400;
 }
 
-.weploy-lang-selector-wrapper.mobile .weploy-lang-selector-nav details>summary span:before {
+.weploy-lang-selector-wrapper.mobile details>summary span:before {
   margin-right: .625rem;
 }
 
-.weploy-lang-selector-wrapper.mobile .weploy-lang-selector-nav details .weploy-lang-selector-menu-container {
+.weploy-lang-selector-wrapper.mobile details .weploy-lang-selector-menu-container {
   bottom: 3rem;
 }
 
@@ -210,7 +209,7 @@
 }
 
 @media screen and (max-height: 27.5rem) and (orientation:landscape) {
-  .weploy-lang-selector-wrapper.mobile .weploy-lang-selector-nav details .weploy-lang-selector-menu-container {
+  .weploy-lang-selector-wrapper.mobile details .weploy-lang-selector-menu-container {
       position:fixed;
       bottom: 1rem;
       left: 1rem;
@@ -220,9 +219,8 @@
 }
 
 .weploy-lang-selector-value {
-  display: flex;
-  gap: 2px;
-  align-items: center;
+  margin-left: 2px;
+  line-height: 1px;
 }
 
 @keyframes weployspin {
@@ -230,7 +228,7 @@
     100% { transform: rotate(360deg); }
 }
 
-[id^="weploy-select"], [class^="weploy-select"] {
+/* [id^="weploy-select"], [class^="weploy-select"] {
   min-width: 56px;
   min-height: 35px;
-}
+} */

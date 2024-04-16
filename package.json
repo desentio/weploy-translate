@@ -37,6 +37,9 @@
     "@babel/core": "^7.22.11",
     "@babel/preset-env": "^7.22.10",
     "babel-loader": "^9.1.3",
+    "css-loader": "^7.1.1",
+    "css-minimizer-webpack-plugin": "^6.0.0",
+    "mini-css-extract-plugin": "^2.8.1",
     "raw-loader": "^4.0.2"
   }
 }
