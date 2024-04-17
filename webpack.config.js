@@ -1,6 +1,7 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin'); // Add this line
 
 module.exports = {
     entry: './browser.js', // Update this with your entry file
@@ -49,6 +50,7 @@ module.exports = {
         minimize: true,
         minimizer: [
             new CssMinimizerPlugin(),
+            new TerserPlugin(), // Add this line
         ],
     },
 };

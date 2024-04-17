@@ -1,4 +1,5 @@
 const CheckIfTranslatable = require('./utility.js');
+require('./weploy.css');
 const cssModule = require('./weploy.css?raw');
 const css = cssModule.default || cssModule;
 
