@@ -94,7 +94,15 @@ const isBrowser = typeof window !== 'undefined'
 // var isChangeLocationEventAdded;
 var isDomListenerAdded;
 var weployOptions;
+var weployActiveLang;
 const API_URL = "https://api.tasksource.io"
+
+const readyClass = 'weploy-lang-selector-ready';
+const loadingClass = 'weploy-lang-selector-loading';
+const errorClass = 'weploy-lang-selector-error';
+const readyClassIcon = 'weploy-lang-selector-ready-icon';
+const loadingClassIcon = 'weploy-lang-selector-loading-icon';
+const errorClassIcon = 'weploy-lang-selector-error-icon';
 
 // // Convert hex color to RGB
 // function hexToRgb(hex) {
@@ -144,12 +152,12 @@ const API_URL = "https://api.tasksource.io"
 //   return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
 // }
 
-function getStaticGlobeIcon(strokeColor) {
+function getReadyGlobeIcon(strokeColor) {
     // Create a new div element
     var newDiv = document.createElement("div");
 
     // Set the innerHTML of the div
-    newDiv.innerHTML = `<svg width="20" height="20" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+    newDiv.innerHTML = `<svg class="${readyClassIcon}" width="20" height="20" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M16.7906 28.9982C19.4502 29.0445 22.0498 28.2061 24.1813 26.6148C26.3128 25.0236 27.8555 22.7694 28.5671 20.2064M16.7906 28.9982C14.131 28.9516 11.5622 28.0231 9.48748 26.3584C7.4128 24.6937 5.94973 22.3871 5.328 19.8007M16.7906 28.9982C20.1034 29.056 22.8834 23.7304 22.9991 17.1047C23.1147 10.4791 20.5222 5.05968 17.2094 5.00185M16.7906 28.9982C13.4777 28.9404 10.8853 23.521 11.0009 16.8953C11.1166 10.2697 13.8966 4.94402 17.2094 5.00185M28.5671 20.2064C28.8305 19.2508 28.9801 18.2466 28.9982 17.2095C29.0375 15.146 28.5415 13.1075 27.5585 11.2928M28.5671 20.2064C24.9775 22.1152 20.9601 23.0764 16.8953 22.9991C12.6799 22.9255 8.73815 21.7699 5.328 19.8007M5.328 19.8007C5.09283 18.8151 4.98323 17.8037 5.00182 16.7906C5.03917 14.6509 5.63417 12.6503 6.64706 10.9277M17.2094 5.00185C19.3374 5.03811 21.4175 5.63986 23.2362 6.74538C25.0548 7.8509 26.5467 9.42037 27.5585 11.2928M17.2094 5.00185C15.0814 4.96382 12.9816 5.49262 11.1255 6.53399C9.26935 7.57536 7.72367 9.09181 6.64706 10.9277M27.5585 11.2928C24.612 13.7563 20.8749 15.0729 17.0349 15.0003C13.0382 14.9306 9.40832 13.4003 6.64706 10.9277" stroke="${strokeColor}" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     `;
@@ -178,7 +186,7 @@ function getLoadingGlobeIcon(strokeColor = "#241c15") {
     const newDiv = document.createElement("div");
 
     // Set the innerHTML of the div
-    newDiv.innerHTML = `<svg width="20" height="20" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+    newDiv.innerHTML = `<svg class="${loadingClassIcon}" width="20" height="20" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M16.7906 28.9982C14.131 28.9516 11.5622 28.0231 9.48748 26.3584C7.4128 24.6937 5.94973 22.3871 5.328 19.8007M16.7906 28.9982C13.4777 28.9404 10.8853 23.521 11.0009 16.8953C11.1166 10.2697 13.8966 4.94402 17.2094 5.00185M16.7906 28.9982C17.4055 29.0089 18.0021 28.8342 18.5667 28.5M16.7906 28.9982C17.4353 29.0094 17.904 28.9456 18.4338 28.8411M5.328 19.8007C8.73815 21.7699 12.6799 22.9255 16.8953 22.9991C17.5541 23.0116 18.2116 22.9969 18.8663 22.9553M5.328 19.8007C5.09283 18.8151 4.98323 17.8037 5.00182 16.7906C5.03917 14.6509 5.63417 12.6503 6.64706 10.9277M17.2094 5.00185C20.5222 5.05968 23.1147 10.4791 22.9991 17.1047C22.9878 17.7501 22.9513 18.3831 22.8914 19M17.2094 5.00185C19.3374 5.03811 21.4175 5.63986 23.2362 6.74538C25.0548 7.8509 26.5467 9.42037 27.5585 11.2928M17.2094 5.00185C15.0814 4.96382 12.9816 5.49262 11.1255 6.53399C9.26935 7.57536 7.72367 9.09181 6.64706 10.9277M27.5585 11.2928C24.612 13.7563 20.8749 15.0729 17.0349 15.0003C13.0382 14.9306 9.40832 13.4003 6.64706 10.9277M27.5585 11.2928C28.5415 13.1075 29.0375 15.146 28.9982 17.2095C28.9905 17.6459 28.9597 18.0764 28.9068 18.5" stroke="${strokeColor}" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
     <g style="animation: weployspin 2s linear infinite; transform-origin: 26px 26px;">
       <circle cx="26" cy="26" r="7.125" stroke="${strokeColor}" stroke-width="1.75" stroke-dasharray="31.42" stroke-dashoffset="10.47"></circle>
@@ -202,7 +210,7 @@ function getErrorGlobeIcon(strokeColor) {
   var newDiv = document.createElement("div");
 
   // Set the innerHTML of the div
-  newDiv.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 34 34" fill="none">
+  newDiv.innerHTML = `<svg class="${errorClassIcon}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 34 34" fill="none">
   <path d="M16.7906 28.9982C14.131 28.9516 11.5622 28.0231 9.48748 26.3584C7.4128 24.6937 5.94973 22.3871 5.328 19.8007M16.7906 28.9982C13.4777 28.9404 10.8853 23.521 11.0009 16.8953C11.1166 10.2697 13.8966 4.94402 17.2094 5.00185M16.7906 28.9982C17.4055 29.0089 18.0021 28.8342 18.5667 28.5M16.7906 28.9982C17.4353 29.0094 17.904 28.9456 18.4338 28.8411M5.328 19.8007C8.73815 21.7699 12.6799 22.9255 16.8953 22.9991C17.5541 23.0116 18.2116 22.9969 18.8663 22.9553M5.328 19.8007C5.09283 18.8151 4.98323 17.8037 5.00182 16.7906C5.03917 14.6509 5.63417 12.6503 6.64706 10.9277M17.2094 5.00185C20.5222 5.05968 23.1147 10.4791 22.9991 17.1047C22.9878 17.7501 22.9513 18.3831 22.8914 19M17.2094 5.00185C19.3374 5.03811 21.4175 5.63986 23.2362 6.74538C25.0548 7.8509 26.5467 9.42037 27.5585 11.2928M17.2094 5.00185C15.0814 4.96382 12.9816 5.49262 11.1255 6.53399C9.26935 7.57536 7.72367 9.09181 6.64706 10.9277M27.5585 11.2928C24.612 13.7563 20.8749 15.0729 17.0349 15.0003C13.0382 14.9306 9.40832 13.4003 6.64706 10.9277M27.5585 11.2928C28.5415 13.1075 29.0375 15.146 28.9982 17.2095C28.9905 17.6459 28.9597 18.0764 28.9068 18.5" stroke="${strokeColor}" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="26" cy="26" r="7.125" stroke="red" stroke-width="1.75"/>
   <path d="M26 23V25" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -213,58 +221,34 @@ function getErrorGlobeIcon(strokeColor) {
   return newDiv.getElementsByTagName("svg")[0];
 }
 
-function renderWeploySelectorState() {
+function renderWeploySelectorState(opts = { shouldUpdateActiveLang: true }) {
   if (!window.weployValueDisplays.length) return;
 
-  window.weployValueDisplays.forEach((selector, selectorIndex) => {
-    const loadingIcon = window.weployLoadingGlobeIcons[selectorIndex];
-    const staticIcon = window.weployStaticGlobeIcons[selectorIndex];
-    const errorIcon = window.weployErrorGlobeIcons[selectorIndex];
-    const firstChild = selector.firstChild;
+  const shouldUpdateActiveLang = opts.shouldUpdateActiveLang
 
-    if (!firstChild || !staticIcon || !loadingIcon || !errorIcon) {
-      return;
+  window.weployValueDisplays.forEach((selector) => {
+    const value = selector.querySelector('.weploy-lang-selector-value')
+    if (value && shouldUpdateActiveLang) {
+      value.innerText = (window.weployActiveLang || "").toUpperCase();
     }
 
-    if (!selector.contains(staticIcon) && !selector.contains(loadingIcon) && !selector.contains(errorIcon)) {
-      const whatShouldBeInserted = window.weployTranslating ? loadingIcon : staticIcon;
-
-      if (selector.contains(firstChild)) {
-        selector.insertBefore(whatShouldBeInserted, firstChild);
-      }
-      return;
-    }
-
-    const span = selector.querySelector('.weploy-lang-selector-value')
     if (window.weployTranslating) {
-      span.style.display = 'none';
-      if (selector.contains(staticIcon)) {
-        selector.replaceChild(loadingIcon, staticIcon);
-      }
-      if (selector.contains(errorIcon)) {
-        selector.replaceChild(loadingIcon, errorIcon);
-      }
+      selector.classList.add(loadingClass);
+      selector.classList.remove(readyClass, errorClass);
       return;
-    } else {
-      span.style.display = 'block';
     }
 
     if (window.weployError) {
-      if (selector.contains(staticIcon)) {
-        selector.replaceChild(errorIcon, staticIcon);
-      }
-      if (selector.contains(loadingIcon)) {
-        selector.replaceChild(errorIcon, loadingIcon);
-      }
+      selector.classList.add(errorClass);
+      selector.classList.remove(readyClass, loadingClass); 
       return;
     }
 
-    if (selector.contains(loadingIcon)) {
-      selector.replaceChild(staticIcon, loadingIcon);
-    }
-    if (selector.contains(errorIcon)) {
-      selector.replaceChild(staticIcon, errorIcon);
-    }
+    setTimeout(() => {
+      selector.classList.add(readyClass);
+      selector.classList.remove(errorClass, loadingClass);
+    }, 200)
+    return;
   });
 }
 
@@ -427,6 +411,11 @@ function getTranslationsFromAPI(strings, language, apiKey) {
         if (data.error) {
           throw new Error(data?.error?.message || data?.error || "Error fetching translations");
         }
+        if (isBrowser) {
+          window.weployActiveLang = language
+        } else {
+          weployActiveLang = language
+        }
         resolve(data);
       })
       .catch((err) => {
@@ -586,7 +575,7 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 
     window.weployError = false;
     window.weployTranslating = true;
-    renderWeploySelectorState();
+    renderWeploySelectorState({ shouldUpdateActiveLang: false });
     await processTextNodes(validTextNodes, language, apiKey).catch(reject).finally(() => {
       window.weployTranslating = false;
       renderWeploySelectorState();
@@ -641,8 +630,10 @@ function setOptions(apiKey, optsArgs) {
 
   if (!isBrowser) {
     weployOptions = mappedOpts
+    weployActiveLang = mappedOpts?.definedLanguages?.[0]?.lang
   } else {
     window.weployOptions = mappedOpts
+    window.weployActiveLang = mappedOpts?.definedLanguages?.[0]?.lang
   }
 }
 
@@ -816,8 +807,13 @@ async function fetchLanguageList(apiKey) {
       flag: (res.flags || [])?.[index] || lang, // fallback to text if flag unavailable
       label: (res.labels || [])?.[index] || lang // fallback to text if flag unavailable
     }))
-    if (isBrowser) window.weployOptions.definedLanguages = languagesWithFlagAndLabel // store in global scope
-    else weployOptions.definedLanguages = languagesWithFlagAndLabel // for npm package
+    if (isBrowser) {
+      window.weployOptions.definedLanguages = languagesWithFlagAndLabel // store in global scope
+      window.weployActiveLang = languagesWithFlagAndLabel[0].lang
+    } else {
+      weployOptions.definedLanguages = languagesWithFlagAndLabel // for npm package
+      weployActiveLang = languagesWithFlagAndLabel[0].lang
+    }
     return languagesWithFlagAndLabel
   })
   .catch((err) => {
@@ -826,7 +822,7 @@ async function fetchLanguageList(apiKey) {
     // else weployOptions.definedLanguages = [] // for npm package
     if (isBrowser) {
       window.weployError = err.message;
-      renderWeploySelectorState();
+      renderWeploySelectorState({ shouldUpdateActiveLang: false });
     }
     return [];
   })
@@ -906,29 +902,47 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             details.appendChild(summary); 
           }
 
+          const initializedLoadingIcon = initializedSummaryByUser?.querySelector?.(`.${loadingClassIcon}`);
+          const initializedErrorIcon = initializedSummaryByUser?.querySelector?.(`.${errorClassIcon}`);
+          const initializedReadyIcon = initializedSummaryByUser?.querySelector?.(`.${readyClassIcon}`);
+          
           // Check for "data-icon-color" attribute and use it for font color
-          const initializedLoadingIcon = initializedSummaryByUser?.querySelector?.('svg');
-          const iconColor = initializedLoadingIcon?.querySelector?.('path')?.getAttribute('stroke') || weploySwitcher.getAttribute('data-icon-color') || "#241c15";
+          const iconColor = 
+            initializedLoadingIcon?.querySelector?.('path')?.getAttribute('stroke') || 
+            initializedErrorIcon?.querySelector?.('path')?.getAttribute('stroke') || 
+            initializedReadyIcon?.querySelector?.('path')?.getAttribute('stroke') || 
+            weploySwitcher.getAttribute('data-icon-color') || 
+            "#241c15";
+          
+          const loadingIcon = initializedLoadingIcon || getLoadingGlobeIcon(iconColor)
+          const errorIcon = initializedErrorIcon || getErrorGlobeIcon(iconColor)
+          const readyIcon = initializedReadyIcon || getReadyGlobeIcon(iconColor)
 
           window.weployValueDisplays.push(summary);
-          window.weployLoadingGlobeIcons.push(initializedLoadingIcon || getLoadingGlobeIcon(iconColor));
-          window.weployErrorGlobeIcons.push(getErrorGlobeIcon(iconColor));
-          window.weployStaticGlobeIcons.push(getStaticGlobeIcon(iconColor));
+          if (!initializedLoadingIcon) summary.insertBefore(loadingIcon, summary.firstChild)
+          
+          loadingIcon.after(errorIcon, readyIcon)
+          // window.weployLoadingGlobeIcons.push(initializedLoadingIcon || getLoadingGlobeIcon(iconColor));
+          // window.weployErrorGlobeIcons.push(getErrorGlobeIcon(iconColor));
+          // window.weployStaticGlobeIcons.push(getReadyGlobeIcon(iconColor));
 
-          renderWeploySelectorState();
+          // renderWeploySelectorState();
 
           const initializedSpanInSummaryByUser = initializedSummaryByUser?.querySelector?.('.weploy-lang-selector-value')
           let spanInSummary = initializedSpanInSummaryByUser || document.createElement('span');
           if (!initializedSpanInSummaryByUser) {
             spanInSummary.setAttribute('aria-hidden', 'true');
-            spanInSummary.textContent = selectedLangUppercased;
+            // spanInSummary.textContent = selectedLangUppercased;
             spanInSummary.classList.add('weploy-lang-selector-value');
             if (iconColor) {
               spanInSummary.style.color = iconColor;
             }
             summary.appendChild(spanInSummary);
           } else {
-            spanInSummary.textContent = selectedLangUppercased;
+            // spanInSummary.textContent = selectedLangUppercased;
+            if (iconColor && !spanInSummary.style.color) {
+              spanInSummary.style.color = iconColor;
+            }
           }
            
           // Create a dropdown icon
@@ -937,11 +951,15 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           if (!initializedDropdownIconByUser) {
             dropdownIcon.style.width = ".25rem";
             dropdownIcon.style.height = ".25rem";
-            dropdownIcon.style.backgroundColor = iconColor || "#241c15";
+            dropdownIcon.style.backgroundColor = iconColor;
             dropdownIcon.style.webkitClipPath = "polygon(50% 75%,100% 25%,0 25%)";
             dropdownIcon.style.clipPath = "polygon(50% 75%,100% 25%,0 25%)";
-            spanInSummary.classList.add('weploy-lang-selector-dropdown');
+            dropdownIcon.classList.add('weploy-lang-selector-dropdown');
             summary.appendChild(dropdownIcon);
+          } else {
+            if (!dropdownIcon.style.backgroundColor) {
+              dropdownIcon.style.backgroundColor = iconColor;
+            }
           }
           
           let ul = document.createElement('ul');
@@ -970,7 +988,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           if (languages.length < 2) {
             let li = document.createElement('li');
             ul.appendChild(li);
-            weploySwitcher.appendChild(div);
+            weploySwitcher.appendChild(details);
 
             li.style.cursor = 'auto';
 

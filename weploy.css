@@ -232,3 +232,28 @@
   min-width: 56px;
   min-height: 35px;
 } */
+
+.weploy-lang-selector-ready .weploy-lang-selector-ready-icon,
+.weploy-lang-selector-loading .weploy-lang-selector-loading-icon,
+.weploy-lang-selector-error .weploy-lang-selector-error-icon {
+  display: block;
+}
+
+.weploy-lang-selector-ready .weploy-lang-selector-loading-icon,
+.weploy-lang-selector-ready .weploy-lang-selector-error-icon,
+.weploy-lang-selector-loading .weploy-lang-selector-ready-icon, 
+.weploy-lang-selector-loading .weploy-lang-selector-error-icon,
+.weploy-lang-selector-error .weploy-lang-selector-ready-icon,
+.weploy-lang-selector-error .weploy-lang-selector-loading-icon {
+  display: none;
+}
+
+.weploy-lang-selector-dropdown {
+  width: 0.25rem;
+  height: 0.25rem;
+  clip-path: polygon(50% 75%, 100% 25%, 0px 25%);
+}
+
+.weploy-lang-selector-value {
+  line-height: 1;
+}
