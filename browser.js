@@ -19,7 +19,11 @@ if (isBrowser) {
   const useBrowserLanguage = useBrowserLanguageAttr != "false" && useBrowserLanguageAttr != false;
 
   // exclude classes
-  const excludeClasses = (window.weployScriptTag.getAttribute("data-exclude-classes") || "").trim().split(" ");
+  const excludeClassesAttr = (window.weployScriptTag.getAttribute("data-exclude-classes") || "").trim()
+  const excludeClassesByComma = excludeClassesAttr.split(",").filter(className => !!className).map(className => className.trim());
+  const excludeClassesBySpace = excludeClassesAttr.split(" ").filter(className => !!className).map(className => className.trim().replaceAll(",", ""));
+  const mergedExcludeClasses = [...excludeClassesByComma, ...excludeClassesBySpace];
+  const excludeClasses = [...new Set(mergedExcludeClasses)]; // get unique values
 
   // timeout
   const timeoutAttr = window.weployScriptTag.getAttribute("data-timeout");
