@@ -530,6 +530,10 @@ function processTextNodes(textNodes, language = "", apiKey) {
     });
 
     if (notInCache.length > 0) { 
+      window.weployError = false;
+      window.weployTranslating = true;
+      renderWeploySelectorState({ shouldUpdateActiveLang: false });
+      
       // If there are translations not in cache, fetch them from the API
       getTranslationsFromAPI(notInCache, language, apiKey).then(
         (response) => {
@@ -574,9 +578,6 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 
     const validTextNodes = filterValidTextNodes(textNodes);
 
-    window.weployError = false;
-    window.weployTranslating = true;
-    renderWeploySelectorState({ shouldUpdateActiveLang: false });
     await processTextNodes(validTextNodes, language, apiKey).catch(reject).finally(() => {
       window.weployTranslating = false;
       renderWeploySelectorState();
