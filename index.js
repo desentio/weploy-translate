@@ -1062,7 +1062,9 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           });
           
           if (!initializedSelectorByUser) weploySwitcher.appendChild(details);
-          autoPosition();
+          setTimeout(() => {
+            autoPosition();
+          }, 1000);
         }
       });
     }
