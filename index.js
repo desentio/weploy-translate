@@ -987,6 +987,8 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             }
           }
 
+          weploySwitcher.onclick = autoPosition;
+
           if (languages.length < 2) {
             let li = document.createElement('li');
             ul.appendChild(li);
