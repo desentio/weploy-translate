@@ -1,93 +1,8 @@
-const CheckIfTranslatable = require('./utility.js');
+const CheckIfTranslatable = require('./utils/CheckIfTranslatable.js');
+const AllWeployLanguagesList = require('./utils/AllWeployLanguagesList.js');
 require('./weploy.css');
 const cssModule = require('./weploy.css?raw');
 const css = cssModule.default || cssModule;
-
-const allWeployLanguages = [
-  { "label": "Afar", "lang": "aa" },
-  { "label": "Avestan", "lang": "ae" },
-  { "label": "Afrikaans", "lang": "af" },
-  { "label": "Akan", "lang": "ak" },
-  { "label": "Amharic", "lang": "am" },
-  { "label": "Arabic", "lang": "ar" },
-  { "label": "Azerbaijani", "lang": "az" },
-  { "label": "Belarusian", "lang": "be" },
-  { "label": "Bulgarian", "lang": "bg" },
-  { "label": "Bambara", "lang": "bm" },
-  { "label": "Bislama", "lang": "bi" },
-  { "label": "Bengali", "lang": "bn" },
-  { "label": "Tibetan", "lang": "bo" },
-  { "label": "Bosnian", "lang": "bs" },
-  { "label": "Czech", "lang": "cs" },
-  { "label": "Danish", "lang": "da" },
-  { "label": "German", "lang": "de" },
-  { "label": "Divehi", "lang": "dv" },
-  { "label": "Dzongkha", "lang": "dz" },
-  { "label": "Greek", "lang": "el" },
-  { "label": "English", "lang": "en" },
-  { "label": "Spanish", "lang": "es" },
-  { "label": "Estonian", "lang": "et" },
-  { "label": "Persian", "lang": "fa" },
-  { "label": "Finnish", "lang": "fi" },
-  { "label": "Fijian", "lang": "fj" },
-  { "label": "Faroese", "lang": "fo" },
-  { "label": "French", "lang": "fr" },
-  { "label": "Irish", "lang": "ga" },
-  { "label": "Guarani", "lang": "gn" },
-  { "label": "Hebrew", "lang": "he" },
-  { "label": "Hindi", "lang": "hi" },
-  { "label": "Hiri Motu", "lang": "ho" },
-  { "label": "Croatian", "lang": "hr" },
-  { "label": "Haitian", "lang": "ht" },
-  { "label": "Hungarian", "lang": "hu" },
-  { "label": "Armenian", "lang": "hy" },
-  { "label": "Indonesian", "lang": "id" },
-  { "label": "Icelandic", "lang": "is" },
-  { "label": "Italian", "lang": "it" },
-  { "label": "Japanese", "lang": "ja" },
-  { "label": "Georgian", "lang": "ka" },
-  { "label": "Kongo", "lang": "kg" },
-  { "label": "Korean", "lang": "ko" },
-  { "label": "Latin", "lang": "la" },
-  { "label": "Luxembourgish", "lang": "lb" },
-  { "label": "Lao", "lang": "lo" },
-  { "label": "Lithuanian", "lang": "lt" },
-  { "label": "Latvian", "lang": "lv" },
-  { "label": "Malagasy", "lang": "mg" },
-  { "label": "Marshallese", "lang": "mh" },
-  { "label": "Maori", "lang": "mi" },
-  { "label": "Macedonian", "lang": "mk" },
-  { "label": "Mongolian", "lang": "mn" },
-  { "label": "Malay", "lang": "ms" },
-  { "label": "Maltese", "lang": "mt" },
-  { "label": "Burmese", "lang": "my" },
-  { "label": "Nauru", "lang": "na" },
-  { "label": "Nepali", "lang": "ne" },
-  { "label": "Dutch", "lang": "nl" },
-  { "label": "Norwegian", "lang": "no" },
-  { "label": "Polish", "lang": "pl" },
-  { "label": "Portuguese", "lang": "pt" },
-  { "label": "Romanian", "lang": "ro" },
-  { "label": "Russian", "lang": "ru" },
-  { "label": "Kinyarwanda", "lang": "rw" },
-  { "label": "Sindhi", "lang": "sd" },
-  { "label": "Slovak", "lang": "sk" },
-  { "label": "Slovenian", "lang": "sl" },
-  { "label": "Somali", "lang": "so" },
-  { "label": "Albanian", "lang": "sq" },
-  { "label": "Serbian", "lang": "sr" },
-  { "label": "Swedish", "lang": "sv" },
-  { "label": "Swahili", "lang": "sw" },
-  { "label": "Tajik", "lang": "tg" },
-  { "label": "Thai", "lang": "th" },
-  { "label": "Tigrinya", "lang": "ti" },
-  { "label": "Turkmen", "lang": "tk" },
-  { "label": "Turkish", "lang": "tr" },
-  { "label": "Ukrainian", "lang": "uk" },
-  { "label": "Uzbek", "lang": "uz" },
-  { "label": "Vietnamese", "lang": "vi" },
-  { "label": "Chinese", "lang": "zh" },
-];
 
 // check if code runs on server or client
 const isBrowser = typeof window !== 'undefined'
@@ -105,54 +20,6 @@ const readyClassIcon = 'weploy-lang-selector-ready-icon';
 const loadingClassIcon = 'weploy-lang-selector-loading-icon';
 const errorClassIcon = 'weploy-lang-selector-error-icon';
 
-// // Convert hex color to RGB
-// function hexToRgb(hex) {
-//   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-//   return result ? {
-//       r: parseInt(result[1], 16),
-//       g: parseInt(result[2], 16),
-//       b: parseInt(result[3], 16)
-//   } : null;
-// }
-// // Convert named color to RGB
-// function namedToRgb(color) {
-//   var dummy = document.createElement("div");
-//   dummy.style.color = color;
-//   document.body.appendChild(dummy);
-//   var cs = window.getComputedStyle(dummy),
-//       pv = cs.getPropertyValue("color");
-//   document.body.removeChild(dummy);
-//   var rgb = pv.split("(")[1].split(")")[0].split(",");
-//   return { r: rgb[0], g: rgb[1], b: rgb[2] };
-// }
-
-// // Check if color is light
-// function isLightColor(r, g, b) {
-//   // Counting the perceptive luminance - human eye favors green color
-//   var a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-//   return (a < 0.5);
-// }
-
-// // Generate lighter color
-// function lightenColor(color, percent) {
-//   var num = parseInt(color,16),
-//   amt = Math.round(2.55 * percent),
-//   R = (num >> 16) + amt,
-//   B = (num >> 8 & 0x00FF) + amt,
-//   G = (num & 0x0000FF) + amt;
-//   return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
-// }
-
-// // Generate darker color
-// function darkenColor(color, percent) {
-//   var num = parseInt(color,16),
-//   amt = Math.round(2.55 * percent),
-//   R = (num >> 16) - amt,
-//   B = (num >> 8 & 0x00FF) - amt,
-//   G = (num & 0x0000FF) - amt;
-//   return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
-// }
-
 function getReadyGlobeIcon(strokeColor) {
     // Create a new div element
     var newDiv = document.createElement("div");
@@ -166,23 +33,6 @@ function getReadyGlobeIcon(strokeColor) {
 }
 
 function getLoadingGlobeIcon(strokeColor = "#241c15") {
-    // Check if the stroke color is a named color
-    // const isNamedColor = isNaN(parseInt(strokeColor, 16));
-    // const isRgbColor = strokeColor.startsWith('rgb');
-    // const isRgbaColor = strokeColor.startsWith('rgba');
-
-    // let rgbColor;
-    // if (isNamedColor) {
-    //   rgbColor = namedToRgb(strokeColor);
-    // } else if (isRgbColor || isRgbaColor) {
-    //   const rgb = strokeColor.split("(")[1].split(")")[0].split(",");
-    //   rgbColor = { r: rgb[0], g: rgb[1], b: rgb[2] };
-    // } else {
-    //   rgbColor = hexToRgb(strokeColor);
-    // }
-
-    // const spinnerColor = isLightColor(rgbColor.r, rgbColor.g, rgbColor.b) ? darkenColor(strokeColor, 20) : lightenColor(strokeColor, 20);
-
     // Create a new div element
     const newDiv = document.createElement("div");
 
@@ -194,15 +44,6 @@ function getLoadingGlobeIcon(strokeColor = "#241c15") {
     </g>
 </svg>
     `;
-
-//     newDiv.innerHTML = `<svg width="20" height="20" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-//     <path d="M16.7906 28.9982C14.131 28.9516 11.5622 28.0231 9.48748 26.3584C7.4128 24.6937 5.94973 22.3871 5.328 19.8007M16.7906 28.9982C13.4777 28.9404 10.8853 23.521 11.0009 16.8953C11.1166 10.2697 13.8966 4.94402 17.2094 5.00185M16.7906 28.9982C17.4055 29.0089 18.0021 28.8342 18.5667 28.5M16.7906 28.9982C17.4353 29.0094 17.904 28.9456 18.4338 28.8411M5.328 19.8007C8.73815 21.7699 12.6799 22.9255 16.8953 22.9991C17.5541 23.0116 18.2116 22.9969 18.8663 22.9553M5.328 19.8007C5.09283 18.8151 4.98323 17.8037 5.00182 16.7906C5.03917 14.6509 5.63417 12.6503 6.64706 10.9277M17.2094 5.00185C20.5222 5.05968 23.1147 10.4791 22.9991 17.1047C22.9878 17.7501 22.9513 18.3831 22.8914 19M17.2094 5.00185C19.3374 5.03811 21.4175 5.63986 23.2362 6.74538C25.0548 7.8509 26.5467 9.42037 27.5585 11.2928M17.2094 5.00185C15.0814 4.96382 12.9816 5.49262 11.1255 6.53399C9.26935 7.57536 7.72367 9.09181 6.64706 10.9277M27.5585 11.2928C24.612 13.7563 20.8749 15.0729 17.0349 15.0003C13.0382 14.9306 9.40832 13.4003 6.64706 10.9277M27.5585 11.2928C28.5415 13.1075 29.0375 15.146 28.9982 17.2095C28.9905 17.6459 28.9597 18.0764 28.9068 18.5" stroke="${strokeColor}" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-//     <g style="animation: weployspin 2s linear infinite; transform-origin: 26px 26px;">
-//       <circle cx="26" cy="26" r="7.125" stroke="${strokeColor}" stroke-width="1.75"></circle>
-//       <circle cx="26" cy="26" r="7.125" stroke="#${spinnerColor}" stroke-width="1.75" stroke-dasharray="31.42" stroke-dashoffset="10.47"></circle>
-//     </g>
-// </svg>
-//     `;
     return newDiv.getElementsByTagName("svg")[0];
 }
 
@@ -611,8 +452,8 @@ function delay(time) {
 
 function getDefinedLanguages(originalLanguage, allowedLanguages = []) {
   if (originalLanguage && allowedLanguages && allowedLanguages.length) {
-    const originalLang = allWeployLanguages.find(lang => lang.lang == originalLanguage);
-    const allowedLangs = allWeployLanguages.filter(lang => allowedLanguages.includes(lang.lang));
+    const originalLang = AllWeployLanguagesList.find(lang => lang.lang == originalLanguage);
+    const allowedLangs = AllWeployLanguagesList.filter(lang => allowedLanguages.includes(lang.lang));
     const langOptions= [originalLang, ...allowedLangs]
 
     if (originalLang) {
@@ -642,19 +483,6 @@ function setOptions(apiKey, optsArgs) {
 async function getTranslations(apiKey, optsArgs = {}) {
   try {
     setOptions(apiKey, optsArgs)
-    // if (!isBrowser) {
-    //   weployOptions = {
-    //     timeout: optsArgs.timeout == null ? 0 : optsArgs.timeout,
-    //     pathOptions: optsArgs.pathOptions || {},
-    //     apiKey
-    //   }
-    // } else {
-    //   window.weployOptions = {
-    //     timeout: optsArgs.timeout == null ? 0 : optsArgs.timeout,
-    //     pathOptions: optsArgs.pathOptions || {},
-    //     apiKey
-    //   }
-    // }
 
     // save language to local storage & delay 1 second to wait google translate
     await Promise.allSettled([
@@ -664,35 +492,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
     if (optsArgs.createSelector) {
       await createLanguageSelect(apiKey, optsArgs);
-    } 
-    
-    // else {
-    //   // set default value for custom selector
-    //   try {
-    //     // Get elements by class
-    //     const classElements = [
-    //       ...Array.from(document.getElementsByClassName("weploy-select")),
-    //       ...Array.from(document.getElementsByClassName("weploy-select-with-name"))
-    //     ];
-    //     // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
-    //     const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="weploy-select"]`));
-    //     // Combine and deduplicate elements
-    //     const weploySwitchers = Array.from(new Set([...classElements, ...idElementsStartsWithClassName]));
-
-    //     // Populate the select element values based on getLanguageFromLocalStorage
-    //     await Promise.all(weploySwitchers.map(async weploySwitcher => {
-    //       let selectElem = weploySwitcher.querySelector('select.weploy-exclude');
-    //       if (selectElem) {
-    //         const selectedLang = await getLanguageFromLocalStorage();
-    //         if (selectedLang != selectElem.value){
-    //           selectElem.value = selectedLang;
-    //         }
-    //       }
-    //     }));
-    //   } catch(error) {
-    //     console.log("error setting selector default values", error)
-    //   }
-    // }
+    }
 
     // handle google translate
     if (isBrowser && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) return;
@@ -718,23 +518,6 @@ async function getTranslations(apiKey, optsArgs = {}) {
             }
 
             startTranslationCycle(document.body, apiKey, 2000).catch(reject)
-
-            // function getTextNodes(rootElement) {
-            //   if (hasExcludedParent(rootElement)) {
-            //     return [];
-            //   }
-
-            //   const textNodes = [];
-            //   extractTextNodes(rootElement, textNodes);
-            //   const validTextNodes = filterValidTextNodes(textNodes);
-            //   return validTextNodes
-            // }
-
-            // const textNodes = nodes.map(x => getTextNodes(x)).reduce((acc, c) => {
-            //   return [...acc, ...c]
-            // }, [])
-
-            // processTextNodes(textNodes, getLanguageFromLocalStorage(), apiKey).catch(reject);
           });
 
           // Set up observer configuration: what to observe
@@ -745,21 +528,6 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
           isDomListenerAdded = true;
         }
-
-        // if (isBrowser && !isChangeLocationEventAdded) {
-        //   window.addEventListener("pathnamechange", function () {
-        //     console.log("pathnamechange event triggered")
-        //     // window.cacheAlreadyChecked = false;
-        //     // timeout needed to wait until route fully changed
-        //     const thisPathOpts = weployOptions.pathOptions[window.location.pathname]
-        //     const timeout = (thisPathOpts && thisPathOpts.timeout) || weployOptions.timeout
-        //     setTimeout(() => {
-        //       getTranslations(apiKey, optsArgs).catch(reject)
-        //     }, timeout);
-        //   });
-    
-        //   isChangeLocationEventAdded = true;
-        // }
 
         resolve();
     })
