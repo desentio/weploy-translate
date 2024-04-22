@@ -968,26 +968,38 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           ul.className = 'weploy-lang-selector-menu-container';
           details.appendChild(ul);
 
-          function autoPosition() {
-            const rect = ul.getBoundingClientRect();            
+          function autoPosition(e) {
+            console.log("---------- START of auto move")
+            console.log(e.target, "find weploySwitcher:", e.target != weploySwitcher, !ul)
+            // if (e.target != weploySwitcher) return;
+            if(!ul) return;
+            // const ul = e.target.querySelector("ul");
+            const dropdownRect = ul.getBoundingClientRect();
+            const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown     
+            console.log(dropdownRect, switcherRect)       
             // Check if the element is outside the viewport on the right side
-            if ((rect.x + rect.width) >= window.innerWidth) {
+            if ((switcherRect.x + dropdownRect.width) >= window.innerWidth) {
+              console.log((switcherRect.x + dropdownRect.width) >= window.innerWidth, "open popup to tle left")
               ul.style.right = '0px';
               ul.style.left = 'auto';
             } else {
+              console.log((switcherRect.x + dropdownRect.width) >= window.innerWidth, "open popup to the right")
               ul.style.right = 'auto';
               ul.style.left = '0px';
             }
+            console.log("---------- END of auto move")
+
+
 
             // Check if the element is outside the viewport on the bottom side
-            if ((rect.y + rect.height) >= window.innerHeight) {
+            if ((switcherRect.y + dropdownRect.height) >= window.innerHeight) {
               ul.style.bottom = '0px';
             } else {
               ul.style.bottom = 'auto';
             }
           }
 
-          weploySwitcher.onclick = autoPosition;
+          weploySwitcher.onclick = autoPosition
 
           if (languages.length < 2) {
             let li = document.createElement('li');
