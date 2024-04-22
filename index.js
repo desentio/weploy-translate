@@ -420,7 +420,7 @@ function getTranslationsFromAPI(strings, language, apiKey) {
         resolve(data);
       })
       .catch((err) => {
-        console.error(err);
+        // console.error(err);
         if (isBrowser) {
           window.weployError = err.message;
           renderWeploySelectorState();
@@ -494,7 +494,7 @@ function processTextNodes(textNodes, language = "", apiKey) {
   const langs = window.weployOptions.definedLanguages || (weployOptions || {}).definedLanguages;
   if (langs && langs[0] && langs[0].lang == language.substring(0, 2).toLowerCase()) {
     return new Promise((resolve, reject) => {
-      console.log("Original language is not translatable")
+      // console.log("Original language is not translatable")
       reject("Original language is not translatable");
     })
   }
@@ -555,7 +555,7 @@ function processTextNodes(textNodes, language = "", apiKey) {
           resolve();
         }
       ).catch(err => {
-        console.error(err); // Log the error and resolve the promise without changing textNodes
+        // console.error(err); // Log the error and resolve the promise without changing textNodes
         resolve();
       });
     } else {
@@ -764,7 +764,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
         resolve();
     })
   } catch(err) {
-    console.error(err)
+    // console.error(err)
   }
 
 }
@@ -969,27 +969,19 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           details.appendChild(ul);
 
           function autoPosition(e) {
-            console.log("---------- START of auto move")
-            console.log(e.target, "find weploySwitcher:", e.target != weploySwitcher, !ul)
             // if (e.target != weploySwitcher) return;
             if(!ul) return;
             // const ul = e.target.querySelector("ul");
             const dropdownRect = ul.getBoundingClientRect();
-            const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown     
-            console.log(dropdownRect, switcherRect)       
+            const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown         
             // Check if the element is outside the viewport on the right side
             if ((switcherRect.x + dropdownRect.width) >= window.innerWidth) {
-              console.log((switcherRect.x + dropdownRect.width) >= window.innerWidth, "open popup to tle left")
               ul.style.right = '0px';
               ul.style.left = 'auto';
             } else {
-              console.log((switcherRect.x + dropdownRect.width) >= window.innerWidth, "open popup to the right")
               ul.style.right = 'auto';
               ul.style.left = '0px';
             }
-            console.log("---------- END of auto move")
-
-
 
             // Check if the element is outside the viewport on the bottom side
             if ((switcherRect.y + dropdownRect.height) >= window.innerHeight) {
