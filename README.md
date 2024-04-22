@@ -55,11 +55,6 @@ Enable users to select a language by adding:
 ## Excluding Text from Translation
 ⚠️ **Developer Notice:** Use the class "weploy-exclude" to prevent translation of specific content, like chat pop-ups or user-generated text.
 
-Or pass **data-exclude-classes** to the script tag:
-```html
-<script src="https://unpkg.com/weploy-translate/dist/weploy-translate.js" data-weploy-key="YOUR_PROJECT_KEY" data-exclude-classes="class1 class2 class3"></script>
-```
-
 Note: Inputs and user-generated content are not translated by default.
 
 ## Directing Users to a Specific Language Version
