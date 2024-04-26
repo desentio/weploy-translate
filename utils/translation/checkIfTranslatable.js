@@ -1,4 +1,4 @@
-function CheckIfTranslatable(input) {
+function checkIfTranslatable(input) {
   //Check if string is just spaces 
   let trimmedContent = input.trim();
   if (trimmedContent.length == 0 ) {
@@ -16,21 +16,26 @@ function CheckIfTranslatable(input) {
     return "inValid";
   }
 
+  // Code string filters
+  let codeStringRegex = /<[^>]*>|\/\/.*|\/\*[\s\S]*?\*\/|#.*|<!--[\s\S]*?-->|{.*}|def .*:|function .*{|public .*{|#include <|import .*/;
+  if (codeStringRegex.test(trimmedContent)) {
+    return "inValid";
+  }
 
-  // Single Word
-  let singleWordRegex = /^\w+$/;
-  if (!singleWordRegex.test(trimmedContent)) {
+  // If not single word then just make it valid
+  let multiWords = /^\W+|\s+|\W+$/;
+  if (multiWords.test(trimmedContent)) {
     return input;
   }
 
   // Email
-  let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,20}$/;
+  let emailRegex = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/;
   if (emailRegex.test(trimmedContent)) {
     return "inValid";
   }
 
   // Domain
-  let domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,20}$/;
+  let domainRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.){1,2}[a-zA-Z]{2,}(\/[a-zA-Z0-9]+)*$/;
   if (domainRegex.test(trimmedContent)) {
     return "inValid";
   }
@@ -58,8 +63,8 @@ function CheckIfTranslatable(input) {
   if (specialCharacterRegex.test(trimmedContent)) {
     return "inValid";
   }
-
+  
   return input;
 }
 
-module.exports = CheckIfTranslatable;
+module.exports = checkIfTranslatable;

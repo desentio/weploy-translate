@@ -29,9 +29,6 @@
   },
   "homepage": "https://github.com/desentio/weploy-translate#readme",
   "dependencies": {
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.11",
@@ -41,6 +38,10 @@
     "css-minimizer-webpack-plugin": "^6.0.0",
     "mini-css-extract-plugin": "^2.8.1",
     "raw-loader": "^4.0.2",
-    "terser-webpack-plugin": "^5.3.10"
+    "terser-webpack-plugin": "^5.3.10",
+    "circular-dependency-plugin": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   }
 }

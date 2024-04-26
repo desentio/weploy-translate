@@ -1,6 +1,6 @@
 const { getTranslations, isBrowser, createLanguageSelect, setOptions } = require("./index.js");
 
-if (isBrowser) {
+if (isBrowser()) {
   window.weployScriptTag = document.currentScript;
 
   // get options
