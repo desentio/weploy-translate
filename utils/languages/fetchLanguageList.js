@@ -1,4 +1,5 @@
-const { isBrowser, API_URL, getWeployOptions, setWeployActiveLang, setWeployOptions } = require("../configs");
+const { decompressArrayBuffer } = require("../compressions");
+const { isBrowser, API_URL, getWeployOptions, setWeployActiveLang, setWeployOptions, SHOULD_COMPRESS_PAYLOAD } = require("../configs");
 const { renderWeploySelectorState } = require("../selector/renderWeploySelectorState");
 
 async function fetchLanguageList(apiKey) {
@@ -7,12 +8,21 @@ async function fetchLanguageList(apiKey) {
   if (langs && Array.isArray(langs) && langs.length) return langs;
   if (window.weployError) return [];
 
+  const shouldCompressResponse = SHOULD_COMPRESS_PAYLOAD;
+  const headers = {
+    "X-Api-Key": apiKey,
+  }
+
+  if (shouldCompressResponse) {
+    headers["Accept"] = "application/octet-stream"; // to receive compressed response
+  }
+
   const availableLangs = await fetch(API_URL + "/weploy-projects/by-api-key", {
-    headers: {
-      "X-Api-Key": apiKey
-    }
+    headers
   })
-  .then((res) => res.json())
+  .then((response) => shouldCompressResponse ? response.arrayBuffer() : response.json())
+  .then(data => shouldCompressResponse ? decompressArrayBuffer(data, "gzip") : data)
+  .then(data => shouldCompressResponse ? JSON.parse(data) : data)
   .then((res) => {
     if (res.error) {
       throw new Error(res.error?.message || res.error || "Error fetching languages")

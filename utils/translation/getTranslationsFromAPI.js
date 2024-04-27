@@ -1,5 +1,5 @@
 const { compressToArrayBuffer, decompressArrayBuffer } = require("../compressions");
-const { API_URL, setWeployActiveLang, isBrowser } = require("../configs");
+const { API_URL, setWeployActiveLang, isBrowser, SHOULD_COMPRESS_PAYLOAD } = require("../configs");
 const { renderWeploySelectorState } = require("../selector/renderWeploySelectorState");
 
 async function getTranslationsFromAPI(strings, language, apiKey) {
@@ -23,7 +23,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
 
   const stringifiedPayload = JSON.stringify(finalPayload);
 
-  const shouldCompressPayload = false;
+  const shouldCompressPayload = SHOULD_COMPRESS_PAYLOAD;
   const compressedPayload = shouldCompressPayload ?  await compressToArrayBuffer(stringifiedPayload, "gzip") : null;
 
   return await new Promise((resolve) => {

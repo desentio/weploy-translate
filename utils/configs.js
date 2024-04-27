@@ -1,6 +1,7 @@
 // check if code runs on server or client
 const isBrowser = () => typeof window !== 'undefined'
 const API_URL = "https://api.tasksource.io"
+const SHOULD_COMPRESS_PAYLOAD = true
 
 /** Translation Options */
 var weployOptions;
@@ -65,5 +66,6 @@ module.exports = {
   getWeployActiveLang,
   setWeployActiveLang,
   API_URL,
+  SHOULD_COMPRESS_PAYLOAD,
   weployOptions
 }
