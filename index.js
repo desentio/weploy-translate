@@ -130,6 +130,8 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
               }
             }
           });
+
+          if (isBrowser()) window.localStorage.setItem("translationCache", JSON.stringify(window.translationCache));
           resolve(undefined);
         }
       ).catch(err => {
@@ -144,6 +146,8 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
           node.textContent = window.translationCache[language][text];
         }
       });
+
+      if (isBrowser()) window.localStorage.setItem("translationCache", JSON.stringify(window.translationCache));
       resolve(undefined);
     }
   });

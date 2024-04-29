@@ -3,6 +3,16 @@ const { getTranslations, isBrowser, createLanguageSelect, setOptions } = require
 if (isBrowser()) {
   window.weployScriptTag = document.currentScript;
 
+  const translationCache = window.localStorage.getItem("translationCache");
+  try {
+    const parsedTranslationCache = JSON.parse(translationCache);
+    if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
+      window.translationCache = parsedTranslationCache;
+    }
+  } catch (e) {
+    console.log("Error parsing translation cache", e)
+  }
+
   // get options
   const apiKey = window.weployScriptTag.getAttribute("data-weploy-key");
 
