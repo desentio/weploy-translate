@@ -3,7 +3,7 @@ const { getTranslations, isBrowser, createLanguageSelect, setOptions } = require
 if (isBrowser()) {
   window.weployScriptTag = document.currentScript;
 
-  const translationCache = window.localStorage.getItem("translationCache");
+  const translationCache = window.localStorage.getItem("translationCachePerPage");
   try {
     const parsedTranslationCache = JSON.parse(translationCache);
     if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
@@ -49,12 +49,6 @@ if (isBrowser()) {
     allowedLanguages: allowedLangs,
     timeout: timeout
   }
-
-  // create language selector first
-  // if (createSelector) {
-  //   setOptions(apiKey, options);
-  //   createLanguageSelect(apiKey, { isInit : true });
-  // }
 
   document.addEventListener("DOMContentLoaded", function() {
     getTranslations(apiKey, options)

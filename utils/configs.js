@@ -1,6 +1,10 @@
+const detectRobot = require("./detectRobot")
+
 // check if code runs on server or client
 const isBrowser = () => typeof window !== 'undefined'
 const API_URL = "https://api.tasksource.io"
+const CDN_URL = ""
+const KV_URL = "https://cdn.weploy-d8b.workers.dev"
 const SHOULD_COMPRESS_PAYLOAD = true
 
 /** Translation Options */
@@ -11,6 +15,18 @@ function getWeployOptions() {
     if (!window.weployOptions) {
       setWeployOptions({})
     }
+
+    const userAgent = window.navigator.userAgent;
+    const isRobot = detectRobot(userAgent);
+
+    if (isRobot) {
+      setWeployOptions({
+        useBrowserLanguage: false,
+        isRobot: true
+      })
+      return window.weployOptions;
+    }
+
     return window.weployOptions;
   } else {
     if (!weployOptions) {
@@ -24,8 +40,9 @@ function setWeployOptions(value = {}) {
   if (isBrowser()) {
     window.weployOptions = {
       ...(window.weployOptions || {}),
-      ...value
+      ...value,
     };
+    
   } else {
     weployOptions = {
       ...(weployOptions || {}),
@@ -66,6 +83,8 @@ module.exports = {
   getWeployActiveLang,
   setWeployActiveLang,
   API_URL,
+  CDN_URL,
+  KV_URL,
   SHOULD_COMPRESS_PAYLOAD,
   weployOptions
 }

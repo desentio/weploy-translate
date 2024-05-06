@@ -1,6 +1,7 @@
-const { getWeployOptions } = require("../configs");
+const { getWeployOptions, setWeployActiveLang } = require("../configs");
 const { fetchLanguageList } = require("./fetchLanguageList");
 
+//@deprecated
 function getSelectedLanguage() {
   return new Promise((resolve, reject) => {
     const search = window.location.search;
@@ -10,6 +11,7 @@ function getSelectedLanguage() {
 
     if (paramsLang && (paramsLang != localStorageLang)) {
       localStorage.setItem("language", paramsLang);
+      setWeployActiveLang(paramsLang);
     }
     
     let language = paramsLang || localStorageLang;
@@ -30,17 +32,24 @@ async function getLanguageFromLocalStorage() {
 
   if (paramsLang && (paramsLang != localStorageLang)) {
     localStorage.setItem("language", paramsLang);
+    setWeployActiveLang(paramsLang);
+    return paramsLang;
   }
-  let language = paramsLang || localStorageLang;
-  
+
   const availableLangs = await fetchLanguageList(apiKey);
+  let language = paramsLang || localStorageLang;
+
   if (!availableLangs.find(l => l.lang == language)) {
-    saveLanguageToLocalStorage(availableLangs, optsArgs.useBrowserLanguage);
+    saveDefaultLanguageToLocalStorage(availableLangs, optsArgs.useBrowserLanguage);
+  } else {
+    setWeployActiveLang(language);
   }
+
   return language; // Get the language from local storage
 }
 
-function saveLanguageToLocalStorage(availableLangs = [], useBrowserLang = true) {
+// this only for the first time when the user visits the site and the language is not set
+function saveDefaultLanguageToLocalStorage(availableLangs = [], useBrowserLang = true) {
   const language = window.navigator.language; // Get browser language (usually in this format: en-US)
   const langIsoCode = language && language.length >= 2 ? language.substring(0, 2) : null // Get the language ISO code
   const langInAvailableLangs = availableLangs.find(lang => lang.lang == langIsoCode) //  Check if the language is in the available languages
@@ -54,10 +63,11 @@ function saveLanguageToLocalStorage(availableLangs = [], useBrowserLang = true) 
   const langToSave = useBrowserLang ? langInAvailableLangsOrFirst : availableLangs[0].lang // If useBrowserLang is true, use the language from the browser, otherwise use the first available language
   // Save the language to local storage
   localStorage.setItem("language", langToSave);
+  setWeployActiveLang(langToSave);
 }
 
 module.exports = {
   getSelectedLanguage,
   getLanguageFromLocalStorage,
-  saveLanguageToLocalStorage
+  saveDefaultLanguageToLocalStorage
 }
