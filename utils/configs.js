@@ -2,9 +2,9 @@ const detectRobot = require("./detectRobot")
 
 // check if code runs on server or client
 const isBrowser = () => typeof window !== 'undefined'
-const API_URL = "https://api.tasksource.io"
+const API_URL = "https://api.weploy.ai"
 const CDN_URL = ""
-const KV_URL = "https://cdn.weploy-d8b.workers.dev"
+const KV_URL = "https://cdn.weploy.ai"
 const SHOULD_COMPRESS_PAYLOAD = true
 
 /** Translation Options */
