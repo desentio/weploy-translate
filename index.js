@@ -74,7 +74,8 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
   const langs = options.definedLanguages;
   if (langs && langs[0] && langs[0].lang == language.substring(0, 2).toLowerCase()) {
     return new Promise((resolve, reject) => {
-      reject("Original language is not translatable");
+      resolve(undefined);
+      // reject("Original language is not translatable");
     })
   }
   return new Promise(async (resolve) => {
@@ -90,12 +91,12 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
     }
 
     // Initialize cache per page if not exist yet
-    if (!window.translationCache[window.location.pathname]) {
+    if (!window.translationCache?.[window.location.pathname]) {
       window.translationCache[window.location.pathname] = {};
     }
 
     // Initialize language cache if not exist yet
-    if (!window.translationCache[window.location.pathname][language]) {
+    if (!window.translationCache?.[window.location.pathname]?.[language]) {
       window.translationCache[window.location.pathname][language] = {};
     }
 
@@ -104,9 +105,9 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
     // Check cache for each textNode
     cleanTextNodes.forEach((node) => {
       const text = node.textContent;
-      const cacheValues = Object.values(window.translationCache[window.location.pathname][language] || {});
+      const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
       if (
-        !window.translationCache[window.location.pathname][language][text] // check in key
+        !window.translationCache?.[window.location.pathname]?.[language]?.[text] // check in key
         && !cacheValues.includes(text) // check in value (to handle nodes that already translated)
       ) {
         notInCache.push(text); // If not cached, add to notInCache array
@@ -132,10 +133,12 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
 
         notInCache.forEach((text, index) => {
           // Cache the new translations
-          window.translationCache[window.location.pathname][language][text] = response[index] || cacheFromCloudFlare[text] || text;
+          if (window.translationCache?.[window.location.pathname]?.[language]) {
+            window.translationCache[window.location.pathname][language][text] = response[index] || cacheFromCloudFlare[text] || text;
+          }
 
           // If the translation is not available, cache the original text
-          if (window.translationCache[window.location.pathname][language][text] == "weploy-untranslated") {
+          if (window.translationCache?.[window.location.pathname]?.[language]?.[text] == "weploy-untranslated") {
             window.translationCache[window.location.pathname][language][text] = text;
           }
         });
@@ -143,10 +146,10 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
         // Update textNodes from the cache
         cleanTextNodes.forEach((node) => {
           const text = node.textContent;
-          if(window.translationCache[window.location.pathname][language][text]) {
+          if(window.translationCache?.[window.location.pathname]?.[language]?.[text]) {
             // make sure text is still the same before replacing
             if(node.textContent == text) {
-              node.textContent = window.translationCache[window.location.pathname][language][text];
+              node.textContent = window.translationCache?.[window.location.pathname]?.[language]?.[text];
             }
           }
         });
@@ -162,8 +165,8 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.forEach((node) => {
         const text = node.textContent;
-        if(window.translationCache[window.location.pathname][language][text]) {
-          node.textContent = window.translationCache[window.location.pathname][language][text];
+        if(window.translationCache?.[window.location.pathname]?.[language]?.[text]) {
+          node.textContent = window.translationCache?.[window.location.pathname]?.[language]?.[text];
         }
       });
 
@@ -239,7 +242,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
     // save language to local storage & delay 1 second to wait google translate
     await Promise.allSettled([
-      fetchLanguageList(apiKey),
+      optsArgs.originalLanguage ? getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages) : fetchLanguageList(apiKey),
       delay(1000)
     ]);
 

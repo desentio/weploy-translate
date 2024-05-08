@@ -7,6 +7,7 @@ async function fetchLanguageList(apiKey) {
   const langs = options.definedLanguages;
   if (langs && Array.isArray(langs) && langs.length) return langs;
   if (window.weployError) return [];
+  return [];
 
   const shouldCompressResponse = SHOULD_COMPRESS_PAYLOAD;
   const headers = {
