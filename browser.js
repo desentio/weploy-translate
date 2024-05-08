@@ -17,7 +17,7 @@ if (isBrowser()) {
   const apiKey = window.weployScriptTag.getAttribute("data-weploy-key");
 
   // defined languages so dont need extra fetch
-  const originalLangAttr = window.weployScriptTag.getAttribute("data-original-language");
+  const originalLangAttr = window.weployScriptTag.getAttribute("data-original-language") || window.weployScriptTag.getAttribute("data-original-lanugage");
   const originalLang = (originalLangAttr || "").trim().toLowerCase();
   const allowedLangAttr = window.weployScriptTag.getAttribute("data-allowed-languages");
   const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => !!lang).map(lang => lang.trim());
