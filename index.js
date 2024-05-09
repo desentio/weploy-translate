@@ -138,7 +138,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
           }
 
           // If the translation is not available, cache the original text
-          if (window.translationCache?.[window.location.pathname]?.[language]?.[text] == "weploy-untranslated") {
+          if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
             window.translationCache[window.location.pathname][language][text] = text;
           }
         });
