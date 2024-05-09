@@ -166,6 +166,12 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.forEach((node) => {
         const text = node.textContent;
+
+        // If the translation is not available, cache the original text
+        if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
+          window.translationCache[window.location.pathname][language][text] = undefined;
+        }
+        
         const newText = window.translationCache?.[window.location.pathname]?.[language]?.[text] || ""
         if(newText && !newText.includes("weploy-untranslated")) {
           // make sure text is still the same before replacing
