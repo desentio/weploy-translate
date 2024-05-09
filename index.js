@@ -146,10 +146,11 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
         // Update textNodes from the cache
         cleanTextNodes.forEach((node) => {
           const text = node.textContent;
-          if(window.translationCache?.[window.location.pathname]?.[language]?.[text]) {
+          const newText = window.translationCache?.[window.location.pathname]?.[language]?.[text] || ""
+          if(newText && !newText.includes("weploy-untranslated")) {
             // make sure text is still the same before replacing
-            if(node.textContent == text && !(window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
-              node.textContent = window.translationCache?.[window.location.pathname]?.[language]?.[text];
+            if(node.textContent == text) {
+              node.textContent = newText;
             }
           }
         });
@@ -165,8 +166,12 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.forEach((node) => {
         const text = node.textContent;
-        if(window.translationCache?.[window.location.pathname]?.[language]?.[text]) {
-          node.textContent = window.translationCache?.[window.location.pathname]?.[language]?.[text];
+        const newText = window.translationCache?.[window.location.pathname]?.[language]?.[text] || ""
+        if(newText && !newText.includes("weploy-untranslated")) {
+          // make sure text is still the same before replacing
+          if(node.textContent == text) {
+            node.textContent = newText;
+          }
         }
       });
 
