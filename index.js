@@ -139,7 +139,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
 
           // If the translation is not available, cache the original text
           if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
-            window.translationCache[window.location.pathname][language][text] = text;
+            window.translationCache[window.location.pathname][language][text] = undefined;
           }
         });
 
@@ -148,7 +148,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
           const text = node.textContent;
           if(window.translationCache?.[window.location.pathname]?.[language]?.[text]) {
             // make sure text is still the same before replacing
-            if(node.textContent == text) {
+            if(node.textContent == text && !(window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
               node.textContent = window.translationCache?.[window.location.pathname]?.[language]?.[text];
             }
           }
