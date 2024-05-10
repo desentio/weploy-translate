@@ -44,6 +44,15 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
           throw new Error(data?.error?.message || data?.error || "Error fetching translations");
         }
         setWeployActiveLang(language);
+
+        if (isBrowser()) {
+          if (!window.rawWeployTranslations) {
+            window.rawWeployTranslations = [];
+          }
+
+          window.rawWeployTranslations.push({ ...finalPayload, results: data })
+        }
+
         resolve(data);
       })
       .catch((err) => {
