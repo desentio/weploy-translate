@@ -131,7 +131,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
         // If there are translations not in cache, fetch them from the API
         const response = notCachedInCDN.length ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
 
-        notInCache.forEach((text, index) => {
+        notCachedInCDN.forEach((text, index) => {
           // Cache the new translations
           if (window.translationCache?.[window.location.pathname]?.[language]) {
             window.translationCache[window.location.pathname][language][text] = response[index] || cacheFromCloudFlare[text] || text;
