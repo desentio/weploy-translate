@@ -10,6 +10,7 @@ const extractTextNodes = require('./utils/translation/extractTextNodes.js');
 const getTranslationsFromAPI = require('./utils/translation/getTranslationsFromAPI.js');
 const { renderWeploySelectorState } = require('./utils/selector/renderWeploySelectorState.js');
 const getTranslationCacheFromCloudflare = require('./utils/translation/getTranslationCacheFromCloudflare.js');
+const { isCompressionSupported } = require('./utils/compressions.js');
 
 var isDomListenerAdded;
 
@@ -119,7 +120,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
       window.weployTranslating = true;
       renderWeploySelectorState({ shouldUpdateActiveLang: false });
 
-      const cacheFromCloudFlare = await getTranslationCacheFromCloudflare(language, apiKey);
+      const cacheFromCloudFlare = isCompressionSupported() ? await getTranslationCacheFromCloudflare(language, apiKey) : {};
       window.translationCache[window.location.pathname][language] = {
         ...(window.translationCache?.[window.location.pathname]?.[language] || {}),
         ...cacheFromCloudFlare

@@ -5,7 +5,6 @@ const isBrowser = () => typeof window !== 'undefined'
 const API_URL = "https://api.weploy.ai"
 const CDN_URL = ""
 const KV_URL = "https://cdn.weploy.ai"
-const SHOULD_COMPRESS_PAYLOAD = true
 
 /** Translation Options */
 var weployOptions;
@@ -112,6 +111,5 @@ module.exports = {
   API_URL,
   CDN_URL,
   KV_URL,
-  SHOULD_COMPRESS_PAYLOAD,
   weployOptions
 }

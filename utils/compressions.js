@@ -1,3 +1,8 @@
+function isCompressionSupported() {
+  const isSupported = window.CompressionStream && window.DecompressionStream && window.TextEncoder && window.TextDecoder;
+  return isSupported;
+}
+
 function compressToArrayBuffer(string, encoding) {
   const byteArray = new TextEncoder().encode(string);
   const cs = new CompressionStream(encoding);
@@ -60,5 +65,6 @@ module.exports = {
   compressToArrayBuffer,
   decompressArrayBuffer,
   compressToString,
-  decompressString
+  decompressString,
+  isCompressionSupported
 };

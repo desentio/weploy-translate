@@ -1,5 +1,5 @@
-const { decompressArrayBuffer } = require("../compressions");
-const { isBrowser, API_URL, getWeployOptions, setWeployActiveLang, setWeployOptions, SHOULD_COMPRESS_PAYLOAD } = require("../configs");
+const { decompressArrayBuffer, isCompressionSupported } = require("../compressions");
+const { isBrowser, API_URL, getWeployOptions, setWeployActiveLang, setWeployOptions } = require("../configs");
 const { renderWeploySelectorState } = require("../selector/renderWeploySelectorState");
 
 async function fetchLanguageList(apiKey) {
@@ -9,7 +9,7 @@ async function fetchLanguageList(apiKey) {
   if (window.weployError) return [];
   return [];
 
-  const shouldCompressResponse = SHOULD_COMPRESS_PAYLOAD;
+  const shouldCompressResponse = isCompressionSupported();
   const headers = {
     "X-Api-Key": apiKey,
   }
