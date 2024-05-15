@@ -76,12 +76,39 @@ function setWeployActiveLang(language) {
   }
 }
 
+/** Is Translation Initialized */
+var isTranslationInitialized;
+
+function getIsTranslationInitialized() {
+  if (isBrowser()){ 
+    if (!window.isTranslationInitialized) {
+      setIsTranslationInitialized(null)
+    }
+    return window.isTranslationInitialized;
+  } else {
+    if (!isTranslationInitialized) {
+      setIsTranslationInitialized(null)
+    }
+    return isTranslationInitialized;
+  }
+}
+
+function setIsTranslationInitialized(value) {
+  if (isBrowser()) {
+    window.isTranslationInitialized = value
+  } else {
+    isTranslationInitialized = value
+  }
+}
+
 module.exports = {
   isBrowser,
   getWeployOptions,
   setWeployOptions,
   getWeployActiveLang,
   setWeployActiveLang,
+  getIsTranslationInitialized,
+  setIsTranslationInitialized,
   API_URL,
   CDN_URL,
   KV_URL,

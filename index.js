@@ -1,4 +1,4 @@
-const { isBrowser, getWeployOptions, setWeployOptions, setWeployActiveLang } = require('./utils/configs.js');
+const { isBrowser, getWeployOptions, setWeployOptions, setWeployActiveLang, setIsTranslationInitialized, getIsTranslationInitialized } = require('./utils/configs.js');
 const checkIfTranslatable = require('./utils/translation/checkIfTranslatable.js');
 const allWeployLanguagesList = require('./utils/languages/allWeployLanguagesList.js');
 const { fetchLanguageList } = require('./utils/languages/fetchLanguageList.js');
@@ -181,7 +181,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
         }
       });
 
-      if (isBrowser()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+      if (isBrowser() && !getIsTranslationInitialized()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
       resolve(undefined);
     }
   });
@@ -194,7 +194,9 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
 
     const validTextNodes = filterValidTextNodes(textNodes) || [];
 
-    await processTextNodes(validTextNodes, language, apiKey).catch(reject).finally(() => {
+    await processTextNodes(validTextNodes, language, apiKey).then(() => {
+      setIsTranslationInitialized(true);
+    }).catch(reject).finally(() => {
       window.weployTranslating = false;
       renderWeploySelectorState();
     });

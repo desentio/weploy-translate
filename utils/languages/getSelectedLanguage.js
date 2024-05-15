@@ -1,4 +1,4 @@
-const { getWeployOptions, setWeployActiveLang } = require("../configs");
+const { getWeployOptions, setWeployActiveLang, getIsTranslationInitialized } = require("../configs");
 const { fetchLanguageList } = require("./fetchLanguageList");
 
 //@deprecated
@@ -31,7 +31,7 @@ async function getLanguageFromLocalStorage() {
   const localStorageLang = localStorage.getItem("language");
 
   if (paramsLang && (paramsLang != localStorageLang)) {
-    localStorage.setItem("language", paramsLang);
+    if (!getIsTranslationInitialized()) localStorage.setItem("language", paramsLang);
     setWeployActiveLang(paramsLang);
     return paramsLang;
   }
@@ -62,7 +62,7 @@ function saveDefaultLanguageToLocalStorage(availableLangs = [], useBrowserLang =
   const langInAvailableLangsOrFirst = langInAvailableLangs?.lang || availableLangs[0].lang // If the language is not in the available languages, use the first available language
   const langToSave = useBrowserLang ? langInAvailableLangsOrFirst : availableLangs[0].lang // If useBrowserLang is true, use the language from the browser, otherwise use the first available language
   // Save the language to local storage
-  localStorage.setItem("language", langToSave);
+  if (!getIsTranslationInitialized()) localStorage.setItem("language", langToSave);
   setWeployActiveLang(langToSave);
 }
 
