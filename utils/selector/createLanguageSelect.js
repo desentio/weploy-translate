@@ -2,7 +2,7 @@ const { loadingIconClassName, errorIconClassName, readyIconClassName, getLoading
 require('../../weploy.css');
 
 const cssModule = require('../../weploy.css?raw');
-const { isBrowser } = require("../configs");
+const { isBrowser, getWeployActiveLang } = require("../configs");
 const { getLanguageFromLocalStorage } = require("../languages/getSelectedLanguage");
 const { fetchLanguageList } = require("../languages/fetchLanguageList");
 const { renderWeploySelectorState } = require("./renderWeploySelectorState");
@@ -44,7 +44,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
 
   const availableLangs = optsArgs.isInit ? [] : await fetchLanguageList(apiKey);
   const langInLocalStorage = optsArgs.isInit ? "" : await getLanguageFromLocalStorage();
-  const selectedLang = langInLocalStorage || availableLangs?.[0]?.lang || optsArgs.originalLanguage || "";
+  const selectedLang = getWeployActiveLang() || langInLocalStorage || availableLangs?.[0]?.lang || optsArgs.originalLanguage || "";
   const selectedLangUppercased = (selectedLang || "").substring(0, 2).toUpperCase();
   const selectedLangLowercased = (selectedLang || "").substring(0, 2).toLowerCase();
 
