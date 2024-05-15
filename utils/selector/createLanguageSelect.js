@@ -20,6 +20,12 @@ function addOrReplaceLangParam(url, lang) {
   return urlObj.toString();
 }
 
+function hideDropDown(element) {
+  element.style.visibility = 'hidden';
+  element.style.zIndex = '-1';
+  element.style.pointerEvents = 'none';
+}
+
 async function createLanguageSelect(apiKey, optsArgs = {}) {
   if (!isBrowser()) return;
   if (!apiKey) {
@@ -66,11 +72,15 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           document.addEventListener('click', function(event) {
             let isClickInside = weploySwitcher.contains(event.target);
           
-            if (!isClickInside) {
+            if (details && !isClickInside) {
               // Check if 'open' attribute is present before trying to remove it
-              if (details.hasAttribute('open')) {
-                // To close:
-                details.removeAttribute('open');
+              // if (details.hasAttribute('open')) {
+              //   // To close:
+              //   details.removeAttribute('open');
+              // }
+              const childUl = details.querySelector('ul');
+              if (childUl) {
+                hideDropDown(childUl);
               }
             }
           });
@@ -82,15 +92,28 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           // details.dataset.behavior = 'languageSelector-topbar';
           details.role = 'group';
           details.className = "weploy-lang-selector-element"
+          details.open = true;
+          details.onclick = (e) => { 
+            e.preventDefault();
+            const childUl = details.querySelector('ul');
+            if (childUl) {
+              if (childUl.style.visibility == 'hidden'){
+                childUl.removeAttribute('style');
+              } else {
+                hideDropDown(childUl);
+              }
+            }
+          }
           
           const initializedSummaryByUser = initializedSelectorByUser?.querySelector?.('summary')
           let summary = initializedSummaryByUser || document.createElement('summary');
           if (!initializedSummaryByUser) {
-            summary.setAttribute('aria-expanded', 'true');
-            summary.setAttribute('aria-haspopup', 'true');
+            // summary.setAttribute('aria-expanded', 'true');
+            // summary.setAttribute('aria-haspopup', 'true');
             summary.role = 'button';      
             details.appendChild(summary); 
           }
+          summary.onclick = (e) => { e.preventDefault(); }
 
           const initializedLoadingIcon = initializedSummaryByUser?.querySelector?.(`.${loadingIconClassName}`);
           const initializedErrorIcon = initializedSummaryByUser?.querySelector?.(`.${errorIconClassName}`);
@@ -150,13 +173,14 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           let ul = document.createElement('ul');
           ul.className = 'weploy-lang-selector-menu-container';
           details.appendChild(ul);
+          hideDropDown(ul);
 
-          function autoPosition(e) {
+          async function autoPosition(e) {
             // if (e.target != weploySwitcher) return;
             if(!ul) return;
             // const ul = e.target.querySelector("ul");
             const dropdownRect = ul.getBoundingClientRect();
-            const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown         
+            const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown
             // Check if the element is outside the viewport on the right side
             if ((switcherRect.x + dropdownRect.width) >= window.innerWidth) {
               ul.style.right = '0px';
@@ -208,6 +232,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
               a.dataset.index = index;
 
               a.addEventListener('click', function(event) {
+                event.stopPropagation();
                 if (isSelected) return;
                 // Check if 'open' attribute is present before trying to remove it
                 if (details.hasAttribute('open')) {
