@@ -1,6 +1,6 @@
 function isCompressionSupported() {
   const isSupported = window.CompressionStream && window.DecompressionStream && window.TextEncoder && window.TextDecoder;
-  return isSupported;
+  return !!isSupported;
 }
 
 function compressToArrayBuffer(string, encoding) {
