@@ -10,7 +10,7 @@ const allWeployLanguagesList = [
   { "label": "Belarusian", "lang": "be" },
   { "label": "Bulgarian", "lang": "bg" },
   { "label": "Bambara", "lang": "bm" },
-  { "label": "Kazakh", "lang": "kk" },
+  { "label": "Kazakh", "lang": "kz" },
   { "label": "Bislama", "lang": "bi" },
   { "label": "Bengali", "lang": "bn" },
   { "label": "Tibetan", "lang": "bo" },
