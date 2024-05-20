@@ -53,6 +53,18 @@ if (isBrowser()) {
   })();
 }
 
+function updateNode(node, language) {
+  const text = node.textContent;
+  const newText = window.translationCache?.[window.location.pathname]?.[language]?.[text] || "";
+
+  if(newText && !newText.includes("weploy-untranslated")) {
+    // make sure text is still the same before replacing
+    if(node.textContent == text) {
+      node.textContent = newText;
+    }
+  }
+}
+
 function filterValidTextNodes(textNodes) {
   return textNodes.filter((textNode) => {
     const textContent = textNode.textContent
@@ -112,6 +124,8 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
         && !cacheValues.includes(text) // check in value (to handle nodes that already translated)
       ) {
         notInCache.push(text); // If not cached, add to notInCache array
+      } else {
+        updateNode(node, language)
       }
     });
 
@@ -146,14 +160,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
 
         // Update textNodes from the cache
         cleanTextNodes.forEach((node) => {
-          const text = node.textContent;
-          const newText = window.translationCache?.[window.location.pathname]?.[language]?.[text] || ""
-          if(newText && !newText.includes("weploy-untranslated")) {
-            // make sure text is still the same before replacing
-            if(node.textContent == text) {
-              node.textContent = newText;
-            }
-          }
+          updateNode(node, language)
         });
         
         if (isBrowser()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
@@ -172,14 +179,8 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
         if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
           window.translationCache[window.location.pathname][language][text] = undefined;
         }
-        
-        const newText = window.translationCache?.[window.location.pathname]?.[language]?.[text] || ""
-        if(newText && !newText.includes("weploy-untranslated")) {
-          // make sure text is still the same before replacing
-          if(node.textContent == text) {
-            node.textContent = newText;
-          }
-        }
+
+        updateNode(node, language)
       });
 
       if (isBrowser() && !getIsTranslationInitialized()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
@@ -194,6 +195,8 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
     extractTextNodes(rootElement, textNodes);
 
     const validTextNodes = filterValidTextNodes(textNodes) || [];
+
+    console.log("validTextNodes", validTextNodes)
 
     await processTextNodes(validTextNodes, language, apiKey).then(() => {
       setIsTranslationInitialized(true);
