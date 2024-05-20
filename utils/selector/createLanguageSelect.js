@@ -2,7 +2,7 @@ const { loadingIconClassName, errorIconClassName, readyIconClassName, getLoading
 require('../../weploy.css');
 
 const cssModule = require('../../weploy.css?raw');
-const { isBrowser, getWeployActiveLang } = require("../configs");
+const { isBrowser, getWeployActiveLang, getWeployOptions } = require("../configs");
 const { getLanguageFromLocalStorage } = require("../languages/getSelectedLanguage");
 const { fetchLanguageList } = require("../languages/fetchLanguageList");
 const { renderWeploySelectorState } = require("./renderWeploySelectorState");
@@ -248,10 +248,12 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
 
               li.appendChild(a);
           
+              const options = getWeployOptions();
+              const langCode = options.customLanguageCode?.[language.lang] || language.lang;
               let span = document.createElement('span');
               span.setAttribute('aria-hidden', 'true');
               span.className = 'weploy-lang-selector-menu-container-item-code';
-              span.textContent = language.lang.toUpperCase();
+              span.textContent = langCode.toUpperCase();
               a.appendChild(span);
           
               let p = document.createElement('div');

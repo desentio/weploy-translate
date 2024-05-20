@@ -1,4 +1,4 @@
-const { getTranslations, isBrowser, createLanguageSelect, setOptions } = require("./index.js");
+const { getTranslations, isBrowser } = require("./index.js");
 
 if (isBrowser()) {
   window.weployScriptTag = document.currentScript;
@@ -12,6 +12,15 @@ if (isBrowser()) {
   } catch (e) {
     console.log("Error parsing translation cache", e)
   }
+
+  const customLanguageCodeAttr = window.weployScriptTag.getAttribute("data-custom-language-code"); // format is "kk=kz, en=us, ru=rs"
+  const customLanguageCode = customLanguageCodeAttr ? customLanguageCodeAttr.split(",").reduce((acc, lang) => {
+    const [key, value] = lang.trim().split("=");
+    if (!key || !value) return acc;
+
+    acc[key] = value;
+    return acc;
+  }, {}) : {};
 
   // get options
   const apiKey = window.weployScriptTag.getAttribute("data-weploy-key");
@@ -47,7 +56,8 @@ if (isBrowser()) {
     excludeClasses,
     originalLanguage: originalLang,
     allowedLanguages: allowedLangs,
-    timeout: timeout
+    timeout: timeout,
+    customLanguageCode
   }
 
   document.addEventListener("DOMContentLoaded", function() {

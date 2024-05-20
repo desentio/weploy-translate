@@ -1,4 +1,4 @@
-const { getWeployActiveLang } = require("../configs");
+const { getWeployActiveLang, getWeployOptions } = require("../configs");
 const { getWeployValueDisplays } = require("./weployValueDisplays");
 
 const readyClass = 'weploy-lang-selector-ready';
@@ -13,7 +13,9 @@ function renderWeploySelectorState(opts = { shouldUpdateActiveLang: true }) {
   getWeployValueDisplays().forEach((selector) => {
     const value = selector.querySelector('.weploy-lang-selector-value')
     if (value && shouldUpdateActiveLang) {
-      value.innerText = (getWeployActiveLang() || "").toUpperCase();
+      const activeLang = getWeployActiveLang() || "";
+      const options = getWeployOptions();
+      value.innerText = (options.customLanguageCode?.[activeLang] || activeLang).toUpperCase();
     }
 
     if (window.weployTranslating) {
