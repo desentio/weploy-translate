@@ -1,6 +1,28 @@
 const { getTranslations, isBrowser } = require("./index.js");
 
 if (isBrowser()) {
+  function replaceLinks(lang) {
+    // Select all anchor tags
+    let anchors = document.querySelectorAll('a');
+  
+    // Loop through all anchor tags
+    for (let i = 0; i < anchors.length; i++) {
+        let anchor = anchors[i];
+  
+        // Check if the link is internal
+        if (anchor.hostname === window.location.hostname) {
+            // Create a new URL object
+            let url = new URL(anchor.href);
+  
+            // Set the search parameter "lang" to lang
+            url.searchParams.set('lang', lang);
+  
+            // Update the href of the anchor tag
+            anchor.href = url.href;
+        }
+    }
+  }
+
   window.weployScriptTag = document.currentScript;
 
   const translationCache = window.localStorage.getItem("translationCachePerPage");
@@ -61,6 +83,15 @@ if (isBrowser()) {
   }
 
   document.addEventListener("DOMContentLoaded", function() {
+
+    // replace links with lang (for SEO purposes)
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    const paramsLang = params.get('lang');
+    if (paramsLang && (paramsLang != originalLang)) {
+      replaceLinks(paramsLang);
+    }
+
     getTranslations(apiKey, options)
   });
 }
