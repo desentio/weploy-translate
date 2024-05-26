@@ -54,8 +54,114 @@ if (isBrowser()) {
 }
 
 function updateNode(node, language) {
+  const fullText = node.fullText;
+  const fullTextArray = node.fullTextArray;
   const text = node.textContent;
-  const newText = window.translationCache?.[window.location.pathname]?.[language]?.[text] || "";
+  const cache = fullText || text;
+  const newText = window.translationCache?.[window.location.pathname]?.[language]?.[cache] || "";
+
+  if (cache.includes("weploy-merge") && fullTextArray) {
+    try {
+      const parsedNewText = JSON.parse(newText);
+      const translatedObject = typeof parsedNewText == 'string' ? JSON.parse(parsedNewText) : parsedNewText;
+
+      const currentIndex = node.fullTextIndex;
+      const isCurrentIndexTheLastIndex = currentIndex == (fullTextArray.length - 1);
+      if (translatedObject.translatedText && translatedObject.translatedMap) {
+        const translatedText = translatedObject.translatedText; // format: string
+        const translatedMap = translatedObject.translatedMap; // format { "originalText": "translatedText" }
+        const translatedDir = translatedObject.translatedDir || "ltr";
+        const keys = Object.keys(translatedMap).sort((a, b) => b.length - a.length);
+        const pattern = keys.map(key => translatedMap[key]).join('|');
+        const regex = new RegExp(`(${pattern})`, 'g');
+        const splitted = translatedText.split(regex).filter(Boolean);
+
+        // merge the falsy value into the previous string
+        const mergedSplitted = splitted.reduce((acc, curr, index) => {
+          if (typeof curr != 'string') {
+            return acc;
+          }
+
+          if (typeof curr == 'string' && !curr.trim()) {
+            acc[acc.length - 1] += curr;
+            return acc;
+          }
+
+          return [...acc, curr];
+        }, []);
+
+        const mergedOrphanString = mergedSplitted.reduce((acc, curr, index) => {
+          const findTranslationKey = Object.entries(translatedMap).find(([key, value]) => curr.includes(value))?.[0];
+          if (!findTranslationKey) {
+            return [
+              ...acc,
+              { value: curr, index: -1 }
+            ];
+          }
+
+          const findIndex = fullTextArray.findIndex(key => key.trim() == findTranslationKey.trim());
+          if (findIndex == -1) {
+            return [
+              ...acc,
+              { value: curr, index: -1 }
+            ];
+          }
+
+          return [
+            ...acc,
+            { value: curr, index: findIndex }
+          ]
+        }, []);
+  
+        const translatedIndex = mergedOrphanString.findIndex(({ index }) => index == currentIndex)
+        if (translatedIndex == -1) return;
+
+        let newValue = mergedOrphanString[translatedIndex]?.value;
+
+        // merge to right
+        if (translatedDir == 'ltr') {
+          // if the current index is the first index, and there are still some splitted values left, then concat it
+          if (currentIndex == 0) {
+            newValue = `${mergedOrphanString.slice(0, translatedIndex).map(x => x.value).join(' ')} ${newValue}`
+          }
+
+          // find the right newValue, make sure it matched with the text, but start checking from the translatedIndex to the next index
+          for (let i = translatedIndex + 1; i < mergedOrphanString.length; i++) {
+            if (mergedOrphanString[i].index == -1) {
+              newValue = `${newValue} ${mergedOrphanString[i].value}`;
+            } else {
+              break;
+            }
+          }
+        }
+        
+        // merge to left
+        if (translatedDir == 'rtl') {
+          // if the current index is the last index, and there are still some splitted values left, then concat it
+          if (isCurrentIndexTheLastIndex) {
+            newValue = `${newValue} ${mergedOrphanString.slice(translatedIndex + 1, mergedOrphanString.length).map(x => x.value).join(' ')}`
+          }
+
+          // find the right newValue, make sure it matched with the text, but start checking from the translatedIndex to the previous index
+          for (let i = translatedIndex - 1; i >= 0; i--) {
+            if (mergedOrphanString[i].index == -1) {
+              newValue = `${mergedOrphanString[i].value} ${newValue}`;
+            } else {
+              break;
+            }
+          }
+        }
+
+        // make sure text is still the same before replacing
+        if (node.textContent == text) {
+          node.textContent = newValue; // TODO: right now we only replace based on translation position, later we should swap the node position to preserve the styles
+        }
+      }
+    } catch(err) {
+      // do nothing
+    }
+    return;
+  }
 
   if(newText && !newText.includes("weploy-untranslated")) {
     // make sure text is still the same before replacing
@@ -117,7 +223,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
 
     // Check cache for each textNode
     cleanTextNodes.forEach((node) => {
-      const text = node.textContent;
+      const text = node.fullText || node.textContent;
       const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
       if (
         !window.translationCache?.[window.location.pathname]?.[language]?.[text] // check in key
@@ -134,7 +240,12 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
       window.weployTranslating = true;
       renderWeploySelectorState({ shouldUpdateActiveLang: false });
 
-      const cacheFromCloudFlare = isCompressionSupported() ? await getTranslationCacheFromCloudflare(language, apiKey) : {};
+      let cacheFromCloudFlare = isCompressionSupported() ? await getTranslationCacheFromCloudflare(language, apiKey) : {};
+
+      if (process.env.NO_CACHE) {
+        cacheFromCloudFlare = {};
+      }
+
       window.translationCache[window.location.pathname][language] = {
         ...(window.translationCache?.[window.location.pathname]?.[language] || {}),
         ...cacheFromCloudFlare
@@ -173,7 +284,7 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
     } else {
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.forEach((node) => {
-        const text = node.textContent;
+        const text = node.fullText || node.textContent;
 
         // If the translation is not available, cache the original text
         if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
@@ -195,8 +306,6 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
     extractTextNodes(rootElement, textNodes);
 
     const validTextNodes = filterValidTextNodes(textNodes) || [];
-
-    console.log("validTextNodes", validTextNodes)
 
     await processTextNodes(validTextNodes, language, apiKey).then(() => {
       setIsTranslationInitialized(true);

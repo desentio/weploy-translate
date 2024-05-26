@@ -3,69 +3,78 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin'); // Add this line
 const CircularDependencyPlugin = require('circular-dependency-plugin')
+const webpack = require('webpack');
 
-module.exports = {
-    target: 'web',
-    entry: './browser.js', // Update this with your entry file
-    output: {
-        filename: 'weploy-translate.js',
-        path: path.resolve(__dirname, 'dist'),
-    },
-    module: {
-        rules: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env'],
+module.exports = (env, argv) => {
+    return {
+        target: 'web',
+        entry: './browser.js', // Update this with your entry file
+        output: {
+            filename: 'weploy-translate.js',
+            path: path.resolve(__dirname, 'dist'),
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env'],
+                        },
                     },
                 },
-            },
-            {
-                test: /\.css$/,
-                oneOf: [
-                    {
-                        resourceQuery: /raw/, // foo.css?raw
-                        use: [
-                            'raw-loader',
-                        ],
-                    },
-                    {
-                        use: [
-                            MiniCssExtractPlugin.loader,
-                            'css-loader',
-                        ],
-                    },
-                ],
-            },
+                {
+                    test: /\.css$/,
+                    oneOf: [
+                        {
+                            resourceQuery: /raw/, // foo.css?raw
+                            use: [
+                                'raw-loader',
+                            ],
+                        },
+                        {
+                            use: [
+                                MiniCssExtractPlugin.loader,
+                                'css-loader',
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        plugins: [
+            new MiniCssExtractPlugin({
+                filename: 'weploy-translate.css',
+                chunkFilename: '[id].css',
+            }),
+            new CircularDependencyPlugin({
+                // exclude detection of files based on a RegExp
+                exclude: /node_modules/,
+                // include specific files based on a RegExp
+                include: /dir/,
+                // add errors to webpack instead of warnings
+                failOnError: true,
+                // allow import cycles that include an asyncronous import,
+                // e.g. via import(/* webpackMode: "weak" */ './file.js')
+                allowAsyncCycles: false,
+                // set the current working directory for displaying module paths
+                cwd: process.cwd(),
+            }),
+            new webpack.DefinePlugin({
+                'process.env': {
+                    NODE_ENV: JSON.stringify(argv.mode),
+                    NO_CACHE: JSON.stringify(env.NO_CACHE)
+                },
+            }),
         ],
-    },
-    plugins: [
-        new MiniCssExtractPlugin({
-            filename: 'weploy-translate.css',
-            chunkFilename: '[id].css',
-        }),
-        new CircularDependencyPlugin({
-            // exclude detection of files based on a RegExp
-            exclude: /node_modules/,
-            // include specific files based on a RegExp
-            include: /dir/,
-            // add errors to webpack instead of warnings
-            failOnError: true,
-            // allow import cycles that include an asyncronous import,
-            // e.g. via import(/* webpackMode: "weak" */ './file.js')
-            allowAsyncCycles: false,
-            // set the current working directory for displaying module paths
-            cwd: process.cwd(),
-        })
-    ],
-    optimization: {
-        minimize: true,
-        minimizer: [
-            new CssMinimizerPlugin(),
-            new TerserPlugin(), // Add this line
-        ],
-    },
+        optimization: {
+            minimize: true,
+            minimizer: [
+                new CssMinimizerPlugin(),
+                new TerserPlugin(), // Add this line
+            ],
+        },
+    };
 };

@@ -27,6 +27,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
   if (!shouldCompressPayload) console.log("WEPLOY: Compression is not supported in this browser, therefore the payload will be sent uncompressed.");
 
   const compressedPayload = shouldCompressPayload ?  await compressToArrayBuffer(stringifiedPayload, "gzip") : null;
+  const body = shouldCompressPayload ? compressedPayload : stringifiedPayload;
 
   return await new Promise((resolve) => {
     fetch(API_URL + "/weploy/get-translations", {
@@ -36,7 +37,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
         // 'accept-encoding': 'gzip,deflate',
         "apikey": apiKey
       },
-      body: shouldCompressPayload ? compressedPayload : stringifiedPayload
+      body,
     })
       .then((response) => shouldCompressPayload ? response.arrayBuffer() : response.json())
       .then(data => shouldCompressPayload ? decompressArrayBuffer(data, "gzip") : data)

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "test",
     "build": "webpack --mode production",
+    "build:nocache": "webpack --mode production --env NO_CACHE=true",
     "dev": "webpack serve --mode development"
   },
   "repository": {

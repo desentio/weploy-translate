@@ -1,6 +1,7 @@
 const { getTranslations, isBrowser } = require("./index.js");
 
 if (isBrowser()) {
+  // console.log(process.env.NO_CACHE)
   function replaceLinks(lang) {
     // Select all anchor tags
     let anchors = document.querySelectorAll('a');

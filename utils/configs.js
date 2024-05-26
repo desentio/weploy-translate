@@ -2,9 +2,9 @@ const detectRobot = require("./detectRobot")
 
 // check if code runs on server or client
 const isBrowser = () => typeof window !== 'undefined'
-const API_URL = "https://api.weploy.ai"
-const CDN_URL = ""
-const KV_URL = "https://cdn.weploy.ai"
+const API_URL = process.env.NO_CACHE ? "http://localhost:8081" : "https://api.weploy.ai";
+const CDN_URL = "";
+const KV_URL = "https://cdn.weploy.ai";
 
 /** Translation Options */
 var weployOptions;
