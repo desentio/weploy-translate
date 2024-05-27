@@ -58,7 +58,9 @@ function extractTextNodes(node, textNodes) {
     if (
       !node.fullText && 
       // 2. must be a child of an inline element
-      node.parentNode instanceof Element && window.getComputedStyle(node.parentNode).display === 'inline'
+      node.parentNode instanceof Element && window.getComputedStyle(node.parentNode).display === 'inline' &&
+      // not a link or button or list item
+      node.parentNode.tagName !== 'A' && node.parentNode.tagName !== 'BUTTON' && node.parentNode.tagName !== 'LI'
     ) {
       const parentSiblings = [];
       
