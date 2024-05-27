@@ -405,7 +405,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 
     if (shouldOptimizeSEO) {
       const metaTags = Array.from(document.getElementsByTagName('meta'));
-      const cleanMetaTags = metaTags.filter((meta) => (meta.content || "").trim());
+      const cleanMetaTags = metaTags.filter((meta) => (meta.content || "").trim() && meta.name != "X-UA-Compatible" && meta.name != "viewport");
 
       const imgTags = Array.from(document.getElementsByTagName('img'));
       // only include img tags that has alt or title attribute
