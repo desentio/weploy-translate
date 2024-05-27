@@ -1,6 +1,10 @@
 const { getTranslations, isBrowser } = require("./index.js");
 
 if (isBrowser()) {
+  const search = window.location.search;
+  const params = new URLSearchParams(search);
+  const paramsLang = params.get('lang');
+
   // console.log(process.env.NO_CACHE)
   function replaceLinks(lang) {
     // Select all anchor tags
@@ -51,6 +55,12 @@ if (isBrowser()) {
   // defined languages so dont need extra fetch
   const originalLangAttr = window.weployScriptTag.getAttribute("data-original-language") || window.weployScriptTag.getAttribute("data-original-lanugage");
   const originalLang = (originalLangAttr || "").trim().toLowerCase();
+
+  const activeLang = paramsLang || originalLang;
+  if (document.documentElement.lang != activeLang) {
+    document.documentElement.lang = activeLang;
+  }
+
   const allowedLangAttr = window.weployScriptTag.getAttribute("data-allowed-languages");
   const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => !!lang).map(lang => lang.trim());
 
@@ -86,9 +96,6 @@ if (isBrowser()) {
   document.addEventListener("DOMContentLoaded", function() {
 
     // replace links with lang (for SEO purposes)
-    const search = window.location.search;
-    const params = new URLSearchParams(search);
-    const paramsLang = params.get('lang');
     if (paramsLang && (paramsLang != originalLang)) {
       replaceLinks(paramsLang);
     }

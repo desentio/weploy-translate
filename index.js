@@ -53,7 +53,49 @@ if (isBrowser()) {
   })();
 }
 
-function updateNode(node, language) {
+function updateNode(node, language, type = "text") {
+  // update title
+  if (node == document) {
+    const newText = window.translationCache?.[window.location.pathname]?.[language]?.[document.title] || "";  
+    if (newText && !newText.includes("weploy-untranslated")) {
+      document.title = newText;
+    }
+    return;
+  }
+
+  // update meta tags
+  if (node.tagName == "META") {
+    const newText = window.translationCache?.[window.location.pathname]?.[language]?.[node.content] || "";  
+    if (newText && !newText.includes("weploy-untranslated")) {
+      node.content = newText;
+    }
+    return;
+  }
+
+  // update image
+  if (node.tagName == "IMG") {
+    const newAlt = window.translationCache?.[window.location.pathname]?.[language]?.[node.alt] || "";
+    const newTitle = window.translationCache?.[window.location.pathname]?.[language]?.[node.title] || "";
+
+    if (newAlt && !newAlt.includes("weploy-untranslated")) {
+      node.alt = newAlt;
+    }
+
+    if (newTitle && !newTitle.includes("weploy-untranslated")) {
+      node.title = newTitle;
+    }
+    return;
+  }
+
+  // update anchor title
+  if (type == "seo" && node.tagName == "A") {
+    const newTitle = window.translationCache?.[window.location.pathname]?.[language]?.[node.title] || "";
+    if (newTitle && !newTitle.includes("weploy-untranslated")) {
+      node.title = newTitle;
+    }
+    return;
+  }
+
   const fullText = node.fullText;
   const fullTextArray = node.fullTextArray;
   const text = node.textContent;
@@ -180,7 +222,7 @@ function filterValidTextNodes(textNodes) {
   });
 }
 
-function processTextNodes(textNodes = [], language = "", apiKey = "") {
+function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = []) {
   // dont translate google translate
   if (isBrowser() && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) {
     return new Promise((resolve, reject) => {
@@ -231,7 +273,55 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
       ) {
         notInCache.push(text); // If not cached, add to notInCache array
       } else {
-        updateNode(node, language)
+        updateNode(node, language, "text")
+      }
+    });
+
+    seoNodes.forEach((node) => {
+      if (node == document) {
+        if (!window.translationCache?.[window.location.pathname]?.[language]?.[document.title]) {
+          if ((document.title || "").trim()) notInCache.push(document.title); // make sure the title is not empty
+        } else {
+          updateNode(node, language, "seo")
+        }
+      }
+
+      if (node.tagName == "META") {
+        if (!window.translationCache?.[window.location.pathname]?.[language]?.[node.content]) {
+          notInCache.push(node.content);
+        } else {
+          updateNode(node, language, "seo")
+        }
+      }
+
+      if (node.tagName == "IMG") {
+        const altCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.alt]
+        // make sure the alt is not empty
+        if ((node.alt || "").trim() && !altCache) {
+          notInCache.push(node.alt);
+        }
+        
+        const titleCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.title]
+        // make sure the title is not empty
+        if ((node.title || "").trim() && !titleCache) {
+          notInCache.push(node.title);
+        }
+
+        if (altCache && titleCache) {
+          updateNode(node, language, "seo");
+        }
+      }
+
+      if (node.tagName == "A") {
+        const titleCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.title]
+        // make sure the title is not empty
+        if ((node.title || "").trim() && !titleCache) {
+          notInCache.push(node.title);
+        }
+
+        if (titleCache) {
+          updateNode(node, language, "seo");
+        }
       }
     });
 
@@ -273,6 +363,10 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
         cleanTextNodes.forEach((node) => {
           updateNode(node, language)
         });
+
+        seoNodes.forEach((node) => {
+          updateNode(node, language, "seo")
+        });
         
         if (isBrowser()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
 
@@ -291,7 +385,12 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
           window.translationCache[window.location.pathname][language][text] = undefined;
         }
 
-        updateNode(node, language)
+        updateNode(node, language);
+
+        seoNodes.forEach((node) => {
+          updateNode(node, language, "seo")
+        });
+
       });
 
       if (isBrowser() && !getIsTranslationInitialized()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
@@ -300,14 +399,39 @@ function processTextNodes(textNodes = [], language = "", apiKey = "") {
   });
 }
 
-function modifyHtmlStrings(rootElement, language, apiKey) {
+function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
   return new Promise(async (resolve, reject) => {
+    const seoNodes = []; // document will represent the title tag, if node == document then the updateNode function will update the title
+
+    if (shouldOptimizeSEO) {
+      const metaTags = Array.from(document.getElementsByTagName('meta'));
+      const cleanMetaTags = metaTags.filter((meta) => (meta.content || "").trim());
+
+      const imgTags = Array.from(document.getElementsByTagName('img'));
+      // only include img tags that has alt or title attribute
+      const cleanImgTags = imgTags.filter((img) => 
+        (img.alt || "").trim() || 
+        (img.title || "").trim()
+      );
+
+      const anchorTags = Array.from(document.getElementsByTagName('a'));
+      // only include anchor tags that has title attribute
+      const cleanAnchorTags = anchorTags.filter((anchor) => (anchor.title || "").trim());
+
+      seoNodes.push(
+        document,
+        ...cleanMetaTags,
+        ...cleanImgTags,
+        ...cleanAnchorTags,
+      )
+    }
+
     const textNodes = [];
     extractTextNodes(rootElement, textNodes);
 
     const validTextNodes = filterValidTextNodes(textNodes) || [];
 
-    await processTextNodes(validTextNodes, language, apiKey).then(() => {
+    await translateNodes(validTextNodes, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
     }).catch(reject).finally(() => {
       window.weployTranslating = false;
@@ -318,16 +442,16 @@ function modifyHtmlStrings(rootElement, language, apiKey) {
   });
 }
 
-async function startTranslationCycle(node, apiKey, delay) {
+async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = false) {
   const lang = await getLanguageFromLocalStorage();
 
   return new Promise(async (resolve) => {
     if (!delay) {
-      await modifyHtmlStrings(node, lang, apiKey).catch(console.log)
+      await modifyHtmlStrings(node, lang, apiKey, shouldOptimizeSEO).catch(console.log)
       resolve(undefined)
     } else {
       debounce(async () => {
-        await modifyHtmlStrings(node, lang, apiKey).catch(console.log);
+        await modifyHtmlStrings(node, lang, apiKey, shouldOptimizeSEO).catch(console.log);
         resolve(undefined);
       }, delay)();
     }
@@ -383,7 +507,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
     return await new Promise(async (resolve, reject) => {
       try {
         const timeout = getWeployOptions().timeout;
-        await startTranslationCycle(document.body, apiKey, timeout).catch(reject);
+        await startTranslationCycle(document.body, apiKey, timeout, true).catch(reject);
 
         if (isBrowser() && !isDomListenerAdded) {
           // Select the target node
