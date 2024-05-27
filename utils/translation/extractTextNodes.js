@@ -105,7 +105,7 @@ function extractTextNodes(node, textNodes) {
           (child.childNodes || []).forEach((grandChild) => {
             if (grandChild instanceof Element && window.getComputedStyle(grandChild).display === 'inline') {
               inlineChildren.push(grandChild);
-              if (grandChild.tagName === 'A' || grandChild.tagName === 'BUTTON') {
+              if (grandChild.tagName === 'A' || grandChild.tagName === 'BUTTON' || grandChild.tagName === 'LI') {
                 childrenTags.push(grandChild);
               }
             }
@@ -130,7 +130,7 @@ function extractTextNodes(node, textNodes) {
       
       // check if all parent siblings are links or buttons
       const isAllParentSiblingsAreLinksOrButtons = parentSiblings.every((child) => {
-        return child instanceof Element && (child.tagName === 'A' || child.tagName === 'BUTTON');
+        return child instanceof Element && (child.tagName === 'A' || child.tagName === 'BUTTON' || child.tagName === "LI");
       });
 
       if (parentSiblings.length > 1 && shouldAssignFullText && !isAllParentSiblingsAreLinksOrButtons) {
