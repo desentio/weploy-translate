@@ -117,28 +117,28 @@ function updateNode(node, language, type = "text") {
         const keys = Object.keys(translatedMap).sort((a, b) => b.length - a.length);
         const pattern = keys.map(key => translatedMap[key]).join('|');
         const regex = new RegExp(`(${pattern})`, 'g');
-        const splitted = translatedText.split(regex).filter(Boolean);
+        const splitted = translatedText.split(regex);
 
         // merge the falsy value into the previous string
         const mergedSplitted = splitted.reduce((acc, curr, index) => {
           if (typeof curr != 'string') {
-            console.log("node.textContent typeof curr != 'string'", curr)
+            // console.log("node.textContent typeof curr != 'string'", curr)
             return acc;
           }
 
           if (typeof curr == 'string' && !curr.trim()) {
-            console.log("node.textContent typeof curr == 'string' && !curr.trim()", curr)
+            // console.log("node.textContent typeof curr == 'string' && !curr.trim()", curr)
             acc[acc.length - 1] += curr;
             return acc;
           }
 
           return [...acc, curr];
         }, []);
-        console.log("node.textContent mergedSplitted", mergedSplitted)
+        // console.log("node.textContent mergedSplitted", mergedSplitted)
 
         const mergedOrphanString = mergedSplitted.reduce((acc, curr, index) => {
           const findTranslationKey = Object.entries(translatedMap).find(([key, value]) => curr.includes(value))?.[0];
-          console.log("node.textContent findTranslationKey", findTranslationKey)
+          // console.log("node.textContent findTranslationKey", findTranslationKey)
           if (!findTranslationKey) {
             return [
               ...acc,
@@ -147,7 +147,7 @@ function updateNode(node, language, type = "text") {
           }
 
           const findIndex = fullTextArray.findIndex(key => key.trim() == findTranslationKey.trim());
-          console.log("node.textContent findIndex", findIndex)
+          // console.log("node.textContent findIndex", findIndex)
           if (findIndex == -1) {
             return [
               ...acc,
@@ -165,7 +165,7 @@ function updateNode(node, language, type = "text") {
         if (translatedIndex == -1) return;
 
         let newValue = mergedOrphanString[translatedIndex]?.value;
-        console.log("node.textContent newValue", node.textContent, text, newValue)
+        // console.log("node.textContent newValue", node.textContent, text, newValue)
 
         // merge to right
         if (translatedDir == 'ltr') {
@@ -173,13 +173,13 @@ function updateNode(node, language, type = "text") {
           if (currentIndex == 0) {
             newValue = `${mergedOrphanString.slice(0, translatedIndex).map(x => x.value).join(' ')} ${newValue}`
           }
-          console.log("node.textContent currentIndex == 0", node.textContent, text, newValue)
+          // console.log("node.textContent currentIndex == 0", node.textContent, text, newValue)
 
           // find the right newValue, make sure it matched with the text, but start checking from the translatedIndex to the next index
           for (let i = translatedIndex + 1; i < mergedOrphanString.length; i++) {
             if (mergedOrphanString[i].index == -1) {
               newValue = `${newValue} ${mergedOrphanString[i].value}`;
-              console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
+              // console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
 
             } else {
               break;
@@ -193,13 +193,13 @@ function updateNode(node, language, type = "text") {
           if (isCurrentIndexTheLastIndex) {
             newValue = `${newValue} ${mergedOrphanString.slice(translatedIndex + 1, mergedOrphanString.length).map(x => x.value).join(' ')}`
           }
-          console.log("node.textContent isCurrentIndexTheLastIndex", node.textContent, text, newValue)
+          // console.log("node.textContent isCurrentIndexTheLastIndex", node.textContent, text, newValue)
 
           // find the right newValue, make sure it matched with the text, but start checking from the translatedIndex to the previous index
           for (let i = translatedIndex - 1; i >= 0; i--) {
             if (mergedOrphanString[i].index == -1) {
               newValue = `${mergedOrphanString[i].value} ${newValue}`;
-              console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
+              // console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
 
             } else {
               break;
@@ -209,7 +209,7 @@ function updateNode(node, language, type = "text") {
 
         // make sure text is still the same before replacing
         if (node.textContent == text) {
-          console.log("node.textContent replace", node.textContent, text, newValue)
+          // console.log("node.textContent replace", node.textContent, text, newValue)
           node.textContent = newValue; // TODO: right now we only replace based on translation position, later we should swap the node position to preserve the styles
         }
       }
