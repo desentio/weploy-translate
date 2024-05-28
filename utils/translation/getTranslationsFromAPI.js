@@ -21,6 +21,8 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
     url: window.location.pathname,
   };
 
+  console.log("weploy payload:", finalPayload)
+
   const stringifiedPayload = JSON.stringify(finalPayload);
 
   const shouldCompressPayload = isCompressionSupported();
