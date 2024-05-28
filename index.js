@@ -111,33 +111,33 @@ function updateNode(node, language, type = "text") {
       const currentIndex = node.fullTextIndex;
       const isCurrentIndexTheLastIndex = currentIndex == (fullTextArray.length - 1);
       if (translatedObject.translatedText && translatedObject.translatedMap) {
-        console.log("node.textContent translatedObject", translatedObject)
+        // console.log("node.textContent translatedObject", translatedObject)
         const translatedText = translatedObject.translatedText; // format: string
         const translatedMap = translatedObject.translatedMap; // format { "originalText": "translatedText" }
         const translatedDir = translatedObject.translatedDir || "ltr";
         const keys = Object.keys(translatedMap).sort((a, b) => b.length - a.length);
         const pattern = keys.map(key => translatedMap[key]).join('|');
         const regex = new RegExp(`(${pattern})`, 'g');
-        console.log("node.textContent regex", regex)
+        // console.log("node.textContent regex", regex)
         const splitted = translatedText.split(regex);
-        console.log("node.textContent splitted", splitted)
+        // console.log("node.textContent splitted", splitted)
 
         // merge the falsy value into the previous string
         const mergedSplitted = splitted.reduce((acc, curr, index) => {
           if (typeof curr != 'string') {
-            console.log("node.textContent typeof curr != 'string'", curr)
+            // console.log("node.textContent typeof curr != 'string'", curr)
             return acc;
           }
 
           if (typeof curr == 'string' && !curr.trim()) {
-            console.log("node.textContent typeof curr == 'string' && !curr.trim()", curr)
+            // console.log("node.textContent typeof curr == 'string' && !curr.trim()", curr)
             acc[acc.length - 1] += curr;
             return acc;
           }
 
           return [...acc, curr];
         }, []);
-        console.log("node.textContent mergedSplitted", mergedSplitted)
+        // console.log("node.textContent mergedSplitted", mergedSplitted)
 
         const mergedOrphanString = mergedSplitted.reduce((acc, curr, index) => {
           const findTranslationKey = Object.entries(translatedMap).find(([key, value], ) => {
@@ -191,7 +191,7 @@ function updateNode(node, language, type = "text") {
           for (let i = translatedIndex + 1; i < mergedOrphanString.length; i++) {
             if (mergedOrphanString[i].index == -1) {
               newValue = `${newValue} ${mergedOrphanString[i].value}`;
-              console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
+              // console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
 
             } else {
               break;
