@@ -140,7 +140,16 @@ function updateNode(node, language, type = "text") {
         console.log("node.textContent mergedSplitted", mergedSplitted)
 
         const mergedOrphanString = mergedSplitted.reduce((acc, curr, index) => {
-          const findTranslationKey = Object.entries(translatedMap).find(([key, value]) => curr.includes(value))?.[0];
+          const findTranslationKey = Object.entries(translatedMap).find(([key, value], ) => {
+            const isFirstIndex = index == 0;
+            const isLastIndex = index == mergedSplitted.length - 1;
+            const isFirstOrLast = isFirstIndex || isLastIndex;
+
+            // trim first or last because sometimes the translation key has extra space but the full translation doesn't have it
+            const valueToCompare = isFirstOrLast ? value.trim() : value;
+            const matched = curr.includes(valueToCompare);
+            return matched;
+          })?.[0];
           // console.log("node.textContent findTranslationKey", findTranslationKey)
           if (!findTranslationKey) {
             return [
