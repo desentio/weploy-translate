@@ -11,6 +11,7 @@ const getTranslationsFromAPI = require('./utils/translation/getTranslationsFromA
 const { renderWeploySelectorState } = require('./utils/selector/renderWeploySelectorState.js');
 const getTranslationCacheFromCloudflare = require('./utils/translation/getTranslationCacheFromCloudflare.js');
 const { isCompressionSupported } = require('./utils/compressions.js');
+const isUrl = require('./utils/translation/isUrl.js');
 
 var isDomListenerAdded;
 
@@ -196,6 +197,7 @@ function updateNode(node, language, type = "text") {
 
         // make sure text is still the same before replacing
         if (node.textContent == text) {
+          // console.log("node.textContent", node.textContent, text, newValue)
           node.textContent = newValue; // TODO: right now we only replace based on translation position, later we should swap the node position to preserve the styles
         }
       }
@@ -405,7 +407,12 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 
     if (shouldOptimizeSEO) {
       const metaTags = Array.from(document.getElementsByTagName('meta'));
-      const cleanMetaTags = metaTags.filter((meta) => (meta.content || "").trim() && meta.name != "X-UA-Compatible" && meta.name != "viewport");
+      const cleanMetaTags = metaTags.filter((meta) => 
+        (meta.content || "").trim() && 
+        meta.name != "X-UA-Compatible" && 
+        meta.name != "viewport" &&
+        !isUrl(meta.content)
+      );
 
       const imgTags = Array.from(document.getElementsByTagName('img'));
       // only include img tags that has alt or title attribute

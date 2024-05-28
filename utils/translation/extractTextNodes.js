@@ -1,4 +1,5 @@
 const { getWeployOptions } = require("../configs");
+const isUrl = require("./isUrl");
 
 function collectAllTextContentInsideNode(node) {
   const textNodes = [];
@@ -37,14 +38,8 @@ function extractTextNodes(node, textNodes) {
   if (node.nodeType === Node.TEXT_NODE) {
     if (node.parentNode.tagName && ["SCRIPT", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "STYLE", "NOSCRIPT"].includes(node.parentNode.tagName.toUpperCase())) return;
 
-    // Check if the text node is a URL
-    const urlPattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-      '((([a-z\\d]*)\\.)+[a-z]{2,}|'+ // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    if(urlPattern.test(node.textContent)) return;
+    
+    if(isUrl(node.textContent)) return;
 
     // Check if the text node is empty
     if (!node.textContent.trim()) return;
