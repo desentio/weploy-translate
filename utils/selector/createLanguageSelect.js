@@ -198,7 +198,6 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             }
           }
 
-          autoPosition();
           weploySwitcher.onclick = autoPosition
 
           if (languages.length < 2) {
@@ -279,6 +278,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           });
           
           if (!initializedSelectorByUser) weploySwitcher.appendChild(details);
+          autoPosition();
         }
       });
     }

@@ -122,19 +122,23 @@ function updateNode(node, language, type = "text") {
         // merge the falsy value into the previous string
         const mergedSplitted = splitted.reduce((acc, curr, index) => {
           if (typeof curr != 'string') {
+            console.log("node.textContent typeof curr != 'string'", curr)
             return acc;
           }
 
           if (typeof curr == 'string' && !curr.trim()) {
+            console.log("node.textContent typeof curr == 'string' && !curr.trim()", curr)
             acc[acc.length - 1] += curr;
             return acc;
           }
 
           return [...acc, curr];
         }, []);
+        console.log("node.textContent mergedSplitted", mergedSplitted)
 
         const mergedOrphanString = mergedSplitted.reduce((acc, curr, index) => {
           const findTranslationKey = Object.entries(translatedMap).find(([key, value]) => curr.includes(value))?.[0];
+          console.log("node.textContent findTranslationKey", findTranslationKey)
           if (!findTranslationKey) {
             return [
               ...acc,
@@ -143,6 +147,7 @@ function updateNode(node, language, type = "text") {
           }
 
           const findIndex = fullTextArray.findIndex(key => key.trim() == findTranslationKey.trim());
+          console.log("node.textContent findIndex", findIndex)
           if (findIndex == -1) {
             return [
               ...acc,
