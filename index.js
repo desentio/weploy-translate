@@ -160,6 +160,7 @@ function updateNode(node, language, type = "text") {
         if (translatedIndex == -1) return;
 
         let newValue = mergedOrphanString[translatedIndex]?.value;
+        console.log("node.textContent newValue", node.textContent, text, newValue)
 
         // merge to right
         if (translatedDir == 'ltr') {
@@ -167,11 +168,14 @@ function updateNode(node, language, type = "text") {
           if (currentIndex == 0) {
             newValue = `${mergedOrphanString.slice(0, translatedIndex).map(x => x.value).join(' ')} ${newValue}`
           }
+          console.log("node.textContent currentIndex == 0", node.textContent, text, newValue)
 
           // find the right newValue, make sure it matched with the text, but start checking from the translatedIndex to the next index
           for (let i = translatedIndex + 1; i < mergedOrphanString.length; i++) {
             if (mergedOrphanString[i].index == -1) {
               newValue = `${newValue} ${mergedOrphanString[i].value}`;
+              console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
+
             } else {
               break;
             }
@@ -184,11 +188,14 @@ function updateNode(node, language, type = "text") {
           if (isCurrentIndexTheLastIndex) {
             newValue = `${newValue} ${mergedOrphanString.slice(translatedIndex + 1, mergedOrphanString.length).map(x => x.value).join(' ')}`
           }
+          console.log("node.textContent isCurrentIndexTheLastIndex", node.textContent, text, newValue)
 
           // find the right newValue, make sure it matched with the text, but start checking from the translatedIndex to the previous index
           for (let i = translatedIndex - 1; i >= 0; i--) {
             if (mergedOrphanString[i].index == -1) {
               newValue = `${mergedOrphanString[i].value} ${newValue}`;
+              console.log("node.textContent mergedOrphanString", mergedOrphanString, i, node.textContent, text, newValue)
+
             } else {
               break;
             }
@@ -197,7 +204,7 @@ function updateNode(node, language, type = "text") {
 
         // make sure text is still the same before replacing
         if (node.textContent == text) {
-          // console.log("node.textContent", node.textContent, text, newValue)
+          console.log("node.textContent replace", node.textContent, text, newValue)
           node.textContent = newValue; // TODO: right now we only replace based on translation position, later we should swap the node position to preserve the styles
         }
       }
