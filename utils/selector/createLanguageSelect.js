@@ -198,6 +198,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             }
           }
 
+          autoPosition();
           weploySwitcher.onclick = autoPosition
 
           if (languages.length < 2) {
