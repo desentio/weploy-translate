@@ -409,8 +409,10 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
       const metaTags = Array.from(document.getElementsByTagName('meta'));
       const cleanMetaTags = metaTags.filter((meta) =>  {
         if (!(meta.content || "").trim()) return false;
-        if (meta.name == "X-UA-Compatible") return false;
-        if (meta.name == "viewport") return false;
+
+        const validMetaTagNames = ["description", "og:title", "og:description", "twitter:title", "twitter:description"];
+        if (!validMetaTagNames.includes(meta.name)) return false;
+
         const isTheContentAnUrl = isUrl(meta.content);
         if (!isTheContentAnUrl) return false;
         return true;
