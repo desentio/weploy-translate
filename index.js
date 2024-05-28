@@ -407,12 +407,14 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 
     if (shouldOptimizeSEO) {
       const metaTags = Array.from(document.getElementsByTagName('meta'));
-      const cleanMetaTags = metaTags.filter((meta) => 
-        (meta.content || "").trim() && 
-        meta.name != "X-UA-Compatible" && 
-        meta.name != "viewport" &&
-        !isUrl(meta.content)
-      );
+      const cleanMetaTags = metaTags.filter((meta) =>  {
+        if (!(meta.content || "").trim()) return false;
+        if (meta.name == "X-UA-Compatible") return false;
+        if (meta.name == "viewport") return false;
+        const isTheContentAnUrl = isUrl(meta.content);
+        if (!isTheContentAnUrl) return false;
+        return true;
+      });
 
       const imgTags = Array.from(document.getElementsByTagName('img'));
       // only include img tags that has alt or title attribute
