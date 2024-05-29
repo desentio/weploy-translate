@@ -160,7 +160,8 @@ function updateNode(node, language, type = "text") {
             const isFirstOrLast = isFirstIndex || isLastIndex;
 
             // trim first or last because sometimes the translation key has extra space but the full translation doesn't have it
-            const valueToCompare = isFirstOrLast ? value.trim() : value;
+            // TODO: might need to just trim all because the AI can produce weird extra space in the middle too
+            const valueToCompare = isFirstOrLast ? value.trim() : value.trim();
             const matched = curr.includes(valueToCompare);
             return matched;
           })?.[0];
