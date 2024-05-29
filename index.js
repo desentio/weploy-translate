@@ -424,6 +424,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.forEach((node) => {
         const text = node.fullText || node.textContent;
+        console.log("TEXT", text, node.fullText);
 
         // If the translation is not available, cache the original text
         if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
