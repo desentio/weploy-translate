@@ -58,8 +58,8 @@ function checkIfTranslatable(input) {
     return "inValid";
   }
 
-  // Single character
-  let specialCharacterRegex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+  // handle single or multiple characters with special characters (only valid if all characters are special characters)
+  let specialCharacterRegex = /^[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/;
   if (specialCharacterRegex.test(trimmedContent)) {
     return "inValid";
   }

@@ -103,20 +103,20 @@ function updateNode(node, language, type = "text") {
   const cache = fullText || text;
   const newText = window.translationCache?.[window.location.pathname]?.[language]?.[cache] || "";
 
-  if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
-    console.log("Cost-efficient",
-      fullText,
-      fullTextArray,
-      text,
-      cache,
-      newText
-    )
-  }
+  // if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
+  //   console.log("Cost-efficient",
+  //     fullText,
+  //     fullTextArray,
+  //     text,
+  //     cache,
+  //     newText
+  //   )
+  // }
 
   if (cache.includes("weploy-merge") && fullTextArray) {
-    if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
-      console.log("Cost-efficient weploy-merge");
-    }
+    // if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
+    //   console.log("Cost-efficient weploy-merge");
+    // }
 
     try {
       const parsedNewText = JSON.parse(newText);
@@ -246,9 +246,9 @@ function updateNode(node, language, type = "text") {
   }
 
   if(newText && !newText.includes("weploy-untranslated")) {
-    if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
-      console.log("Cost-efficient normal", node.textContent == text, node.textContent, text, newText)
-    }
+    // if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
+    //   console.log("Cost-efficient normal", node.textContent == text, node.textContent, text, newText)
+    // }
 
     // make sure text is still the same before replacing
     if(node.textContent == text) {
@@ -424,7 +424,6 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.forEach((node) => {
         const text = node.fullText || node.textContent;
-        console.log("TEXT", text, node.fullText);
 
         // If the translation is not available, cache the original text
         if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
