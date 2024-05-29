@@ -103,7 +103,21 @@ function updateNode(node, language, type = "text") {
   const cache = fullText || text;
   const newText = window.translationCache?.[window.location.pathname]?.[language]?.[cache] || "";
 
+  if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
+    console.log("Cost-efficient",
+      fullText,
+      fullTextArray,
+      text,
+      cache,
+      newText
+    )
+  }
+
   if (cache.includes("weploy-merge") && fullTextArray) {
+    if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
+      console.log("Cost-efficient weploy-merge");
+    }
+
     try {
       const parsedNewText = JSON.parse(newText);
       const translatedObject = typeof parsedNewText == 'string' ? JSON.parse(parsedNewText) : parsedNewText;
@@ -232,6 +246,10 @@ function updateNode(node, language, type = "text") {
   }
 
   if(newText && !newText.includes("weploy-untranslated")) {
+    if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
+      console.log("Cost-efficient normal", node.textContent == text, node.textContent, text, newText)
+    }
+
     // make sure text is still the same before replacing
     if(node.textContent == text) {
       node.textContent = newText;
