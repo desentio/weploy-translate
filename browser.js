@@ -4,6 +4,7 @@ if (isBrowser()) {
   const search = window.location.search;
   const params = new URLSearchParams(search);
   const paramsLang = params.get('lang');
+  const paramsUpdateTranslation = params.get('weploy_update_translation');
 
   // console.log(process.env.NO_CACHE)
   function replaceLinks(lang) {
@@ -85,6 +86,8 @@ if (isBrowser()) {
 
   const translateAttributes = window.weployScriptTag.getAttribute("data-translate-attributes") == "true";
 
+  const dynamicTranslation = paramsUpdateTranslation == "true" || (window.weployScriptTag.getAttribute("data-dynamic-translation") != "false");
+
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
@@ -93,7 +96,8 @@ if (isBrowser()) {
     allowedLanguages: allowedLangs,
     timeout: timeout,
     customLanguageCode,
-    translateAttributes
+    translateAttributes,
+    dynamicTranslation
   }
 
   document.addEventListener("DOMContentLoaded", function() {

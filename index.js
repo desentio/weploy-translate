@@ -371,7 +371,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       
       try {
         // If there are translations not in cache, fetch them from the API
-        const response = notCachedInCDN.length ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
+        const options = getWeployOptions();
+        const response = notCachedInCDN.length && options.dynamicTranslation ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
 
         notCachedInCDN.forEach((text, index) => {
           // Cache the new translations
@@ -561,7 +562,6 @@ async function getTranslations(apiKey, optsArgs = {}) {
                 }
               }
             }
-
             startTranslationCycle(document.body, apiKey, 2000).catch(reject)
           });
 
