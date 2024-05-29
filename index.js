@@ -442,14 +442,16 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         return true;
       });
 
-      const imgTags = Array.from(document.getElementsByTagName('img'));
+      const options = getWeployOptions();
+
+      const imgTags = options.translateAttributes ? Array.from(document.getElementsByTagName('img')) : [];
       // only include img tags that has alt or title attribute
       const cleanImgTags = imgTags.filter((img) => 
         (img.alt || "").trim() || 
         (img.title || "").trim()
       );
 
-      const anchorTags = Array.from(document.getElementsByTagName('a'));
+      const anchorTags = options.translateAttributes ? Array.from(document.getElementsByTagName('a')) : [];
       // only include anchor tags that has title attribute
       const cleanAnchorTags = anchorTags.filter((anchor) => (anchor.title || "").trim());
 

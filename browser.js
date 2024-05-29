@@ -83,6 +83,8 @@ if (isBrowser()) {
 
   const createSelector = window.weployScriptTag.getAttribute("data-auto-create-selector") != "false";
 
+  const translateAttributes = window.weployScriptTag.getAttribute("data-translate-attributes") == "true";
+
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
@@ -90,7 +92,8 @@ if (isBrowser()) {
     originalLanguage: originalLang,
     allowedLanguages: allowedLangs,
     timeout: timeout,
-    customLanguageCode
+    customLanguageCode,
+    translateAttributes
   }
 
   document.addEventListener("DOMContentLoaded", function() {
