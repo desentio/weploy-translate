@@ -130,7 +130,10 @@ function updateNode(node, language, type = "text") {
         const translatedMap = translatedObject.translatedMap; // format { "originalText": "translatedText" }
         const translatedDir = translatedObject.translatedDir || "ltr";
         const keys = Object.keys(translatedMap).sort((a, b) => b.length - a.length);
-        const pattern = keys.map(key => translatedMap[key]).join('|');
+        const pattern = keys.map(key => {
+          const translatedKey = translatedMap[key];
+          return translatedKey.replace(/([()])/g, '\\$1');
+        }).join('|');
         const regex = new RegExp(`(${pattern})`, 'g');
         // console.log("node.textContent regex", regex)
         const splitted = translatedText.split(regex);
@@ -161,7 +164,7 @@ function updateNode(node, language, type = "text") {
 
             // trim first or last because sometimes the translation key has extra space but the full translation doesn't have it
             // TODO: might need to just trim all because the AI can produce weird extra space in the middle too
-            const valueToCompare = isFirstOrLast ? value.trim() : value.trim();
+            const valueToCompare = isFirstOrLast ? value.trim() : value;
             const matched = curr.includes(valueToCompare);
             return matched;
           })?.[0];
