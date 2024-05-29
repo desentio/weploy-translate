@@ -17,10 +17,10 @@ function checkIfTranslatable(input) {
   }
 
   // Code string filters
-  let codeStringRegex = /<[^>]*>|\/\/.*|\/\*[\s\S]*?\*\/|#.*|<!--[\s\S]*?-->|{.*}|def .*:|function .*{|public .*{|#include <|import .*/;
-  if (codeStringRegex.test(trimmedContent)) {
-    return "inValid";
-  }
+  // let codeStringRegex = /<[^>]*>|\/\/.*|\/\*[\s\S]*?\*\/|#.*|<!--[\s\S]*?-->|{.*}|def .*:|function .*{|public .*{|#include <|import .*/;
+  // if (codeStringRegex.test(trimmedContent)) {
+  //   return "inValid";
+  // }
 
   // If not single word then just make it valid
   let multiWords = /^\W+|\s+|\W+$/;
