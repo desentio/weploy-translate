@@ -55,7 +55,7 @@ Enable users to select a language by adding:
 ## Excluding Text from Translation
 ⚠️ **Developer Notice:** Use the class "weploy-exclude" to prevent translation of specific content, like chat pop-ups or user-generated text.
 
-Note: Inputs and user-generated content are not translated by default.
+Note: Input fields and iframes are ignored by default. 
 
 ## Directing Users to a Specific Language Version
 
