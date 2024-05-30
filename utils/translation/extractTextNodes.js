@@ -1,4 +1,4 @@
-const { getWeployOptions } = require("../configs");
+const { getWeployOptions, USE_WEPLOY_MERGE } = require("../configs");
 const isUrl = require("./isUrl");
 
 function collectAllTextContentInsideNode(node) {
@@ -51,6 +51,7 @@ function extractTextNodes(node, textNodes) {
     // 4. all parent siblings are inline elements OR not inline BUT all of its children are inline
     // 5. all parent siblings are NOT links or buttons (it means they were navigations)
     if (
+      USE_WEPLOY_MERGE &&
       !node.fullText && 
       // 2. must be a child of an inline element
       node.parentNode instanceof Element && window.getComputedStyle(node.parentNode).display === 'inline' &&
