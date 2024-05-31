@@ -102,9 +102,13 @@ function setIsTranslationInitialized(value) {
 }
 
 function shouldTranslateInlineText() {
-  const options = getWeployOptions();
-  const shouldtranslateSplittedText = options?.translateSplittedText || USE_WEPLOY_MERGE;
-  return shouldtranslateSplittedText;
+  if (isBrowser()) {
+    const options = getWeployOptions();
+    const shouldtranslateSplittedText = options?.translateSplittedText || USE_WEPLOY_MERGE;
+    return shouldtranslateSplittedText;
+  } else {
+    return false;
+  }
 }
 
 module.exports = {
