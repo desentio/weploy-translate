@@ -1,4 +1,4 @@
-const { isBrowser, getWeployOptions, setWeployOptions, setWeployActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, USE_WEPLOY_MERGE } = require('./utils/configs.js');
+const { isBrowser, getWeployOptions, setWeployOptions, setWeployActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, shouldTranslateInlineText } = require('./utils/configs.js');
 const checkIfTranslatable = require('./utils/translation/checkIfTranslatable.js');
 const allWeployLanguagesList = require('./utils/languages/allWeployLanguagesList.js');
 const { fetchLanguageList } = require('./utils/languages/fetchLanguageList.js');
@@ -102,7 +102,7 @@ function updateNode(node, language, type = "text", debugSource) {
   const fullText = node.fullText;
   const fullTextArray = node.fullTextArray;
   const text = node.textContent;
-  const cache = USE_WEPLOY_MERGE ? fullText || text : text;
+  const cache = shouldTranslateInlineText() ? fullText || text : text;
   // console.log("CACHE", debugSource, cache)
   // console.log(debugSource, window.translationCache?.[window.location.pathname]?.[language])
   const newText = window.translationCache?.[window.location.pathname]?.[language]?.[cache] || "";
@@ -333,7 +333,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
     // Check cache for each textNode
     cleanTextNodes.forEach((node) => {
-      const text = USE_WEPLOY_MERGE ? node.fullText || node.textContent : node.textContent;
+      const text = shouldTranslateInlineText() ? node.fullText || node.textContent : node.textContent;
       const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
       if (
         !window.translationCache?.[window.location.pathname]?.[language]?.[text] // check in key
@@ -452,7 +452,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     } else {
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.map(async (node) => {
-        const text = USE_WEPLOY_MERGE ? node.fullText || node.textContent : node.textContent;
+        const text = shouldTranslateInlineText() ? node.fullText || node.textContent : node.textContent;
 
         // If the translation is not available, cache the original text
         if (await isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {

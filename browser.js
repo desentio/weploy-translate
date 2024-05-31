@@ -88,6 +88,8 @@ if (isBrowser()) {
 
   const dynamicTranslation = paramsUpdateTranslation == "true" || (window.weployScriptTag.getAttribute("data-dynamic-translation") != "false");
 
+  const translateSplittedText = window.weployScriptTag.getAttribute("data-translate-splitted-text") == "true";
+
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
@@ -97,7 +99,8 @@ if (isBrowser()) {
     timeout: timeout,
     customLanguageCode,
     translateAttributes,
-    dynamicTranslation
+    dynamicTranslation,
+    translateSplittedText
   }
 
   function initWeploy() {

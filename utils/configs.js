@@ -101,6 +101,12 @@ function setIsTranslationInitialized(value) {
   }
 }
 
+function shouldTranslateInlineText() {
+  const options = weployOptions();
+  const shouldtranslateSplittedText = options?.translateSplittedText || USE_WEPLOY_MERGE;
+  return shouldtranslateSplittedText;
+}
+
 module.exports = {
   isBrowser,
   getWeployOptions,
@@ -109,6 +115,7 @@ module.exports = {
   setWeployActiveLang,
   getIsTranslationInitialized,
   setIsTranslationInitialized,
+  shouldTranslateInlineText,
   API_URL,
   CDN_URL,
   KV_URL,
