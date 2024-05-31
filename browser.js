@@ -109,7 +109,7 @@ if (isBrowser()) {
   }
 
   console.log("document.readyState", document.readyState)
-  if (!document.readyState || document.readyState == 'complete') {
+  if (document.readyState == 'complete') {
     // DOM is already loaded, run the code
     initWeploy();
   } else {
