@@ -270,6 +270,18 @@ function filterValidTextNodes(textNodes) {
   });
 }
 
+async function isStillSameLang(language) {
+  const search = window.location.search;
+  const params = new URLSearchParams(search);
+  const activeLang = params.get('lang') || await getLanguageFromLocalStorage();
+
+  if (activeLang != language) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = []) {
   // dont translate google translate
   if (isBrowser() && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) {
@@ -384,10 +396,13 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         cacheFromCloudFlare = {};
       }
 
-      window.translationCache[window.location.pathname][language] = {
-        ...(window.translationCache?.[window.location.pathname]?.[language] || {}),
-        ...cacheFromCloudFlare
+      if (await isStillSameLang(language)) {
+        window.translationCache[window.location.pathname][language] = {
+          ...(window.translationCache?.[window.location.pathname]?.[language] || {}),
+          ...cacheFromCloudFlare
+        }
       }
+      
 
       const notCachedInCDN = notInCache.filter(text => !cacheFromCloudFlare[text]);
       
@@ -396,14 +411,14 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         const options = getWeployOptions();
         const response = notCachedInCDN.length && options.dynamicTranslation ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
 
-        notCachedInCDN.forEach((text, index) => {
+        notCachedInCDN.forEach(async (text, index) => {
           // Cache the new translations
-          if (window.translationCache?.[window.location.pathname]?.[language]) {
+          if (await isStillSameLang(language) && window.translationCache?.[window.location.pathname]?.[language]) {
             window.translationCache[window.location.pathname][language][text] = response[index] || cacheFromCloudFlare[text] || text;
           }
 
           // If the translation is not available, cache the original text
-          if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
+          if (await isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
             window.translationCache[window.location.pathname][language][text] = undefined;
           }
         });
@@ -417,7 +432,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
           updateNode(node, language, "seo")
         });
         
-        if (isBrowser()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+        if (isBrowser() && await isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
 
         resolve(undefined);
       } catch(err) {
@@ -426,11 +441,11 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     } else {
       // If all translations are cached, directly update textNodes from cache
-      cleanTextNodes.forEach((node) => {
+      cleanTextNodes.forEach(async (node) => {
         const text = node.fullText || node.textContent;
 
         // If the translation is not available, cache the original text
-        if ((window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
+        if (await isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
           window.translationCache[window.location.pathname][language][text] = undefined;
         }
 
@@ -442,7 +457,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
       });
 
-      if (isBrowser() && !getIsTranslationInitialized()) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+      if (isBrowser() && !getIsTranslationInitialized() && await isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
       resolve(undefined);
     }
   });
