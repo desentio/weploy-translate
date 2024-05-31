@@ -271,15 +271,16 @@ function filterValidTextNodes(textNodes) {
 }
 
 async function isStillSameLang(language) {
-  const search = window.location.search;
-  const params = new URLSearchParams(search);
-  const activeLang = params.get('lang') || await getLanguageFromLocalStorage();
+  return true;
+  // const search = window.location.search;
+  // const params = new URLSearchParams(search);
+  // const activeLang = params.get('lang') || await getLanguageFromLocalStorage();
 
-  if (activeLang != language) {
-    return false;
-  } else {
-    return true;
-  }
+  // if (activeLang != language) {
+  //   return false;
+  // } else {
+  //   return true;
+  // }
 }
 
 function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = []) {
