@@ -102,7 +102,7 @@ function setIsTranslationInitialized(value) {
 }
 
 function shouldTranslateInlineText() {
-  const options = weployOptions();
+  const options = getWeployOptions();
   const shouldtranslateSplittedText = options?.translateSplittedText || USE_WEPLOY_MERGE;
   return shouldtranslateSplittedText;
 }
