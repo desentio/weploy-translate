@@ -23,6 +23,7 @@ const allWeployLanguagesList = [
   { "label": "Greek", "lang": "el" },
   { "label": "English", "lang": "en" },
   { "label": "Spanish", "lang": "es" },
+  { "label": "Spanish (Mexico)", "lang": "es-mx" },
   { "label": "Estonian", "lang": "et" },
   { "label": "Persian", "lang": "fa" },
   { "label": "Finnish", "lang": "fi" },
