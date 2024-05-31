@@ -90,6 +90,8 @@ if (isBrowser()) {
 
   const translateSplittedText = window.weployScriptTag.getAttribute("data-translate-splitted-text") == "true";
 
+  const shouldReplaceLinks = window.weployScriptTag.getAttribute("data-replace-links") != "false";
+
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
@@ -105,7 +107,7 @@ if (isBrowser()) {
 
   function initWeploy() {
     // replace links with lang (for SEO purposes)
-    if (paramsLang && (paramsLang != originalLang)) {
+    if (shouldReplaceLinks && paramsLang && (paramsLang != originalLang)) {
       replaceLinks(paramsLang);
     }
     getTranslations(apiKey, options)
