@@ -108,7 +108,7 @@ if (isBrowser()) {
     getTranslations(apiKey, options)
   }
 
-  console.log("document.readyState", document.readyState)
+  // console.log("document.readyState", document.readyState)
   if (document.readyState == 'complete') {
     // DOM is already loaded, run the code
     initWeploy();

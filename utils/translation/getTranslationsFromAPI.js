@@ -31,6 +31,8 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
   const compressedPayload = shouldCompressPayload ?  await compressToArrayBuffer(stringifiedPayload, "gzip") : null;
   const body = shouldCompressPayload ? compressedPayload : stringifiedPayload;
 
+  let isOk = false;
+
   return await new Promise((resolve) => {
     fetch(API_URL + "/weploy/get-translations", {
       method: "POST",
@@ -41,9 +43,17 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
       },
       body,
     })
-      .then((response) => shouldCompressPayload ? response.arrayBuffer() : response.json())
-      .then(data => shouldCompressPayload ? decompressArrayBuffer(data, "gzip") : data)
-      .then(data => shouldCompressPayload ? JSON.parse(data) : data)
+      .then((response) => {
+        if (response.ok) {
+          isOk = true;
+          return shouldCompressPayload ? response.arrayBuffer() : response.json();
+        } else {
+          isOk = false;
+          return response.json();
+        }
+      })
+      .then(data => shouldCompressPayload && isOk ? decompressArrayBuffer(data, "gzip") : data)
+      .then(data => shouldCompressPayload && isOk ? JSON.parse(data) : data)
       .then((data) => {
         if (data.error) {
           throw new Error(data?.error?.message || data?.error || "Error fetching translations");
@@ -65,6 +75,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
         if (isBrowser()) {
           window.weployError = err.message;
           renderWeploySelectorState();
+          console.log("WEPLOY ERROR:", err.message);
         }
         resolve([]);
       })
