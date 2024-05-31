@@ -100,13 +100,22 @@ if (isBrowser()) {
     dynamicTranslation
   }
 
-  document.addEventListener("DOMContentLoaded", function() {
-
+  function initWeploy() {
     // replace links with lang (for SEO purposes)
     if (paramsLang && (paramsLang != originalLang)) {
       replaceLinks(paramsLang);
     }
-
     getTranslations(apiKey, options)
-  });
+  }
+
+  console.log("document.readyState", document.readyState)
+  if (!document.readyState || document.readyState == 'complete') {
+    // DOM is already loaded, run the code
+    initWeploy();
+  } else {
+    // DOM is not loaded yet, wait for it
+    document.addEventListener("DOMContentLoaded", function() {
+      initWeploy();
+    });
+  }
 }
