@@ -55,6 +55,8 @@ if (isBrowser()) {
 }
 
 function updateNode(node, language, type = "text") {
+  console.log("update node", node, language);
+
   // update title
   if (node == document) {
     const newText = window.translationCache?.[window.location.pathname]?.[language]?.[document.title] || "";  
@@ -253,7 +255,7 @@ function updateNode(node, language, type = "text") {
     // if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
     //   console.log("Cost-efficient normal", node.textContent == text, node.textContent, text, newText)
     // }
-
+    console.log("isTextStillTheSame", node.textContent == text)
     // make sure text is still the same before replacing
     if(node.textContent == text) {
       node.textContent = newText;
@@ -507,7 +509,20 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 
     const validTextNodes = filterValidTextNodes(textNodes) || [];
 
-    await translateNodes(validTextNodes, language, apiKey, seoNodes).then(() => {
+    // handle a case where nodes already translated but some new texts are not translated yet
+    // for example on initial load in homepage: ['good morning'] -> ['guten morgen']
+    // then the user go to new route "/about", new dom added: ['guten morgen', 'good afternoon'] (this happen especially in nextjs because the route changes happens in client side)
+    // this will ensure only good afternoon is included
+    // list all cache values
+    const cache = window.translationCache || {};
+    const allLangCacheInAllPages = Object.values(cache)
+      .map(x => x[language || ""])
+      .filter(Boolean)
+      .reduce((prev, acc) => ({...prev, ...acc }), {})
+    const values = Object.values(allLangCacheInAllPages).filter(Boolean);
+    const textNodeThatNotInPrevPage = validTextNodes.filter(x => !values.includes(x.textContent))
+
+    await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
     }).catch(reject).finally(() => {
       window.weployTranslating = false;
