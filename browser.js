@@ -1,9 +1,28 @@
 const { getTranslations, isBrowser } = require("./index.js");
 
+const excludeContentsRegex = /{{((?:[^}]|\\})*)}}/g;
+function getTextInsideBrackets(str) {
+  let match;
+  let matches = [];
+
+  while ((match = excludeContentsRegex.exec(str)) !== null) {
+      // Replace escaped closing brackets with a single closing bracket
+      let cleanedMatch = match[1].replace(/\\\\}/g, '}');
+      cleanedMatch = cleanedMatch.replace(/\\\\{/g, '{');
+
+      matches.push(cleanedMatch);
+  }
+
+  return matches;
+}
+
 if (isBrowser()) {
+  window.weployScriptTag = document.currentScript;
+  const langParam = window.weployScriptTag.getAttribute("data-lang-parameter") || "lang";
+
   const search = window.location.search;
   const params = new URLSearchParams(search);
-  const paramsLang = params.get('lang');
+  const paramsLang = params.get(langParam);
   const paramsUpdateTranslation = params.get('weploy_update_translation');
 
   // console.log(process.env.NO_CACHE)
@@ -21,7 +40,7 @@ if (isBrowser()) {
             let url = new URL(anchor.href);
   
             // Set the search parameter "lang" to lang
-            url.searchParams.set('lang', lang);
+            url.searchParams.set(langParam, lang);
   
             // Update the href of the anchor tag
             anchor.href = url.href;
@@ -29,7 +48,6 @@ if (isBrowser()) {
     }
   }
 
-  window.weployScriptTag = document.currentScript;
 
   const translationCache = window.localStorage.getItem("translationCachePerPage");
   try {
@@ -78,6 +96,11 @@ if (isBrowser()) {
   const mergedExcludeClasses = [...excludeClassesByComma, ...excludeClassesBySpace];
   const excludeClasses = [...new Set(mergedExcludeClasses)]; // get unique values
 
+  // exclude contents
+  const excludeContentsAttr = (window.weployScriptTag.getAttribute("data-exclude-contents") || "").trim()
+  const splittedContents = getTextInsideBrackets(excludeContentsAttr);
+  const excludeContents = [...new Set(splittedContents)]; // get unique values
+
   // timeout
   const timeoutAttr = window.weployScriptTag.getAttribute("data-timeout");
   const timeout = isNaN(Number(timeoutAttr)) ? 0 : Number(timeoutAttr);
@@ -96,13 +119,15 @@ if (isBrowser()) {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
     excludeClasses,
+    excludeContents,
     originalLanguage: originalLang,
     allowedLanguages: allowedLangs,
     timeout: timeout,
     customLanguageCode,
     translateAttributes,
     dynamicTranslation,
-    translateSplittedText
+    translateSplittedText,
+    langParam
   }
 
   function initWeploy() {

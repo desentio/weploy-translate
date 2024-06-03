@@ -14,7 +14,8 @@ function addOrReplaceLangParam(url, lang) {
   let urlObj = new URL(url);
   let params = new URLSearchParams(urlObj.search);
 
-  params.set('lang', lang);
+  const options = getWeployOptions();
+  params.set(options.langParam || 'lang', lang);
   urlObj.search = params.toString();
 
   return urlObj.toString();

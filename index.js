@@ -278,9 +278,10 @@ function filterValidTextNodes(textNodes) {
 
 async function isStillSameLang(language) {
   // return true;
+  const options = getWeployOptions();
   const search = window.location.search;
   const params = new URLSearchParams(search);
-  const activeLang = params.get('lang') || await getLanguageFromLocalStorage();
+  const activeLang = params.get(options.langParam || 'lang') || await getLanguageFromLocalStorage();
 
   if (activeLang != language) {
     return false;
@@ -579,6 +580,7 @@ function setOptions(apiKey, optsArgs) {
     pathOptions: optsArgs.pathOptions || {},
     apiKey,
     excludeClasses: optsArgs.excludeClasses || [],
+    excludeContents: optsArgs.excludeContents || [],
     definedLanguages: getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages),
   }
 

@@ -4,9 +4,10 @@ const { fetchLanguageList } = require("./fetchLanguageList");
 //@deprecated
 function getSelectedLanguage() {
   return new Promise((resolve, reject) => {
+    const options = getWeployOptions();
     const search = window.location.search;
     const params = new URLSearchParams(search);
-    const paramsLang = params.get('lang');
+    const paramsLang = params.get(options.langParam || 'lang');
     const localStorageLang = localStorage.getItem("language");
 
     if (paramsLang && (paramsLang != localStorageLang)) {
@@ -27,7 +28,7 @@ async function getLanguageFromLocalStorage() {
 
   const search = window.location.search;
   const params = new URLSearchParams(search);
-  const paramsLang = params.get('lang');
+  const paramsLang = params.get(optsArgs.langParam || 'lang');
   const localStorageLang = localStorage.getItem("language");
 
   if (paramsLang && (paramsLang != localStorageLang)) {
