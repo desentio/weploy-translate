@@ -42,7 +42,10 @@ function extractTextNodes(node, textNodes) {
     if(isUrl(node.textContent)) return;
 
     const options = getWeployOptions();
-    if (options.excludeContents.length && options.excludeContents.includes(node.textContent)) return;
+    if (options.excludeContents.length && options.excludeContents.find((x) => {
+      const regex = new RegExp(x);
+      return regex.test(node.textContent);
+    })) return;
 
     // Check if the text node is empty
     if (!node.textContent.trim()) return;
