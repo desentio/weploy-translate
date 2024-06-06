@@ -54,6 +54,12 @@ if (isBrowser()) {
   })();
 }
 
+function isUntranslatableAndNotFetched(cache, language, text) {
+  const isAlreadyFetched = window.untranslatedCache?.[window.location.pathname]?.[language]?.[text];
+  const isUntranslated = cache == "weploy-untranslated";
+  return isUntranslated && !isAlreadyFetched;
+}
+
 function updateNode(node, language, type = "text", debugSource) {
   // console.log("update node", debugSource, node, language);
 
@@ -336,9 +342,10 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     cleanTextNodes.forEach((node) => {
       const text = shouldTranslateInlineText() ? node.fullText || node.textContent : node.textContent;
       const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
+      const cache = window.translationCache?.[window.location.pathname]?.[language]?.[text]
       if (
-        !window.translationCache?.[window.location.pathname]?.[language]?.[text] // check in key
-        && !cacheValues.includes(text) // check in value (to handle nodes that already translated)
+        isUntranslatableAndNotFetched(cache, language, text) ||
+        !cache && !cacheValues.includes(text) // check in value (to handle nodes that already translated)
       ) {
         notInCache.push(text); // If not cached, add to notInCache array
       } else {
@@ -348,7 +355,10 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
     seoNodes.forEach((node) => {
       if (node == document) {
-        if (!window.translationCache?.[window.location.pathname]?.[language]?.[document.title]) {
+        const cache = window.translationCache?.[window.location.pathname]?.[language]?.[document.title]
+        if (
+          isUntranslatableAndNotFetched(cache, language, document.title) || !cache
+        ) {
           if ((document.title || "").trim()) notInCache.push(document.title); // make sure the title is not empty
         } else {
           updateNode(node, language, "seo", 2)
@@ -356,7 +366,10 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
 
       if (node.tagName == "META") {
-        if (!window.translationCache?.[window.location.pathname]?.[language]?.[node.content]) {
+        const cache = window.translationCache?.[window.location.pathname]?.[language]?.[node.content]
+        if (
+          isUntranslatableAndNotFetched(cache, language, node.content) || !cache
+        ) {
           notInCache.push(node.content);
         } else {
           updateNode(node, language, "seo", 3)
@@ -365,14 +378,21 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
       if (node.tagName == "IMG") {
         const altCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.alt]
+
         // make sure the alt is not empty
-        if ((node.alt || "").trim() && !altCache) {
+        if (
+          isUntranslatableAndNotFetched(altCache, language, node.alt) ||
+          (node.alt || "").trim() && !altCache
+        ) {
           notInCache.push(node.alt);
         }
         
         const titleCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.title]
         // make sure the title is not empty
-        if ((node.title || "").trim() && !titleCache) {
+        if (
+          isUntranslatableAndNotFetched(titleCache, language, node.title) ||
+          (node.title || "").trim() && !titleCache
+        ) {
           notInCache.push(node.title);
         }
 
@@ -384,7 +404,10 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       if (node.tagName == "A") {
         const titleCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.title]
         // make sure the title is not empty
-        if ((node.title || "").trim() && !titleCache) {
+        if (
+          isUntranslatableAndNotFetched(titleCache, language, node.title) ||
+          (node.title || "").trim() && !titleCache
+        ) {
           notInCache.push(node.title);
         }
 
@@ -428,7 +451,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
           // If the translation is not available, cache the original text
           if (await isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
-            window.translationCache[window.location.pathname][language][text] = undefined;
+            window.translationCache[window.location.pathname][language][text] = "weploy-untranslated";
+            window.untranslatedCache[window.location.pathname][language][text] = true;
           }
         });
 
@@ -457,7 +481,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
         // If the translation is not available, cache the original text
         if (await isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
-          window.translationCache[window.location.pathname][language][text] = undefined;
+          window.translationCache[window.location.pathname][language][text] = "weploy-untranslated";
+          window.untranslatedCache[window.location.pathname][language][text] = true;
         }
 
         updateNode(node, language, "text", 8);
