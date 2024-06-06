@@ -337,6 +337,21 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       window.translationCache[window.location.pathname][language] = {};
     }
 
+    // Initialize cache for untranslated text
+    if (!window.untranslatedCache) {
+      window.untranslatedCache = {}
+    }
+
+    // Initialize cache per page for untranslated text if not exist yet
+    if (!window.untranslatedCache?.[window.location.pathname]) {
+      window.untranslatedCache[window.location.pathname] = {};
+    }
+
+    // Initialize language cache for untranslated text if not exist yet
+    if (!window.untranslatedCache?.[window.location.pathname]?.[language]) {
+      window.untranslatedCache[window.location.pathname][language] = {};
+    }
+
     let notInCache = [];
 
     // Check cache for each textNode
@@ -418,6 +433,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
+    console.log("notInCache", notInCache)
+
     if (notInCache.length > 0) { 
       window.weployError = false;
       window.weployTranslating = true;
@@ -437,7 +454,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
       
 
-      const notCachedInCDN = notInCache.filter(text => !cacheFromCloudFlare[text]);
+      const notCachedInCDN = notInCache.filter(text => !cacheFromCloudFlare[text] || cacheFromCloudFlare[text] == "weploy-untranslated");
       
       try {
         // If there are translations not in cache, fetch them from the API

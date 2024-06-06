@@ -21,10 +21,37 @@ function addOrReplaceLangParam(url, lang) {
   return urlObj.toString();
 }
 
-function hideDropDown(element) {
+async function autoPosition(ul, weploySwitcher) {
+  // if (e.target != weploySwitcher) return;
+  if(!ul) return;
+  // const ul = e.target.querySelector("ul");
+  const dropdownRect = ul.getBoundingClientRect();
+  const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown
+  // Check if the element is outside the viewport on the right side
+  if ((switcherRect.x + dropdownRect.width) >= window.innerWidth) {
+    ul.style.right = '0px';
+    ul.style.left = 'auto';
+  } else {
+    ul.style.right = 'auto';
+    ul.style.left = '0px';
+  }
+
+  // Check if the element is outside the viewport on the bottom side
+  if ((switcherRect.y + dropdownRect.height) >= window.innerHeight) {
+    ul.style.bottom = '0px';
+  } else {
+    ul.style.bottom = 'auto';
+  }
+}
+
+function hideDropDown(element, weploySwitcher) {
   element.style.visibility = 'hidden';
   element.style.zIndex = '-1';
   element.style.pointerEvents = 'none';
+
+  if (weploySwitcher) {
+    weploySwitcher.style.overflow = 'hidden';
+  }
 }
 
 async function createLanguageSelect(apiKey, optsArgs = {}) {
@@ -81,7 +108,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
               // }
               const childUl = details.querySelector('ul');
               if (childUl) {
-                hideDropDown(childUl);
+                hideDropDown(childUl, weploySwitcher);
               }
             }
           });
@@ -99,9 +126,11 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             const childUl = details.querySelector('ul');
             if (childUl) {
               if (childUl.style.visibility == 'hidden'){
+                weploySwitcher.style.overflow = 'unset';
                 childUl.removeAttribute('style');
+                autoPosition(childUl, weploySwitcher);
               } else {
-                hideDropDown(childUl);
+                hideDropDown(childUl, weploySwitcher);
               }
             }
           }
@@ -174,32 +203,10 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           let ul = document.createElement('ul');
           ul.className = 'weploy-lang-selector-menu-container';
           details.appendChild(ul);
-          hideDropDown(ul);
+          hideDropDown(ul, weploySwitcher);
+          
 
-          async function autoPosition(e) {
-            // if (e.target != weploySwitcher) return;
-            if(!ul) return;
-            // const ul = e.target.querySelector("ul");
-            const dropdownRect = ul.getBoundingClientRect();
-            const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown
-            // Check if the element is outside the viewport on the right side
-            if ((switcherRect.x + dropdownRect.width) >= window.innerWidth) {
-              ul.style.right = '0px';
-              ul.style.left = 'auto';
-            } else {
-              ul.style.right = 'auto';
-              ul.style.left = '0px';
-            }
-
-            // Check if the element is outside the viewport on the bottom side
-            if ((switcherRect.y + dropdownRect.height) >= window.innerHeight) {
-              ul.style.bottom = '0px';
-            } else {
-              ul.style.bottom = 'auto';
-            }
-          }
-
-          weploySwitcher.onclick = autoPosition
+          // weploySwitcher.onclick = autoPosition
 
           if (languages.length < 2) {
             let li = document.createElement('li');
@@ -279,7 +286,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           });
           
           if (!initializedSelectorByUser) weploySwitcher.appendChild(details);
-          autoPosition();
+          autoPosition(ul, weploySwitcher);
         }
       });
     }
