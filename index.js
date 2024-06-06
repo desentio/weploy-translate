@@ -57,7 +57,7 @@ if (isBrowser()) {
 function isUntranslatableAndNotFetched(cache, language, text) {
   const isAlreadyFetched = window.untranslatedCache?.[window.location.pathname]?.[language]?.[text];
   const isUntranslated = cache == "weploy-untranslated";
-  if (isUntranslated) console.log("DEBUG", text, cache, isUntranslated, isAlreadyFetched);
+  // if (isUntranslated) console.log("DEBUG", text, cache, isUntranslated, isAlreadyFetched);
   return isUntranslated && !isAlreadyFetched;
 }
 
@@ -262,9 +262,10 @@ function updateNode(node, language, type = "text", debugSource) {
 
   // console.log("oldText", text)
   // console.log("newText", newText)
+  // console.log("cache", cache)
   if(newText && !newText.includes("weploy-untranslated")) {
-    // if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
-    //   console.log("Cost-efficient normal", node.textContent == text, node.textContent, text, newText)
+    // if (node.textContent == "Willkommen im Supermarkt" || text == "Willkommen im Supermarkt") {
+    //   console.log("Willkommen im Supermarkt normal", node.textContent == text, node.textContent, text, newText)
     // }
     // console.log("isTextStillTheSame", node.textContent == text)
     // make sure text is still the same before replacing
@@ -283,12 +284,13 @@ function filterValidTextNodes(textNodes) {
   });
 }
 
-async function isStillSameLang(language) {
+function isStillSameLang(language) {
   // return true;
   const options = getWeployOptions();
   const search = window.location.search;
   const params = new URLSearchParams(search);
-  const activeLang = params.get(options.langParam || 'lang') || await getLanguageFromLocalStorage();
+  const activeLang = params.get(options.langParam || 'lang');
+  if (!activeLang) return true;
 
   if (activeLang != language) {
     return false;
@@ -433,7 +435,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
-    console.log("notInCache", notInCache)
+    // console.log("notInCache", notInCache)
 
     if (notInCache.length > 0) { 
       window.weployError = false;
@@ -446,7 +448,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         cacheFromCloudFlare = {};
       }
 
-      if (await isStillSameLang(language)) {
+      if (isStillSameLang(language)) {
         window.translationCache[window.location.pathname][language] = {
           ...(window.translationCache?.[window.location.pathname]?.[language] || {}),
           ...cacheFromCloudFlare
@@ -461,20 +463,20 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         const options = getWeployOptions();
         const response = notCachedInCDN.length && options.dynamicTranslation ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
 
-        notCachedInCDN.map(async (text, index) => {
+        // console.log("RESPONSE", response)
+
+        notCachedInCDN.map((text, index) => {
           // Cache the new translations
-          if (await isStillSameLang(language) && window.translationCache?.[window.location.pathname]?.[language]) {
+          if (isStillSameLang(language) && window.translationCache?.[window.location.pathname]?.[language]) {
             window.translationCache[window.location.pathname][language][text] = response[index] || cacheFromCloudFlare[text] || text;
           }
 
           // If the translation is not available, cache the original text
-          if (await isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
+          if (isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
             window.translationCache[window.location.pathname][language][text] = "weploy-untranslated";
             window.untranslatedCache[window.location.pathname][language][text] = true;
           }
         });
-
-        await Promise.all(notCachedInCDN);
 
         // Update textNodes from the cache
         cleanTextNodes.forEach((node) => {
@@ -485,7 +487,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
           updateNode(node, language, "seo", 7)
         });
         
-        if (isBrowser() && await isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+        if (isBrowser() && isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
 
         resolve(undefined);
       } catch(err) {
@@ -494,11 +496,11 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     } else {
       // If all translations are cached, directly update textNodes from cache
-      cleanTextNodes.map(async (node) => {
+      cleanTextNodes.map((node) => {
         const text = shouldTranslateInlineText() ? node.fullText || node.textContent : node.textContent;
 
         // If the translation is not available, cache the original text
-        if (await isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
+        if (isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
           window.translationCache[window.location.pathname][language][text] = "weploy-untranslated";
           window.untranslatedCache[window.location.pathname][language][text] = true;
         }
@@ -511,9 +513,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
       });
 
-      await Promise.all(cleanTextNodes);
-
-      if (isBrowser() && !getIsTranslationInitialized() && await isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+      if (isBrowser() && !getIsTranslationInitialized() && isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
       resolve(undefined);
     }
   });
