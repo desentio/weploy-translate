@@ -57,7 +57,7 @@ if (isBrowser()) {
 function isUntranslatableAndNotFetched(cache, language, text) {
   const isAlreadyFetched = window.untranslatedCache?.[window.location.pathname]?.[language]?.[text];
   const isUntranslated = cache == "weploy-untranslated";
-  if (isUntranslated) console.log("DEBUG", cache, isUntranslated, isAlreadyFetched);
+  if (isUntranslated) console.log("DEBUG", text, cache, isUntranslated, isAlreadyFetched);
   return isUntranslated && !isAlreadyFetched;
 }
 
