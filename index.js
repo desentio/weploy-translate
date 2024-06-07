@@ -55,6 +55,7 @@ if (isBrowser()) {
 }
 
 function isUntranslatableAndNotFetched(cache, language, text) {
+  return false;
   const isAlreadyFetched = window.untranslatedCache?.[window.location.pathname]?.[language]?.[text];
   const isUntranslated = cache == "weploy-untranslated";
   // if (isUntranslated) console.log("DEBUG", text, cache, isUntranslated, isAlreadyFetched);
@@ -359,11 +360,13 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     // Check cache for each textNode
     cleanTextNodes.forEach((node) => {
       const text = shouldTranslateInlineText() ? node.fullText || node.textContent : node.textContent;
-      const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
+      // const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
+      const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+
       const cache = window.translationCache?.[window.location.pathname]?.[language]?.[text]
       if (
         isUntranslatableAndNotFetched(cache, language, text) ||
-        !cache && !cacheValues.includes(text) // check in value (to handle nodes that already translated)
+        !cache && !allTranslationValuesInAllPages.includes(text) // check in value (to handle nodes that already translated)
       ) {
         notInCache.push(text); // If not cached, add to notInCache array
       } else {
@@ -372,10 +375,13 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     });
 
     seoNodes.forEach((node) => {
+      const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+
       if (node == document) {
         const cache = window.translationCache?.[window.location.pathname]?.[language]?.[document.title]
         if (
-          isUntranslatableAndNotFetched(cache, language, document.title) || !cache
+          isUntranslatableAndNotFetched(cache, language, document.title) || 
+          !cache && !allTranslationValuesInAllPages.includes(document.title)
         ) {
           if ((document.title || "").trim()) notInCache.push(document.title); // make sure the title is not empty
         } else {
@@ -386,7 +392,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       if (node.tagName == "META") {
         const cache = window.translationCache?.[window.location.pathname]?.[language]?.[node.content]
         if (
-          isUntranslatableAndNotFetched(cache, language, node.content) || !cache
+          isUntranslatableAndNotFetched(cache, language, node.content) ||
+          !cache && !allTranslationValuesInAllPages.includes(node.content)
         ) {
           notInCache.push(node.content);
         } else {
@@ -400,7 +407,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         // make sure the alt is not empty
         if (
           isUntranslatableAndNotFetched(altCache, language, node.alt) ||
-          (node.alt || "").trim() && !altCache
+          (node.alt || "").trim() && !altCache && !allTranslationValuesInAllPages.includes(node.alt)
         ) {
           notInCache.push(node.alt);
         }
@@ -409,7 +416,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         // make sure the title is not empty
         if (
           isUntranslatableAndNotFetched(titleCache, language, node.title) ||
-          (node.title || "").trim() && !titleCache
+          (node.title || "").trim() && !titleCache && !allTranslationValuesInAllPages.includes(node.alt)
         ) {
           notInCache.push(node.title);
         }
@@ -424,7 +431,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         // make sure the title is not empty
         if (
           isUntranslatableAndNotFetched(titleCache, language, node.title) ||
-          (node.title || "").trim() && !titleCache
+          (node.title || "").trim() && !titleCache && !allTranslationValuesInAllPages.includes(node.title)
         ) {
           notInCache.push(node.title);
         }
