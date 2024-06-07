@@ -18,7 +18,28 @@ function getTextInsideBrackets(str) {
 
 if (isBrowser()) {
   window.weployScriptTag = document.currentScript;
-  const langParam = window.weployScriptTag.getAttribute("data-lang-parameter") || "lang";
+
+  // REQUIRED ATTRIBUTES
+  const DATA_WEPLOY_KEY = "data-weploy-key";
+  const DATA_ORIGINAL_LANG = "data-original-language";
+  const DATA_ALLOWED_LANGUAGES = "data-allowed-languages";
+
+  // COMMON OPTIONAL ATTRIBUTES
+  const DATA_USE_BROWSER_LANG = "data-use-browser-language"; // default: true
+  const DATA_EXCLUDE_CLASSES = "data-exclude-classes";
+  const DATA_REPLACE_LINKS = "data-replace-links"; // default: true
+  const DATA_AUTO_CREATE_SELECTOR = "data-auto-create-selector"; // default: true
+  const DATA_DELAY = "data-timeout"; // default: 0
+  const DATA_DYNAMIC_TRANSLATION = "data-dynamic-translation"; // default: true
+  const DATA_TRANSLATE_ATTR = "data-translate-attributes"; // default: false
+
+  // ADVANCED OPTIONAL ATTRIBUTES
+  const DATA_LANG_PARAMETER = "data-lang-parameter"; // default: "lang"
+  const DATA_CUSTOM_LANG_CODE = "data-custom-language-code"; // format: "kk=kz, en=us, ru=rs"
+  const DATA_MERGE_INLINE = "data-translate-splitted-text"; // default: false
+  const DATA_EXCLUDE_CONTENTS = "data-exclude-contents"; // format: "{{content1}}, {{content2}}"
+
+  const langParam = window.weployScriptTag.getAttribute(DATA_LANG_PARAMETER) || "lang";
 
   const search = window.location.search;
   const params = new URLSearchParams(search);
@@ -59,7 +80,7 @@ if (isBrowser()) {
     console.log("Error parsing translation cache", e)
   }
 
-  const customLanguageCodeAttr = window.weployScriptTag.getAttribute("data-custom-language-code"); // format is "kk=kz, en=us, ru=rs"
+  const customLanguageCodeAttr = window.weployScriptTag.getAttribute(DATA_CUSTOM_LANG_CODE); // format is "kk=kz, en=us, ru=rs"
   const customLanguageCode = customLanguageCodeAttr ? customLanguageCodeAttr.split(",").reduce((acc, lang) => {
     const [key, value] = lang.trim().split("=");
     if (!key || !value) return acc;
@@ -69,10 +90,10 @@ if (isBrowser()) {
   }, {}) : {};
 
   // get options
-  const apiKey = window.weployScriptTag.getAttribute("data-weploy-key");
+  const apiKey = window.weployScriptTag.getAttribute(DATA_WEPLOY_KEY);
 
   // defined languages so dont need extra fetch
-  const originalLangAttr = window.weployScriptTag.getAttribute("data-original-language") || window.weployScriptTag.getAttribute("data-original-lanugage");
+  const originalLangAttr = window.weployScriptTag.getAttribute(DATA_ORIGINAL_LANG) || window.weployScriptTag.getAttribute("data-original-lanugage");
   const originalLang = (originalLangAttr || "").trim().toLowerCase();
 
   const activeLang = paramsLang || originalLang;
@@ -80,40 +101,40 @@ if (isBrowser()) {
     document.documentElement.lang = activeLang;
   }
 
-  const allowedLangAttr = window.weployScriptTag.getAttribute("data-allowed-languages");
+  const allowedLangAttr = window.weployScriptTag.getAttribute(DATA_ALLOWED_LANGUAGES);
   const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => !!lang).map(lang => lang.trim());
 
   // this is backward compatibility for use browser language
   const disableAutoTranslateAttr = window.weployScriptTag.getAttribute("data-disable-auto-translate");
   const disableAutoTranslate = disableAutoTranslateAttr == "true";
-  const useBrowserLanguageAttr = window.weployScriptTag.getAttribute("data-use-browser-language");
+  const useBrowserLanguageAttr = window.weployScriptTag.getAttribute(DATA_USE_BROWSER_LANG);
   const useBrowserLanguage = useBrowserLanguageAttr != "false" && useBrowserLanguageAttr != false;
 
   // exclude classes
-  const excludeClassesAttr = (window.weployScriptTag.getAttribute("data-exclude-classes") || "").trim()
+  const excludeClassesAttr = (window.weployScriptTag.getAttribute(DATA_EXCLUDE_CLASSES) || "").trim()
   const excludeClassesByComma = excludeClassesAttr.split(",").filter(className => !!className).map(className => className.trim());
   const excludeClassesBySpace = excludeClassesAttr.split(" ").filter(className => !!className).map(className => className.trim().replaceAll(",", ""));
   const mergedExcludeClasses = [...excludeClassesByComma, ...excludeClassesBySpace];
   const excludeClasses = [...new Set(mergedExcludeClasses)]; // get unique values
 
   // exclude contents
-  const excludeContentsAttr = (window.weployScriptTag.getAttribute("data-exclude-contents") || "").trim()
+  const excludeContentsAttr = (window.weployScriptTag.getAttribute(DATA_EXCLUDE_CONTENTS) || "").trim()
   const splittedContents = getTextInsideBrackets(excludeContentsAttr);
   const excludeContents = [...new Set(splittedContents)]; // get unique values
 
   // timeout
-  const timeoutAttr = window.weployScriptTag.getAttribute("data-timeout");
+  const timeoutAttr = window.weployScriptTag.getAttribute(DATA_DELAY);
   const timeout = isNaN(Number(timeoutAttr)) ? 0 : Number(timeoutAttr);
 
-  const createSelector = window.weployScriptTag.getAttribute("data-auto-create-selector") != "false";
+  const createSelector = window.weployScriptTag.getAttribute(DATA_AUTO_CREATE_SELECTOR) != "false";
 
-  const translateAttributes = window.weployScriptTag.getAttribute("data-translate-attributes") == "true";
+  const translateAttributes = window.weployScriptTag.getAttribute(DATA_TRANSLATE_ATTR) == "true";
 
-  const dynamicTranslation = paramsUpdateTranslation == "true" || (window.weployScriptTag.getAttribute("data-dynamic-translation") != "false");
+  const dynamicTranslation = paramsUpdateTranslation == "true" || (window.weployScriptTag.getAttribute(DATA_DYNAMIC_TRANSLATION) != "false");
 
-  const translateSplittedText = window.weployScriptTag.getAttribute("data-translate-splitted-text") == "true";
+  const translateSplittedText = window.weployScriptTag.getAttribute(DATA_MERGE_INLINE) == "true";
 
-  const shouldReplaceLinks = window.weployScriptTag.getAttribute("data-replace-links") != "false";
+  const shouldReplaceLinks = window.weployScriptTag.getAttribute(DATA_REPLACE_LINKS) != "false";
 
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,

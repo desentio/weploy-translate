@@ -30,9 +30,20 @@ API Key Configuration:
 2. Language Settings: data-original-language: Set this attribute to your website's primary language code (e.g., en for English, fr for French).
 3. data-allowed-languages: Configure this according to your Weploy project's requirements. List the language codes (e.g., en, fr, de) that you wish to support on your site.
 
-Optional Configuration:
+Common Optional Configuration:
 - data-use-browser-language: By default, this is set to automatically translate the website based on the user's browser language. If you prefer to disable this feature, set it to false.
 - data-exclude-classes: Specify any CSS class names that should not be translated by the service. This is particularly useful for elements such as chatbots, which may not require translation. List the classes separated by commas (e.g., chatbot, no-translate).
+- data-replace-links: By default, this is set to true, which allows the service to replace links with the translated URLs by appending the language code to the URL. If you wish to disable this feature, set it to false.
+- data-auto-create-selector: By default, this is set to true, which automatically creates a language selector on your website (if you put the language selector code). If you prefer to create a custom language selector, set this to false.
+- data-timeout: Set the delay (in milliseconds) before the translation service is activated. This is useful for ensuring that the page content is fully loaded before translation begins.
+- data-dynamic-translation: By default, this is set to true, which enables dynamic translation of new content that is added to the page after the initial load. If you prefer to disable this feature, set it to false. Disabling this feature can prevent malicious actors from translating content that is not intended for translation.
+- data-translate-attributes: If enabled, this feature will translate title & alt attributes of images and title attributes of links. This feature is intended to improve SEO and accessibility. By default, this is set to false. To enable this feature, set it to true.
+
+Advanced Optional Configuration:
+- data-lang-parameter: Specify the URL parameter that should be used to set the language. By default, this is set to "lang". If you prefer to use a different parameter, you can set it to a custom value. For example if you set this value to "t", then the language selector will append "?t=de" to the URL when the user selects the German language.
+- data-custom-language-code: Specify a custom language code that should be shown in the language selector. This is useful for displaying a different language name in the selector than the actual language code. For example, you can set this attribute to "kk=kz" to display "KZ" in the language selector instead of "KK" (because people may have familiarity with the country code "KZ" for Kazakhstan).
+- data-translate-splitted-text (BETA) : Merge texts that are split into multiple elements (at least contains 1 inline element, e.g., <span> tags) into a single translation unit. By default, this is set to false. To enable this feature, set it to true. This feature is useful for translating text that is split into multiple elements, such as headings or paragraphs. For example: <h1><span>My</span> <span>Brand</span></h1> will be translated as a single unit. NOTE: This feature is in BETA and may not work as expected in all cases.
+- data-exclude-contents: Specify text content that should not be translated by the service by using regular expressions. This is useful for excluding specific text from translation. The attribute value should be a string of regular expressions wrapped in double curly braces and separated by spaces. Format: "{{regex1}} {{regex2}} {{regex3}}". For example if you want to exclude all text that contains the word "My Brand", you can set this attribute to "{{My Brand}}". Or if you want match exact text, you can use "{{^My Brand$}}".
 
 #### 2. Add the language selector
 Enable users to select a language by adding:
