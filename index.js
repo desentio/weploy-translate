@@ -668,6 +668,10 @@ async function getTranslations(apiKey, optsArgs = {}) {
           // Create an observer instance with a callback to handle mutations
           const observer = new MutationObserver(function(mutationsList) {
             let nodes = [];
+
+            // check if the selectors need to be recreated
+            let elements = Array.from(document.querySelectorAll('.weploy-lang-selector-loading')).filter(el => !el.querySelector('.weploy-lang-selector-ready-icon'));
+
             for(let mutation of mutationsList) {
               if (mutation.type === 'childList') {
                 // Handling added nodes
@@ -676,7 +680,14 @@ async function getTranslations(apiKey, optsArgs = {}) {
                 }
               }
             }
-            startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+
+            if (elements.length && optsArgs.createSelector) {
+              createLanguageSelect(apiKey, optsArgs).then(() => {
+                startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+              });
+            } else {
+              startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+            }
           });
 
           // Set up observer configuration: what to observe
