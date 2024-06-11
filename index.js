@@ -575,11 +575,17 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     // this will ensure only good afternoon is included
     // list all cache values
     const cache = window.translationCache || {};
-    const allLangCacheInAllPages = Object.values(cache)
-      .map(x => x[language || ""])
-      .filter(Boolean)
-      .reduce((prev, acc) => ({...prev, ...acc }), {})
-    const values = Object.values(allLangCacheInAllPages).filter(Boolean);
+    const allLangCacheInAllPages = Object.keys(cache).reduce((prevValue, pathname) => {
+      const pageCache = cache[pathname]; // { en: {}, de: {}, id: {}}
+      Object.keys(pageCache).forEach(lang => {
+        if (!prevValue[lang]) {
+          prevValue[lang] = {};
+        }
+        prevValue[lang] = {...prevValue[lang], ...pageCache[lang]};
+      });
+      return prevValue;
+    }, {});
+    const values = Object.values(allLangCacheInAllPages).flatMap(Object.values).filter(Boolean);
     const textNodeThatNotInPrevPage = validTextNodes.filter(x => !values.includes(x.textContent))
 
     await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
