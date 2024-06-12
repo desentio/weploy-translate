@@ -6,6 +6,8 @@ const API_URL = process.env.NO_CACHE ? "http://localhost:8081" : "https://api.we
 const CDN_URL = "";
 const KV_URL = "https://cdn.weploy.ai";
 const USE_WEPLOY_MERGE = false;
+const CONTEXT_LIMIT = 3;
+const MAX_WORDS_LENGTH_FOR_CONTEXT = 3;
 
 /** Translation Options */
 var weployOptions;
@@ -124,5 +126,7 @@ module.exports = {
   CDN_URL,
   KV_URL,
   USE_WEPLOY_MERGE,
+  CONTEXT_LIMIT,
+  MAX_WORDS_LENGTH_FOR_CONTEXT,
   weployOptions
 }

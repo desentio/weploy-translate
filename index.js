@@ -62,6 +62,26 @@ function isUntranslatableAndNotFetched(cache, language, text) {
   return isUntranslated && !isAlreadyFetched;
 }
 
+function getCacheKey(node) {
+  return shouldTranslateInlineText() ? node.cacheKey || node.textContent : node.textContent;
+}
+
+function getTagName(node) {
+  const translateInline = shouldTranslateInlineText()
+  if (translateInline) {
+    return node.topLevelTagName || node.parentTagName
+  } else {
+    return node.parentTagName;
+
+    // another logic: if it's inline, dont include tagname because <h1>Hello <b>World</b></h1> could result into <h1>Hello</h1> and <b>World</b>
+    // if (node.fullTextArray) {
+    //   return undefined
+    // } else {
+    //   return node.parentTagName;
+    // }
+  }
+}
+
 function updateNode(node, language, type = "text", debugSource) {
   // console.log("update node", debugSource, node, language);
 
@@ -107,10 +127,9 @@ function updateNode(node, language, type = "text", debugSource) {
     return;
   }
 
-  const fullText = node.fullText;
   const fullTextArray = node.fullTextArray;
   const text = node.textContent;
-  const cache = shouldTranslateInlineText() ? fullText || text : text;
+  const cache = getCacheKey(node);
   // console.log("CACHE", debugSource, cache)
   // console.log(debugSource, window.translationCache?.[window.location.pathname]?.[language])
   const newText = window.translationCache?.[window.location.pathname]?.[language]?.[cache] || "";
@@ -279,9 +298,12 @@ function updateNode(node, language, type = "text", debugSource) {
 function filterValidTextNodes(textNodes) {
   return textNodes.filter((textNode) => {
     const textContent = textNode.textContent
-    return (
-      checkIfTranslatable(textContent) != "inValid"
-    );
+    const isTextContentTranslatable = checkIfTranslatable(textContent) != "inValid"
+
+    // node that has no fullTextArray will always return true
+    const isFullTextArrayTranslatable = Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length ? !textNode.fullTextArray.every(singleText => checkIfTranslatable(singleText) == "inValid") : true;
+
+    return isTextContentTranslatable && isFullTextArrayTranslatable;
   });
 }
 
@@ -359,7 +381,10 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
     // Check cache for each textNode
     cleanTextNodes.forEach((node) => {
-      const text = shouldTranslateInlineText() ? node.fullText || node.textContent : node.textContent;
+      const text = getCacheKey(node);
+      const tagName = getTagName(node);
+      const context = node.context;
+
       // const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
       const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
 
@@ -368,7 +393,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         isUntranslatableAndNotFetched(cache, language, text) ||
         !cache && !allTranslationValuesInAllPages.includes(text) // check in value (to handle nodes that already translated)
       ) {
-        notInCache.push(text); // If not cached, add to notInCache array
+        notInCache.push({ text, tagName, context }); // If not cached, add to notInCache array
       } else {
         updateNode(node, language, "text", 1)
       }
@@ -442,7 +467,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
-    // console.log("notInCache", notInCache)
+    console.log("weploy texts", notInCache);
+    // return;
 
     if (notInCache.length > 0) { 
       window.weployError = false;
@@ -461,9 +487,11 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
           ...cacheFromCloudFlare
         }
       }
-      
 
-      const notCachedInCDN = notInCache.filter(text => !cacheFromCloudFlare[text] || cacheFromCloudFlare[text] == "weploy-untranslated");
+      const notCachedInCDN = notInCache.filter((nodeData) => {
+        const text = typeof nodeData == 'string' ? nodeData : nodeData?.text;
+        return !cacheFromCloudFlare[text] || cacheFromCloudFlare[text] == "weploy-untranslated"
+      });
       
       try {
         // If there are translations not in cache, fetch them from the API
@@ -472,7 +500,9 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
         // console.log("RESPONSE", response)
 
-        notCachedInCDN.map((text, index) => {
+        notCachedInCDN.map((nodeData, index) => {
+          const text = typeof nodeData == 'string' ? nodeData : nodeData?.text;
+
           // Cache the new translations
           if (isStillSameLang(language) && window.translationCache?.[window.location.pathname]?.[language]) {
             window.translationCache[window.location.pathname][language][text] = response[index] || cacheFromCloudFlare[text] || text;
@@ -504,7 +534,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     } else {
       // If all translations are cached, directly update textNodes from cache
       cleanTextNodes.map((node) => {
-        const text = shouldTranslateInlineText() ? node.fullText || node.textContent : node.textContent;
+        const text = getCacheKey(node);
 
         // If the translation is not available, cache the original text
         if (isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {

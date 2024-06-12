@@ -1,4 +1,6 @@
-function checkIfTranslatable(input) {
+function checkIfTranslatable(inputArg) {
+  const input = inputArg.replace(/[^\x20-\x7E]/g, ''); // remove invisible characters
+  
   //Check if string is just spaces 
   let trimmedContent = input.trim();
   if (trimmedContent.length == 0 ) {
@@ -30,9 +32,13 @@ function checkIfTranslatable(input) {
 
   // Email
   let emailRegex = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/;
-  if (emailRegex.test(trimmedContent)) {
+  if (emailRegex.test(input)) {
     return "inValid";
   }
+
+  // if (input == "info­@test.com") {
+  //   console.log("PASSED REGEX", input)
+  // }
 
   // Domain
   let domainRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.){1,2}[a-zA-Z]{2,}(\/[a-zA-Z0-9]+)*$/;
