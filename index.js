@@ -16,7 +16,9 @@ const isUrl = require('./utils/translation/isUrl.js');
 var isDomListenerAdded;
 
 if (isBrowser()) {
-  window.translationCache = {}
+  if (!window.translationCache) {
+    window.translationCache = {};
+  }
   window.currentPathname = window.location.pathname
 }
 
@@ -52,6 +54,26 @@ if (isBrowser()) {
         }
     });
   })();
+}
+
+async function setLocalStorageExpiration() {
+  // get the current date
+  const now = new Date();
+
+  // get the current date timestamp
+  const nowTimestamp = now.getTime();
+
+  // expiration in 24 hours
+  const expiration = nowTimestamp + (24 * 60 * 60 * 1000);
+
+  // get weployExpirationTimestamp from localStorage
+  const weployExpirationTimestamp = await window.localStorage.getItem("weployExpirationTimestamp");
+  const timestamp = Number(weployExpirationTimestamp);
+
+  // if weployExpirationTimestamp is not set or not valid or already expired, set it to the current date timestamp
+  if (isNaN(timestamp) || timestamp < nowTimestamp) {
+    window.localStorage.setItem("weployExpirationTimestamp", String(expiration));
+  }
 }
 
 function isUntranslatableAndNotFetched(cache, language, text) {
@@ -524,7 +546,10 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
           updateNode(node, language, "seo", 7)
         });
         
-        if (isBrowser() && isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+        if (isBrowser() && isStillSameLang(language)) {
+          setLocalStorageExpiration();
+          window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+        }
 
         resolve(undefined);
       } catch(err) {
@@ -550,7 +575,10 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
       });
 
-      if (isBrowser() && !getIsTranslationInitialized() && isStillSameLang(language)) window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+      if (isBrowser() && !getIsTranslationInitialized() && isStillSameLang(language)) {
+        setLocalStorageExpiration();
+        window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+      }
       resolve(undefined);
     }
   });

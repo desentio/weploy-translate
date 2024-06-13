@@ -69,6 +69,24 @@ if (isBrowser()) {
     }
   }
 
+  try {
+    // get the current date
+    const now = new Date();
+
+    // get the current date timestamp
+    const nowTimestamp = now.getTime();
+
+    // get existing expiration timestamp
+    const weployExpirationTimestamp = window.localStorage.getItem("weployExpirationTimestamp");
+    const expiration = Number(weployExpirationTimestamp);
+
+    if (!isNaN(expiration) && expiration < nowTimestamp) {
+      window.localStorage.removeItem("weployExpirationTimestamp");
+      window.localStorage.removeItem("translationCachePerPage");
+    }
+  } catch (e) {
+    console.log("Error checking expiration", e)
+  }
 
   const translationCache = window.localStorage.getItem("translationCachePerPage");
   try {
