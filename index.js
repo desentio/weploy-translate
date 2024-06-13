@@ -105,7 +105,7 @@ function getTagName(node) {
 }
 
 function updateNode(node, language, type = "text", debugSource) {
-  // console.log("update node", debugSource, node, language);
+  // console.log("update node", debugSource, node, node.textContent, language);
 
   // update title
   if (node == document) {
@@ -152,7 +152,7 @@ function updateNode(node, language, type = "text", debugSource) {
   const fullTextArray = node.fullTextArray;
   const text = node.textContent;
   const cache = getCacheKey(node);
-  // console.log("CACHE", debugSource, cache)
+  // console.log("CACHE", debugSource, cache, node.textContent)
   // console.log(debugSource, window.translationCache?.[window.location.pathname]?.[language])
   const newText = window.translationCache?.[window.location.pathname]?.[language]?.[cache] || "";
 
@@ -243,6 +243,8 @@ function updateNode(node, language, type = "text", debugSource) {
             { value: curr, index: findIndex }
           ]
         }, []);
+
+        // console.log("node.textContent mergedOrphanString", node.textContent, currentIndex, mergedOrphanString)
   
         const translatedIndex = mergedOrphanString.findIndex(({ index }) => index == currentIndex)
         if (translatedIndex == -1) return;
@@ -320,7 +322,7 @@ function updateNode(node, language, type = "text", debugSource) {
 function filterValidTextNodes(textNodes) {
   return textNodes.filter((textNode) => {
     const textContent = textNode.textContent
-    const isTextContentTranslatable = checkIfTranslatable(textContent) != "inValid"
+    const isTextContentTranslatable = Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length ? true : checkIfTranslatable(textContent) != "inValid"
 
     // node that has no fullTextArray will always return true
     const isFullTextArrayTranslatable = Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length ? !textNode.fullTextArray.every(singleText => checkIfTranslatable(singleText) == "inValid") : true;
@@ -644,7 +646,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
       return prevValue;
     }, {});
     const values = Object.values(allLangCacheInAllPages).flatMap(Object.values).filter(Boolean);
-    const textNodeThatNotInPrevPage = validTextNodes.filter(x => !values.includes(x.textContent))
+    const textNodeThatNotInPrevPage = validTextNodes.filter(x => x.fullTextArray || !values.includes(x.textContent))
 
     await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
