@@ -1,6 +1,6 @@
 {
   "name": "weploy-translate",
-  "version": "2.0.83",
+  "version": "2.0.84",
   "description": "Translate your React.js or Next.js app with AI",
   "main": "index.js",
   "scripts": {
