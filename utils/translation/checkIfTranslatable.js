@@ -1,5 +1,6 @@
 function checkIfTranslatable(inputArg) {
-  const input = inputArg.replace(/[^\x20-\x7E]/g, ''); // remove invisible characters
+  // const input = inputArg.replace(/[^\x20-\x7E]/g, ''); // remove invisible characters
+  const input = inputArg;
   
   //Check if string is just spaces 
   let trimmedContent = input.trim();
@@ -31,7 +32,7 @@ function checkIfTranslatable(inputArg) {
   }
 
   // Email
-  let emailRegex = /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/;
+  let emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
   if (emailRegex.test(input)) {
     return "inValid";
   }
