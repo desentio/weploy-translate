@@ -6,7 +6,7 @@ function collectAllTextContentInsideNode(node, shouldExclude = false) {
 
   const textNodes = [];
   node.childNodes.forEach((child) => {
-    if (shouldExclude && child.className && child.className.includes("weploy-exclude")) return;
+    if (shouldExclude && child && child.className && typeof child.className == "string" && child.className.includes("weploy-exclude")) return;
 
     if (
       child &&
