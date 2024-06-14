@@ -327,6 +327,7 @@ function filterValidTextNodes(textNodes) {
 
     // node that has no fullTextArray will always return true
     const isFullTextArrayTranslatable = Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length ? !textNode.fullTextArray.every(singleText => checkIfTranslatable(singleText) == "inValid") : true;
+    console.log("textContent", textContent, isTextContentTranslatable, isFullTextArrayTranslatable, Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length)
 
     return isTextContentTranslatable && isFullTextArrayTranslatable;
   });
@@ -632,6 +633,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     extractTextNodes(rootElement, textNodes);
 
     const validTextNodes = filterValidTextNodes(textNodes) || [];
+    console.log("validTextNodes", validTextNodes)
 
     // handle a case where nodes already translated but some new texts are not translated yet
     // for example on initial load in homepage: ['good morning'] -> ['guten morgen']
