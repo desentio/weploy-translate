@@ -105,7 +105,7 @@ function getTagName(node) {
 }
 
 function updateNode(node, language, type = "text", debugSource) {
-  // console.log("update node", debugSource, node, node.textContent, language);
+  console.log("update node", debugSource, node, node.textContent, language);
 
   // update title
   if (node == document) {
@@ -414,6 +414,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
 
       const cache = window.translationCache?.[window.location.pathname]?.[language]?.[text]
+      console.log("allTranslationValuesInAllPages", allTranslationValuesInAllPages)
       if (
         isUntranslatableAndNotFetched(cache, language, text) ||
         !cache && !allTranslationValuesInAllPages.includes(text) // check in value (to handle nodes that already translated)
@@ -657,6 +658,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     }, {});
     const values = Object.values(allLangCacheInAllPages).flatMap(Object.values).filter(Boolean);
     const textNodeThatNotInPrevPage = validTextNodes.filter(x => x.fullTextArray || !values.includes(x.textContent))
+    console.log("textNodeThatNotInPrevPage", textNodeThatNotInPrevPage)
 
     await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
