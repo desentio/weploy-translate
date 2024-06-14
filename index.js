@@ -644,7 +644,14 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         if (!prevValue[lang]) {
           prevValue[lang] = {};
         }
-        prevValue[lang] = {...prevValue[lang], ...pageCache[lang]};
+        // Exclude keys that start with "weploy-merge"
+        const filteredPageCache = Object.keys(pageCache[lang])
+          .filter(key => !key.startsWith("weploy-merge"))
+          .reduce((obj, key) => {
+            obj[key] = pageCache[lang][key];
+            return obj;
+          }, {});
+        prevValue[lang] = {...prevValue[lang], ...filteredPageCache};
       });
       return prevValue;
     }, {});
