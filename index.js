@@ -307,6 +307,7 @@ function updateNode(node, language, type = "text", debugSource) {
   console.log("oldText", text)
   console.log("newText", newText)
   console.log("cache", cache)
+  console.log("node.textContent", node.textContent == text, node.textContent)
   if(newText && !newText.includes("weploy-untranslated")) {
     // if (node.textContent == "Willkommen im Supermarkt" || text == "Willkommen im Supermarkt") {
     //   console.log("Willkommen im Supermarkt normal", node.textContent == text, node.textContent, text, newText)
