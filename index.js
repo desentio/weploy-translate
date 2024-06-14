@@ -105,7 +105,7 @@ function getTagName(node) {
 }
 
 function updateNode(node, language, type = "text", debugSource) {
-  console.log("update node", debugSource, node, node.textContent, language);
+  // console.log("update node", debugSource, node, node.textContent, language);
 
   // update title
   if (node == document) {
@@ -304,10 +304,10 @@ function updateNode(node, language, type = "text", debugSource) {
     return;
   }
 
-  console.log("oldText", text)
-  console.log("newText", newText)
-  console.log("cache", cache)
-  console.log("node.textContent", node.textContent == text, node.textContent)
+  // console.log("oldText", text)
+  // console.log("newText", newText)
+  // console.log("cache", cache)
+  // console.log("node.textContent", node.textContent == text, node.textContent)
   if(newText && !newText.includes("weploy-untranslated")) {
     // if (node.textContent == "Willkommen im Supermarkt" || text == "Willkommen im Supermarkt") {
     //   console.log("Willkommen im Supermarkt normal", node.textContent == text, node.textContent, text, newText)
@@ -327,7 +327,7 @@ function filterValidTextNodes(textNodes) {
 
     // node that has no fullTextArray will always return true
     const isFullTextArrayTranslatable = Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length ? !textNode.fullTextArray.every(singleText => checkIfTranslatable(singleText) == "inValid") : true;
-    console.log("textContent", textContent, isTextContentTranslatable, isFullTextArrayTranslatable, Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length)
+    // console.log("textContent", textContent, isTextContentTranslatable, isFullTextArrayTranslatable, Array.isArray(textNode.fullTextArray) && textNode.fullTextArray.length)
 
     return isTextContentTranslatable && isFullTextArrayTranslatable;
   });
@@ -415,7 +415,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
 
       const cache = window.translationCache?.[window.location.pathname]?.[language]?.[text]
-      console.log("allTranslationValuesInAllPages", allTranslationValuesInAllPages)
+      // console.log("allTranslationValuesInAllPages", allTranslationValuesInAllPages)
       if (
         isUntranslatableAndNotFetched(cache, language, text) ||
         !cache && !allTranslationValuesInAllPages.includes(text) // check in value (to handle nodes that already translated)
@@ -494,7 +494,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
-    console.log("weploy texts", notInCache);
+    // console.log("weploy texts", notInCache);
     // return;
 
     if (notInCache.length > 0) { 
@@ -520,14 +520,14 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         return !cacheFromCloudFlare[text] || cacheFromCloudFlare[text] == "weploy-untranslated"
       });
 
-      console.log("notCachedInCDN", notCachedInCDN)
+      // console.log("notCachedInCDN", notCachedInCDN)
       
       try {
         // If there are translations not in cache, fetch them from the API
         const options = getWeployOptions();
         const response = notCachedInCDN.length && options.dynamicTranslation ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
 
-        console.log("RESPONSE", response)
+        // console.log("RESPONSE", response)
 
         notCachedInCDN.map((nodeData, index) => {
           const text = typeof nodeData == 'string' ? nodeData : nodeData?.text;
@@ -633,7 +633,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     extractTextNodes(rootElement, textNodes);
 
     const validTextNodes = filterValidTextNodes(textNodes) || [];
-    console.log("validTextNodes", validTextNodes)
+    // console.log("validTextNodes", validTextNodes)
 
     // handle a case where nodes already translated but some new texts are not translated yet
     // for example on initial load in homepage: ['good morning'] -> ['guten morgen']
@@ -660,7 +660,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     }, {});
     const values = Object.values(allLangCacheInAllPages).flatMap(Object.values).filter(Boolean);
     const textNodeThatNotInPrevPage = validTextNodes.filter(x => x.fullTextArray || !values.includes(x.textContent))
-    console.log("textNodeThatNotInPrevPage", textNodeThatNotInPrevPage)
+    // console.log("textNodeThatNotInPrevPage", textNodeThatNotInPrevPage)
 
     await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
