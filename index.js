@@ -304,9 +304,9 @@ function updateNode(node, language, type = "text", debugSource) {
     return;
   }
 
-  // console.log("oldText", text)
-  // console.log("newText", newText)
-  // console.log("cache", cache)
+  console.log("oldText", text)
+  console.log("newText", newText)
+  console.log("cache", cache)
   if(newText && !newText.includes("weploy-untranslated")) {
     // if (node.textContent == "Willkommen im Supermarkt" || text == "Willkommen im Supermarkt") {
     //   console.log("Willkommen im Supermarkt normal", node.textContent == text, node.textContent, text, newText)
@@ -516,13 +516,15 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         const text = typeof nodeData == 'string' ? nodeData : nodeData?.text;
         return !cacheFromCloudFlare[text] || cacheFromCloudFlare[text] == "weploy-untranslated"
       });
+
+      console.log("notCachedInCDN", notCachedInCDN)
       
       try {
         // If there are translations not in cache, fetch them from the API
         const options = getWeployOptions();
         const response = notCachedInCDN.length && options.dynamicTranslation ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
 
-        // console.log("RESPONSE", response)
+        console.log("RESPONSE", response)
 
         notCachedInCDN.map((nodeData, index) => {
           const text = typeof nodeData == 'string' ? nodeData : nodeData?.text;
