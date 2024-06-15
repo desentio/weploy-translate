@@ -1,4 +1,4 @@
-const { isBrowser, getWeployOptions, setWeployOptions, setWeployActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, shouldTranslateInlineText } = require('./utils/configs.js');
+const { isBrowser, getWeployOptions, setWeployOptions, setWeployActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, shouldTranslateInlineText, getWeployActiveLang } = require('./utils/configs.js');
 const checkIfTranslatable = require('./utils/translation/checkIfTranslatable.js');
 const allWeployLanguagesList = require('./utils/languages/allWeployLanguagesList.js');
 const { fetchLanguageList } = require('./utils/languages/fetchLanguageList.js');
@@ -675,7 +675,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 }
 
 async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = false) {
-  const lang = await getLanguageFromLocalStorage();
+  const lang = getWeployActiveLang() || await getLanguageFromLocalStorage();
 
   return new Promise(async (resolve) => {
     if (!delay) {
