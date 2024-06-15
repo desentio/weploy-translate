@@ -783,13 +783,13 @@ async function getTranslations(apiKey, optsArgs = {}) {
         resolve(undefined);
       } catch(err) {
         console.log("getTranslations error", err);
-        console.error(err);
+        if (window.shouldConsoleWeployError) console.error(err);
         resolve(undefined);
       }
     })
   } catch(err) {
     console.log("getTranslations error 2", err);
-    console.error(err);
+    if (window.shouldConsoleWeployError) console.error(err);
   }
 }
 

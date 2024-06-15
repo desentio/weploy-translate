@@ -45,6 +45,7 @@ if (isBrowser()) {
   const params = new URLSearchParams(search);
   const paramsLang = params.get(langParam);
   const paramsUpdateTranslation = params.get('weploy_update_translation');
+  window.shouldConsoleWeployError = paramsUpdateTranslation == "true";
 
   // console.log(process.env.NO_CACHE)
   function replaceLinks(lang) {
