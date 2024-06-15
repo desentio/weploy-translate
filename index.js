@@ -360,7 +360,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
   // dont translate original language
   const options = getWeployOptions()
   const langs = options.definedLanguages;
-  console.log("weploy langs", language, langs)
+  console.log("weploy langs", language, window.weployActiveLang, langs)
   if (langs && langs[0] && langs[0].lang == language.substring(0, 2).toLowerCase()) {
     console.log("Original language is not translatable");
     return new Promise((resolve, reject) => {
