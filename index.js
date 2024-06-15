@@ -495,6 +495,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     });
 
     // console.log("weploy texts", notInCache);
+    console.log("weploy start getting translations", notInCache.length);
     // return;
 
     if (notInCache.length > 0) { 
