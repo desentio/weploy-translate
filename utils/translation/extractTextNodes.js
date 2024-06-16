@@ -259,6 +259,11 @@ function extractTextNodes(node, textNodes) {
         singleTextNode.context = `<${grandParentTagName}>${context}</${grandParentTagName}>`;
       })
     }
+
+    if (!node.originalTextContent) {
+      node.originalTextContent = node.textContent;
+    }
+
     textNodes.push(node);
   } else {
     const weployOptions = getWeployOptions();

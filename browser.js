@@ -115,7 +115,7 @@ if (isBrowser()) {
   const originalLangAttr = window.weployScriptTag.getAttribute(DATA_ORIGINAL_LANG) || window.weployScriptTag.getAttribute("data-original-lanugage");
   const originalLang = (originalLangAttr || "").trim().toLowerCase();
 
-  const activeLang = paramsLang || originalLang;
+  const activeLang = window.weployActiveLang || paramsLang || originalLang;
   if (document.documentElement.lang != activeLang) {
     document.documentElement.lang = activeLang;
   }

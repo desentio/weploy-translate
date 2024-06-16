@@ -76,16 +76,12 @@ async function setLocalStorageExpiration() {
   }
 }
 
-function isUntranslatableAndNotFetched(cache, language, text) {
-  return false;
-  const isAlreadyFetched = window.untranslatedCache?.[window.location.pathname]?.[language]?.[text];
-  const isUntranslated = cache == "weploy-untranslated";
-  // if (isUntranslated) console.log("DEBUG", text, cache, isUntranslated, isAlreadyFetched);
-  return isUntranslated && !isAlreadyFetched;
-}
-
 function getCacheKey(node) {
-  return shouldTranslateInlineText() ? node.cacheKey || node.textContent : node.textContent;
+  const cacheKey = shouldTranslateInlineText() ? node.cacheKey || node.originalTextContent : node.originalTextContent;
+  if (!cacheKey) {
+    console.log("No cache key for ", node)
+  }
+  return cacheKey
 }
 
 function getTagName(node) {
@@ -360,9 +356,9 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
   // dont translate original language
   const options = getWeployOptions()
   const langs = options.definedLanguages;
-  console.log("weploy langs", language, window.weployActiveLang, langs)
+  // console.log("weploy langs", language, window.weployActiveLang, langs)
   if (langs && langs[0] && langs[0].lang == language.substring(0, 2).toLowerCase()) {
-    console.log("Original language is not translatable");
+    // console.log("Original language is not translatable");
     return new Promise((resolve, reject) => {
       resolve(undefined);
       // reject("Original language is not translatable");
@@ -414,12 +410,12 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       const context = node.context;
 
       // const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
-      const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+      // const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+      const allTranslationValuesInAllPages = [] // replaced with originalText
 
       const cache = window.translationCache?.[window.location.pathname]?.[language]?.[text]
       // console.log("allTranslationValuesInAllPages", allTranslationValuesInAllPages)
       if (
-        isUntranslatableAndNotFetched(cache, language, text) ||
         !cache && !allTranslationValuesInAllPages.includes(text) // check in value (to handle nodes that already translated)
       ) {
         notInCache.push({ text, tagName, context }); // If not cached, add to notInCache array
@@ -429,12 +425,12 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     });
 
     seoNodes.forEach((node) => {
-      const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+      // const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+      const allTranslationValuesInAllPages = [] // replaced with originalText
 
       if (node == document) {
         const cache = window.translationCache?.[window.location.pathname]?.[language]?.[document.title]
         if (
-          isUntranslatableAndNotFetched(cache, language, document.title) || 
           !cache && !allTranslationValuesInAllPages.includes(document.title)
         ) {
           if ((document.title || "").trim()) notInCache.push(document.title); // make sure the title is not empty
@@ -446,7 +442,6 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       if (node.tagName == "META") {
         const cache = window.translationCache?.[window.location.pathname]?.[language]?.[node.content]
         if (
-          isUntranslatableAndNotFetched(cache, language, node.content) ||
           !cache && !allTranslationValuesInAllPages.includes(node.content)
         ) {
           notInCache.push(node.content);
@@ -460,7 +455,6 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
         // make sure the alt is not empty
         if (
-          isUntranslatableAndNotFetched(altCache, language, node.alt) ||
           (node.alt || "").trim() && !altCache && !allTranslationValuesInAllPages.includes(node.alt)
         ) {
           notInCache.push(node.alt);
@@ -469,7 +463,6 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         const titleCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.title]
         // make sure the title is not empty
         if (
-          isUntranslatableAndNotFetched(titleCache, language, node.title) ||
           (node.title || "").trim() && !titleCache && !allTranslationValuesInAllPages.includes(node.alt)
         ) {
           notInCache.push(node.title);
@@ -484,7 +477,6 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         const titleCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.title]
         // make sure the title is not empty
         if (
-          isUntranslatableAndNotFetched(titleCache, language, node.title) ||
           (node.title || "").trim() && !titleCache && !allTranslationValuesInAllPages.includes(node.title)
         ) {
           notInCache.push(node.title);
@@ -497,7 +489,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     });
 
     // console.log("weploy texts", notInCache);
-    console.log("weploy start getting translations", notInCache.length);
+    // console.log("weploy start getting translations", notInCache.length);
     // return;
 
     if (notInCache.length > 0) { 
@@ -520,7 +512,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
       const notCachedInCDN = notInCache.filter((nodeData) => {
         const text = typeof nodeData == 'string' ? nodeData : nodeData?.text;
-        return !cacheFromCloudFlare[text] || cacheFromCloudFlare[text] == "weploy-untranslated"
+        return !cacheFromCloudFlare[text]
       });
 
       // console.log("notCachedInCDN", notCachedInCDN)
@@ -665,7 +657,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     const textNodeThatNotInPrevPage = validTextNodes.filter(x => x.fullTextArray || !values.includes(x.textContent))
     // console.log("textNodeThatNotInPrevPage", textNodeThatNotInPrevPage)
 
-    await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
+    await translateNodes(validTextNodes, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
     }).catch(reject).finally(() => {
       window.weployTranslating = false;
@@ -678,6 +670,9 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 
 async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = false) {
   const lang = getWeployActiveLang() || await getLanguageFromLocalStorage();
+
+  // console.log("startTranslationCycle getWeployActiveLang", getWeployActiveLang(), isBrowser())
+  // console.log("startTranslationCycle lang", lang)
 
   return new Promise(async (resolve) => {
     if (!delay) {
