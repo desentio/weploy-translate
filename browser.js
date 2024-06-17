@@ -166,7 +166,7 @@ if (isBrowser()) {
     customLanguageCode,
     translateAttributes,
     dynamicTranslation,
-    translateSplittedText,
+    translateSplittedText: false,
     langParam
   }
 
