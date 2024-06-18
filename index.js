@@ -596,10 +596,10 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         if (!(meta.content || "").trim()) return false;
 
         const validMetaTagNames = ["description", "og:title", "og:description", "twitter:title", "twitter:description"];
-        if (!validMetaTagNames.includes(meta.name)) return false;
+        if (!validMetaTagNames.includes(meta.name.toLowerCase())) return false;
 
         const isTheContentAnUrl = isUrl(meta.content);
-        if (!isTheContentAnUrl) return false;
+        if (isTheContentAnUrl) return false;
         return true;
       });
 
@@ -723,7 +723,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
     // save language to local storage & delay 1 second to wait google translate
     await Promise.allSettled([
       optsArgs.originalLanguage ? getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages) : fetchLanguageList(apiKey),
-      delay(1000)
+      // delay(1000)
     ]);
 
     if (optsArgs.createSelector) {

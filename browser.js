@@ -1,22 +1,36 @@
 const { getTranslations, isBrowser } = require("./index.js");
-
-const excludeContentsRegex = /{{((?:[^}]|\\})*)}}/g;
-function getTextInsideBrackets(str) {
-  let match;
-  let matches = [];
-
-  while ((match = excludeContentsRegex.exec(str)) !== null) {
-      // Replace escaped closing brackets with a single closing bracket
-      let cleanedMatch = match[1].replace(/\\\\}/g, '}');
-      cleanedMatch = cleanedMatch.replace(/\\\\{/g, '{');
-
-      matches.push(cleanedMatch);
-  }
-
-  return matches;
-}
+// const { checkPage } = require("./utils/translation/checkPage.js");
 
 if (isBrowser()) {
+  // FEATURE: Prevent Google Translate from translating the page
+  // Set the 'translate' attribute of the HTML tag to 'no'
+  document.documentElement.setAttribute('translate', 'no');
+
+  // Create a new meta element
+  const meta = document.createElement('meta');
+  meta.name = 'google';
+  meta.content = 'notranslate';
+
+  // Append the meta element to the head of the document
+  document.head.appendChild(meta);
+
+  // FEATURE: Get text inside brackets
+  const excludeContentsRegex = /{{((?:[^}]|\\})*)}}/g;
+  function getTextInsideBrackets(str) {
+    let match;
+    let matches = [];
+
+    while ((match = excludeContentsRegex.exec(str)) !== null) {
+        // Replace escaped closing brackets with a single closing bracket
+        let cleanedMatch = match[1].replace(/\\\\}/g, '}');
+        cleanedMatch = cleanedMatch.replace(/\\\\{/g, '{');
+
+        matches.push(cleanedMatch);
+    }
+
+    return matches;
+  }
+
   window.weployScriptTag = document.currentScript;
 
   // REQUIRED ATTRIBUTES
@@ -47,6 +61,64 @@ if (isBrowser()) {
   const paramsUpdateTranslation = params.get('weploy_update_translation');
   window.shouldConsoleWeployError = paramsUpdateTranslation == "true";
 
+  // defined languages so dont need extra fetch
+  const originalLangAttr = window.weployScriptTag.getAttribute(DATA_ORIGINAL_LANG) || window.weployScriptTag.getAttribute("data-original-lanugage");
+  const originalLang = (originalLangAttr || "").trim().toLowerCase();
+
+  const allowedLangAttr = window.weployScriptTag.getAttribute(DATA_ALLOWED_LANGUAGES);
+  const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => lang && lang.trim() != originalLang).map(lang => lang.trim());
+
+  const activeLang = window.weployActiveLang || paramsLang || originalLang;
+  if (document.documentElement.lang != activeLang) {
+    document.documentElement.lang = activeLang;
+  }
+
+  function handleLinkTags() {
+    // FEATURE: Create a canonical link tag for translated pages
+    // e.g. https://example.com/path?lang=es
+    // Cleanup the original canonical link tag
+    const existingCanonicalLinkTag = document.querySelector('link[rel="canonical"]');
+    if (existingCanonicalLinkTag) {
+      existingCanonicalLinkTag.remove();
+    }
+
+    const newCanonicalLinkTag = document.createElement('link');
+    // Create a new URL object
+    let url = new URL(window.location.href);
+    if (paramsLang == originalLang) {
+      url.searchParams.delete(langParam);
+    }
+    newCanonicalLinkTag.setAttribute('rel', 'canonical');
+    newCanonicalLinkTag.href = url.href;
+    document.head.appendChild(newCanonicalLinkTag);
+
+    // Add alternate link tag for original languages
+    const alternateLinkTag = document.createElement('link');
+    // Create a new URL object
+    let urlOriginal = new URL(window.location.href);
+    // Remove the search parameter "lang"
+    urlOriginal.searchParams.delete(langParam);
+    alternateLinkTag.setAttribute('rel', 'alternate');
+    alternateLinkTag.setAttribute('hreflang', originalLang);
+    alternateLinkTag.href = urlOriginal.href;
+    document.head.appendChild(alternateLinkTag);
+
+    // Add alternate link tags for allowed languages
+    for (let lang of allowedLangs) {
+      const alternateLinkTag = document.createElement('link');
+      // Create a new URL object
+      let url = new URL(window.location.href);
+      // Set the search parameter "lang" to lang
+      url.searchParams.set(langParam, lang);
+      alternateLinkTag.setAttribute('rel', 'alternate');
+      alternateLinkTag.setAttribute('hreflang', lang);
+      alternateLinkTag.href = url.href;
+      document.head.appendChild(alternateLinkTag);
+    }
+  }
+
+  handleLinkTags();
+
   // console.log(process.env.NO_CACHE)
   function replaceLinks(lang) {
     // Select all anchor tags
@@ -56,8 +128,8 @@ if (isBrowser()) {
     for (let i = 0; i < anchors.length; i++) {
         let anchor = anchors[i];
   
-        // Check if the link is internal
-        if (anchor.hostname === window.location.hostname) {
+      // Check if the link is internal and does not contain a hash
+      if ((anchor.hostname === window.location.hostname) && anchor.href !== `${window.location.href}#`) {
             // Create a new URL object
             let url = new URL(anchor.href);
   
@@ -69,6 +141,9 @@ if (isBrowser()) {
         }
     }
   }
+
+  // // check if the page works without the trailing slash
+  // checkPage();
 
   try {
     // get the current date
@@ -111,17 +186,6 @@ if (isBrowser()) {
   // get options
   const apiKey = window.weployScriptTag.getAttribute(DATA_WEPLOY_KEY);
 
-  // defined languages so dont need extra fetch
-  const originalLangAttr = window.weployScriptTag.getAttribute(DATA_ORIGINAL_LANG) || window.weployScriptTag.getAttribute("data-original-lanugage");
-  const originalLang = (originalLangAttr || "").trim().toLowerCase();
-
-  const activeLang = window.weployActiveLang || paramsLang || originalLang;
-  if (document.documentElement.lang != activeLang) {
-    document.documentElement.lang = activeLang;
-  }
-
-  const allowedLangAttr = window.weployScriptTag.getAttribute(DATA_ALLOWED_LANGUAGES);
-  const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => !!lang).map(lang => lang.trim());
 
   // this is backward compatibility for use browser language
   const disableAutoTranslateAttr = window.weployScriptTag.getAttribute("data-disable-auto-translate");
