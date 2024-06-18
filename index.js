@@ -596,7 +596,14 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         if (!(meta.content || "").trim()) return false;
 
         const validMetaTagNames = ["description", "og:title", "og:description", "twitter:title", "twitter:description"];
-        if (!validMetaTagNames.includes(meta.name.toLowerCase())) return false;
+       
+        function isValidMeta() {
+          const metaName = meta.name.toLowerCase();
+          const metaProperty = (meta.getAttribute('property') || "").toLowerCase();
+          return validMetaTagNames.includes(metaName) || validMetaTagNames.includes(metaProperty);
+        }
+
+        if (!isValidMeta()) return false;
 
         const isTheContentAnUrl = isUrl(meta.content);
         if (isTheContentAnUrl) return false;
