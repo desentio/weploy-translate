@@ -83,24 +83,19 @@ if (isBrowser()) {
     }
 
     const newCanonicalLinkTag = document.createElement('link');
-    // Create a new URL object
-    let url = new URL(window.location.href);
-    if (paramsLang == originalLang) {
-      url.searchParams.delete(langParam);
+    if (!paramsLang || paramsLang == originalLang) {
+      newCanonicalLinkTag.href = window.location.pathname;
+    } else {
+      newCanonicalLinkTag.href = `${window.location.pathname}?${langParam}=${paramsLang}`;
     }
     newCanonicalLinkTag.setAttribute('rel', 'canonical');
-    newCanonicalLinkTag.href = url.href;
     document.head.appendChild(newCanonicalLinkTag);
 
     // Add alternate link tag for original languages
     const alternateLinkTag = document.createElement('link');
-    // Create a new URL object
-    let urlOriginal = new URL(window.location.href);
-    // Remove the search parameter "lang"
-    urlOriginal.searchParams.delete(langParam);
     alternateLinkTag.setAttribute('rel', 'alternate');
     alternateLinkTag.setAttribute('hreflang', originalLang);
-    alternateLinkTag.href = urlOriginal.href;
+    alternateLinkTag.href = window.location.pathname;
     document.head.appendChild(alternateLinkTag);
 
     // Add alternate link tags for allowed languages
@@ -112,7 +107,7 @@ if (isBrowser()) {
       url.searchParams.set(langParam, lang);
       alternateLinkTag.setAttribute('rel', 'alternate');
       alternateLinkTag.setAttribute('hreflang', lang);
-      alternateLinkTag.href = url.href;
+      alternateLinkTag.href = `${window.location.pathname}?${langParam}=${lang}`;
       document.head.appendChild(alternateLinkTag);
     }
   }
