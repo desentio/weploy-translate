@@ -289,7 +289,7 @@ function updateNode(node, language, type = "text", debugSource) {
         }
 
         // make sure text is still the same before replacing
-        if (node.textContent == text) {
+        if (node.textContent == text && newValue != text) {
           // console.log("node.textContent replace", node.textContent, text, newValue)
           node.textContent = newValue; // TODO: right now we only replace based on translation position, later we should swap the node position to preserve the styles
         }
@@ -310,7 +310,7 @@ function updateNode(node, language, type = "text", debugSource) {
     // }
     // console.log("isTextStillTheSame", node.textContent == text)
     // make sure text is still the same before replacing
-    if(node.textContent == text) {
+    if(node.textContent == text && newText != text) {
       node.textContent = newText;
     }
   }
@@ -411,12 +411,13 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 
       // const cacheValues = Object.values(window.translationCache?.[window.location.pathname]?.[language] || {});
       // const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
-      const allTranslationValuesInAllPages = [] // replaced with originalText
+      // const allTranslationValuesInAllPages = [] // replaced with originalText
 
       const cache = window.translationCache?.[window.location.pathname]?.[language]?.[text]
       // console.log("allTranslationValuesInAllPages", allTranslationValuesInAllPages)
       if (
-        !cache && !allTranslationValuesInAllPages.includes(text) // check in value (to handle nodes that already translated)
+        !cache
+        // && !allTranslationValuesInAllPages.includes(text) // check in value (to handle nodes that already translated)
       ) {
         notInCache.push({ text, tagName, context }); // If not cached, add to notInCache array
       } else {
@@ -425,8 +426,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     });
 
     seoNodes.forEach((node) => {
-      // const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
-      const allTranslationValuesInAllPages = [] // replaced with originalText
+      const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+      // const allTranslationValuesInAllPages = [] // replaced with originalText
 
       if (node == document) {
         const cache = window.translationCache?.[window.location.pathname]?.[language]?.[document.title]
@@ -587,6 +588,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 }
 
 function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
+  const options = getWeployOptions();
   return new Promise(async (resolve, reject) => {
     const seoNodes = []; // document will represent the title tag, if node == document then the updateNode function will update the title
 
@@ -642,9 +644,11 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     // then the user go to new route "/about", new dom added: ['guten morgen', 'good afternoon'] (this happen especially in nextjs because the route changes happens in client side)
     // this will ensure only good afternoon is included
     // list all cache values
-    const cache = window.translationCache || {};
-    const allLangCacheInAllPages = Object.keys(cache).reduce((prevValue, pathname) => {
-      const pageCache = cache[pathname]; // { en: {}, de: {}, id: {}}
+    if (!window.translationCache) {
+      window.translationCache = {};
+    }
+    const allLangCacheInAllPages = Object.keys(window.translationCache).reduce((prevValue, pathname) => {
+      const pageCache = window.translationCache[pathname]; // { en: {}, de: {}, id: {}}
       Object.keys(pageCache).forEach(lang => {
         if (!prevValue[lang]) {
           prevValue[lang] = {};
@@ -661,10 +665,59 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
       return prevValue;
     }, {});
     const values = Object.values(allLangCacheInAllPages).flatMap(Object.values).filter(Boolean);
-    const textNodeThatNotInPrevPage = validTextNodes.filter(x => x.fullTextArray || !values.includes(x.textContent))
+    const textNodeThatNotInPrevPage = validTextNodes.reduce((prevTextNode, textNode) => {
+      // textContent as default
+      textNode.originalTextContent = textNode.textContent;
+
+      // weploy-merge
+      if (textNode.fullTextArray) {
+        // console.log("textNodeThatNotInPrevPage FULLTEXTARRAY", textNode.fullTextArray)
+        return [...prevTextNode, textNode]
+      }
+      
+      const isInCache = values.includes(textNode.textContent);
+
+      // if the text is not in the cache, then add it to the list
+      if (!isInCache) {
+        // console.log("textNodeThatNotInPrevPage isInCache", isInCache)
+        return [...prevTextNode, textNode]
+      }
+
+      // if the text is already translated in the previous page, then find the original text
+      if (window.langHistory?.length) {
+        const [prev] = window.langHistory[window.langHistory.length - 1];
+        if (prev != options.originalLanguage) {
+          const existingCache = Object.entries(allLangCacheInAllPages[prev])
+            .find(([key, value]) => {
+              return value == textNode.textContent
+            })
+
+          // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage existingCache", existingCache)
+
+          
+          // original text found
+          if (existingCache) {
+            textNode.originalTextContent = existingCache[0];
+            if (textNode.context) {
+              textNode.context.replace(textNode.textContent, textNode.originalTextContent)
+            }
+          }
+        }
+      }
+
+      // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage GO", textNode.originalTextContent, textNode.textContent)
+      return [...prevTextNode, textNode];
+      // if (textNode.originalTextContent != textNode.textContent) {
+      //   return [...prevTextNode, textNode];
+      // } else {
+      //   return prevTextNode;
+      // }
+    }, [])
+    
+    // .filter(x => x.fullTextArray || !values.includes(x.textContent))
     // console.log("textNodeThatNotInPrevPage", textNodeThatNotInPrevPage)
 
-    await translateNodes(validTextNodes, language, apiKey, seoNodes).then(() => {
+    await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
     }).catch(reject).finally(() => {
       window.weployTranslating = false;
@@ -677,6 +730,22 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 
 async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = false) {
   const lang = getWeployActiveLang() || await getLanguageFromLocalStorage();
+  const options = getWeployOptions();
+  const originalLang = options?.originalLanguage;
+
+  if (!window.langHistory) {
+    window.langHistory = [] // example: [["en", "de"], ["de", "de"], ["de", "id"]]
+  }
+
+  if (!window.langHistory.length) {
+    window.langHistory.push([originalLang, lang])
+  } else {
+    const latestLang = window.langHistory[window.langHistory.length - 1][1];
+    window.langHistory.push([latestLang, lang])
+    // if (latestLang != lang) {
+    //   window.langHistory.push([latestLang, lang])
+    // }
+  }
 
   // console.log("startTranslationCycle getWeployActiveLang", getWeployActiveLang(), isBrowser())
   // console.log("startTranslationCycle lang", lang)
@@ -759,19 +828,26 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
             for(let mutation of mutationsList) {
               if (mutation.type === 'childList') {
+                const isLangSelector = (mutation?.target?.className || "").includes("weploy-lang-selector-value")
+
                 // Handling added nodes
                 for(let addedNode of mutation.addedNodes) {
-                  nodes.push(addedNode)
+                  if (!isLangSelector) nodes.push(addedNode)
+                }
+
+                // Handling removed nodes
+                for(let removedNode of mutation.removedNodes) {
+                  if (!isLangSelector) nodes.push(removedNode)
                 }
               }
             }
 
             if (elements.length && optsArgs.createSelector) {
               createLanguageSelect(apiKey, optsArgs).then(() => {
-                startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+                if (nodes.length) startTranslationCycle(document.body, apiKey, 2000).catch(reject)
               });
             } else {
-              startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+              if (nodes.length) startTranslationCycle(document.body, apiKey, 2000).catch(reject)
             }
           });
 

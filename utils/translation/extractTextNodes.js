@@ -260,9 +260,9 @@ function extractTextNodes(node, textNodes) {
       })
     }
 
-    if (!node.originalTextContent) {
-      node.originalTextContent = node.textContent;
-    }
+    // if (!node.originalTextContent) {
+    //   node.originalTextContent = node.textContent;
+    // }
 
     textNodes.push(node);
   } else {
