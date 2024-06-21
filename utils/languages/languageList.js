@@ -1,5 +1,5 @@
 
-const allWeployLanguagesList = [
+const languagesList = [
   { "label": "Afar", "lang": "aa" },
   { "label": "Avestan", "lang": "ae" },
   { "label": "Afrikaans", "lang": "af" },
@@ -87,4 +87,4 @@ const allWeployLanguagesList = [
   { "label": "Chinese", "lang": "zh" },
 ];
 
-module.exports = allWeployLanguagesList;
+module.exports = languagesList;

@@ -1,18 +1,18 @@
 const { compressToArrayBuffer, decompressArrayBuffer, isCompressionSupported } = require("../compressions");
-const { API_URL, setWeployActiveLang, isBrowser } = require("../configs");
-const { renderWeploySelectorState } = require("../selector/renderWeploySelectorState");
+const { API_URL, setGlobalseoActiveLang, isBrowser } = require("../configs");
+const { renderSelectorState } = require("../selector/renderSelectorState");
 
 async function getTranslationsFromAPI(strings, language, apiKey) {
   if (!strings || !Array.isArray(strings) || !strings.length) {
-    throw new Error("WeployError: Missing strings");
+    throw new Error("globalseoError: Missing strings");
   }
 
   if (!language) {
-    throw new Error("WeployError: Missing language");
+    throw new Error("globalseoError: Missing language");
   }
 
   if (!apiKey) {
-    throw new Error("WeployError: Missing API Key");
+    throw new Error("globalseoError: Missing API Key");
   }
 
   const finalPayload = {
@@ -26,7 +26,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
   const stringifiedPayload = JSON.stringify(finalPayload);
 
   const shouldCompressPayload = isCompressionSupported();
-  if (!shouldCompressPayload) console.log("WEPLOY: Compression is not supported in this browser, therefore the payload will be sent uncompressed.");
+  if (!shouldCompressPayload) console.log("GLOBALSEO: Compression is not supported in this browser, therefore the payload will be sent uncompressed.");
 
   const compressedPayload = shouldCompressPayload ?  await compressToArrayBuffer(stringifiedPayload, "gzip") : null;
   const body = shouldCompressPayload ? compressedPayload : stringifiedPayload;
@@ -58,14 +58,14 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
         if (data.error) {
           throw new Error(data?.error?.message || data?.error || "Error fetching translations");
         }
-        setWeployActiveLang(language);
+        setGlobalseoActiveLang(language);
 
         if (isBrowser()) {
-          if (!window.rawWeployTranslations) {
-            window.rawWeployTranslations = [];
+          if (!window.rawTranslations) {
+            window.rawTranslations = [];
           }
 
-          window.rawWeployTranslations.push({ ...finalPayload, results: data })
+          window.rawTranslations.push({ ...finalPayload, results: data })
         }
 
         resolve(data);
@@ -73,9 +73,9 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
       .catch((err) => {
         // console.error(err);
         if (isBrowser()) {
-          window.weployError = err.message;
-          renderWeploySelectorState();
-          console.log("WEPLOY ERROR:", err.message);
+          window.globalseoError = err.message;
+          renderSelectorState();
+          console.log("GLOBALSEO ERROR:", err.message);
         }
         resolve([]);
       })

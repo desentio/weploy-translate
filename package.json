@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "build": "webpack --mode production",
+    "build": "webpack --mode production --config webpack.config.js && webpack --mode production --config webpack.config.old.js",
     "build:nocache": "webpack --mode production --env NO_CACHE=true",
     "dev": "webpack serve --mode development"
   },
@@ -15,7 +15,7 @@
   },
   "keywords": [
     "translation",
-    "weploy",
+    "globalseo",
     "AI",
     "react",
     "nextjs",
@@ -23,23 +23,23 @@
     "react.js",
     "translations"
   ],
-  "author": "weploy.ai",
+  "author": "globalseo.ai",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/desentio/weploy-translate/issues"
   },
   "homepage": "https://github.com/desentio/weploy-translate#readme",
-  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.22.11",
     "@babel/preset-env": "^7.22.10",
     "babel-loader": "^9.1.3",
+    "circular-dependency-plugin": "^5.2.2",
     "css-loader": "^7.1.1",
     "css-minimizer-webpack-plugin": "^6.0.0",
     "mini-css-extract-plugin": "^2.8.1",
+    "null-loader": "^4.0.1",
     "raw-loader": "^4.0.2",
     "terser-webpack-plugin": "^5.3.10",
-    "circular-dependency-plugin": "^5.2.2",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"

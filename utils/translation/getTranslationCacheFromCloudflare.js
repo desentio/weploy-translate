@@ -6,7 +6,7 @@ async function getTranslationCacheFromCloudflare(language, apiKey) {
   if (window?.cloudflareCache) return window?.cloudflareCache;
 
   const isUsingKV = true;
-  console.log("weploy cache request from:", isUsingKV ? "KV" : "CDN")
+  console.log("cache request from:", isUsingKV ? "KV" : "CDN")
   const cache = !isUsingKV ? 
     await getTranslationCacheFromCDN(language, apiKey).catch(() => ({})) :
     await getTranslationCacheFromKV(language, apiKey).catch(() => ({}));

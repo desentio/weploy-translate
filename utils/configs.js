@@ -2,79 +2,83 @@ const detectRobot = require("./detectRobot")
 
 // check if code runs on server or client
 const isBrowser = () => typeof window !== 'undefined'
-const API_URL = process.env.NO_CACHE ? "http://localhost:8081" : "https://api.weploy.ai";
+const API_URL = process.env.NO_CACHE ? "http://localhost:8081" : "https://api.globalseo.ai";
 const CDN_URL = "";
-const KV_URL = "https://cdn.weploy.ai";
-const USE_WEPLOY_MERGE = false;
+const KV_URL = "https://cdn.globalseo.ai";
+const USE_MERGE = false;
 const CONTEXT_LIMIT = 3;
 const MAX_WORDS_LENGTH_FOR_CONTEXT = 3;
+const OLD_EXCLUDE_CLASS = "weploy-exclude";
+const DEFAULT_UNTRANSLATED_VALUE = "weploy-untranslated";
+const MERGE_PREFIX = "weploy-merge";
+const BRAND  = process.env.BRAND || "globalseo";
 
 /** Translation Options */
-var weployOptions;
+var globalseoOptions;
 
-function getWeployOptions() {
+function getGlobalseoOptions() {
   if (isBrowser()) {
-    if (!window.weployOptions) {
-      setWeployOptions({})
+    if (!window.globalseoOptions) {
+      setGlobalseoOptions({})
     }
 
     const userAgent = window.navigator.userAgent;
     const isRobot = detectRobot(userAgent);
 
     if (isRobot) {
-      setWeployOptions({
+      setGlobalseoOptions({
         useBrowserLanguage: false,
         isRobot: true
       })
-      return window.weployOptions;
+      return window.globalseoOptions;
     }
 
-    return window.weployOptions;
+    return window.globalseoOptions;
   } else {
-    if (!weployOptions) {
-      setWeployOptions({})
+    if (!globalseoOptions) {
+      setGlobalseoOptions({})
     }
-    return weployOptions;
+    return globalseoOptions;
   }
 }
 
-function setWeployOptions(value = {}) {
+function setGlobalseoOptions(value = {}) {
   if (isBrowser()) {
-    window.weployOptions = {
-      ...(window.weployOptions || {}),
+    window.globalseoOptions = {
+      ...(window.globalseoOptions || {}),
       ...value,
     };
     
   } else {
-    weployOptions = {
-      ...(weployOptions || {}),
+    globalseoOptions = {
+      ...(globalseoOptions || {}),
       ...value
     };
   }
 }
 
 /** Active Language */
-var weployActiveLang;
+var globalseoActiveLang;
 
-function getWeployActiveLang() {
+function getGlobalseoActiveLang() {
   if (isBrowser()){ 
-    if (!window.weployActiveLang) {
-      setWeployActiveLang(null)
+    if (!window.globalseoActiveLang) {
+      setGlobalseoActiveLang(null)
     }
-    return window.weployActiveLang;
+    return window.globalseoActiveLang;
   } else {
-    if (!weployActiveLang) {
-      setWeployActiveLang(null)
+    if (!globalseoActiveLang) {
+      setGlobalseoActiveLang(null)
     }
-    return weployActiveLang;
+    return globalseoActiveLang;
   }
 }
 
-function setWeployActiveLang(language) {
+function setGlobalseoActiveLang(language) {
   if (isBrowser()) {
-    window.weployActiveLang = language
+    window.globalseoActiveLang = language
   } else {
-    weployActiveLang = language
+    globalseoActiveLang = language
   }
 }
 
@@ -105,8 +109,8 @@ function setIsTranslationInitialized(value) {
 
 function shouldTranslateInlineText() {
   if (isBrowser()) {
-    const options = getWeployOptions();
-    const shouldtranslateSplittedText = options?.translateSplittedText || USE_WEPLOY_MERGE;
+    const options = getGlobalseoOptions();
+    const shouldtranslateSplittedText = options?.translateSplittedText || USE_MERGE;
     return shouldtranslateSplittedText;
   } else {
     return false;
@@ -115,18 +119,22 @@ function shouldTranslateInlineText() {
 
 module.exports = {
   isBrowser,
-  getWeployOptions,
-  setWeployOptions,
-  getWeployActiveLang,
-  setWeployActiveLang,
+  getGlobalseoOptions,
+  setGlobalseoOptions,
+  getGlobalseoActiveLang,
+  setGlobalseoActiveLang,
   getIsTranslationInitialized,
   setIsTranslationInitialized,
   shouldTranslateInlineText,
   API_URL,
   CDN_URL,
   KV_URL,
-  USE_WEPLOY_MERGE,
+  USE_MERGE,
   CONTEXT_LIMIT,
   MAX_WORDS_LENGTH_FOR_CONTEXT,
-  weployOptions
+  globalseoOptions,
+  OLD_EXCLUDE_CLASS,
+  DEFAULT_UNTRANSLATED_VALUE,
+  MERGE_PREFIX,
+  BRAND
 }

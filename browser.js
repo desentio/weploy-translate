@@ -1,7 +1,31 @@
 const { getTranslations, isBrowser } = require("./index.js");
+const { BRAND } = require("./utils/configs.js");
 // const { checkPage } = require("./utils/translation/checkPage.js");
 
 if (isBrowser()) {
+  window.translationScriptTag = document.currentScript;
+
+  // REQUIRED ATTRIBUTES
+  const DATA_API_KEY = `data-${BRAND}-key`
+  const DATA_ORIGINAL_LANG = "data-original-language";
+  const DATA_ALLOWED_LANGUAGES = "data-allowed-languages";
+  const apiKey = window.translationScriptTag.getAttribute(DATA_API_KEY);
+
+  // COMMON OPTIONAL ATTRIBUTES
+  const DATA_USE_BROWSER_LANG = "data-use-browser-language"; // default: true
+  const DATA_EXCLUDE_CLASSES = "data-exclude-classes";
+  const DATA_REPLACE_LINKS = "data-replace-links"; // default: true
+  const DATA_AUTO_CREATE_SELECTOR = "data-auto-create-selector"; // default: true
+  const DATA_DELAY = "data-timeout"; // default: 0
+  const DATA_DYNAMIC_TRANSLATION = "data-dynamic-translation"; // default: true
+  const DATA_TRANSLATE_ATTR = "data-translate-attributes"; // default: false
+
+  // ADVANCED OPTIONAL ATTRIBUTES
+  const DATA_LANG_PARAMETER = "data-lang-parameter"; // default: "lang"
+  const DATA_CUSTOM_LANG_CODE = "data-custom-language-code"; // format: "kk=kz, en=us, ru=rs"
+  const DATA_MERGE_INLINE = "data-translate-splitted-text"; // default: false
+  const DATA_EXCLUDE_CONTENTS = "data-exclude-contents"; // format: "{{content1}}, {{content2}}"
+
   // FEATURE: Prevent Google Translate from translating the page
   // Set the 'translate' attribute of the HTML tag to 'no'
   document.documentElement.setAttribute('translate', 'no');
@@ -31,44 +55,22 @@ if (isBrowser()) {
     return matches;
   }
 
-  window.weployScriptTag = document.currentScript;
 
-  // REQUIRED ATTRIBUTES
-  const DATA_WEPLOY_KEY = "data-weploy-key";
-  const DATA_ORIGINAL_LANG = "data-original-language";
-  const DATA_ALLOWED_LANGUAGES = "data-allowed-languages";
-
-  // COMMON OPTIONAL ATTRIBUTES
-  const DATA_USE_BROWSER_LANG = "data-use-browser-language"; // default: true
-  const DATA_EXCLUDE_CLASSES = "data-exclude-classes";
-  const DATA_REPLACE_LINKS = "data-replace-links"; // default: true
-  const DATA_AUTO_CREATE_SELECTOR = "data-auto-create-selector"; // default: true
-  const DATA_DELAY = "data-timeout"; // default: 0
-  const DATA_DYNAMIC_TRANSLATION = "data-dynamic-translation"; // default: true
-  const DATA_TRANSLATE_ATTR = "data-translate-attributes"; // default: false
-
-  // ADVANCED OPTIONAL ATTRIBUTES
-  const DATA_LANG_PARAMETER = "data-lang-parameter"; // default: "lang"
-  const DATA_CUSTOM_LANG_CODE = "data-custom-language-code"; // format: "kk=kz, en=us, ru=rs"
-  const DATA_MERGE_INLINE = "data-translate-splitted-text"; // default: false
-  const DATA_EXCLUDE_CONTENTS = "data-exclude-contents"; // format: "{{content1}}, {{content2}}"
-
-  const langParam = window.weployScriptTag.getAttribute(DATA_LANG_PARAMETER) || "lang";
+  const langParam = window.translationScriptTag.getAttribute(DATA_LANG_PARAMETER) || "lang";
 
   const search = window.location.search;
   const params = new URLSearchParams(search);
   const paramsLang = params.get(langParam);
   const paramsUpdateTranslation = params.get('weploy_update_translation');
-  window.shouldConsoleWeployError = paramsUpdateTranslation == "true";
 
   // defined languages so dont need extra fetch
-  const originalLangAttr = window.weployScriptTag.getAttribute(DATA_ORIGINAL_LANG) || window.weployScriptTag.getAttribute("data-original-lanugage");
+  const originalLangAttr = window.translationScriptTag.getAttribute(DATA_ORIGINAL_LANG) || window.translationScriptTag.getAttribute("data-original-lanugage");
   const originalLang = (originalLangAttr || "").trim().toLowerCase();
 
-  const allowedLangAttr = window.weployScriptTag.getAttribute(DATA_ALLOWED_LANGUAGES);
+  const allowedLangAttr = window.translationScriptTag.getAttribute(DATA_ALLOWED_LANGUAGES);
   const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => lang && lang.trim() != originalLang).map(lang => lang.trim());
 
-  const activeLang = window.weployActiveLang || paramsLang || originalLang;
+  const activeLang = window.globalseoActiveLang || paramsLang || originalLang;
   if (document.documentElement.lang != activeLang) {
     document.documentElement.lang = activeLang;
   }
@@ -148,11 +150,11 @@ if (isBrowser()) {
     const nowTimestamp = now.getTime();
 
     // get existing expiration timestamp
-    const weployExpirationTimestamp = window.localStorage.getItem("weployExpirationTimestamp");
-    const expiration = Number(weployExpirationTimestamp);
+    const globalseoExpirationTimestamp = window.localStorage.getItem("globalseoExpirationTimestamp");
+    const expiration = Number(globalseoExpirationTimestamp);
 
     if (!isNaN(expiration) && expiration < nowTimestamp) {
-      window.localStorage.removeItem("weployExpirationTimestamp");
+      window.localStorage.removeItem("globalseoExpirationTimestamp");
       window.localStorage.removeItem("translationCachePerPage");
     }
   } catch (e) {
@@ -169,7 +171,7 @@ if (isBrowser()) {
     console.log("Error parsing translation cache", e)
   }
 
-  const customLanguageCodeAttr = window.weployScriptTag.getAttribute(DATA_CUSTOM_LANG_CODE); // format is "kk=kz, en=us, ru=rs"
+  const customLanguageCodeAttr = window.translationScriptTag.getAttribute(DATA_CUSTOM_LANG_CODE); // format is "kk=kz, en=us, ru=rs"
   const customLanguageCode = customLanguageCodeAttr ? customLanguageCodeAttr.split(",").reduce((acc, lang) => {
     const [key, value] = lang.trim().split("=");
     if (!key || !value) return acc;
@@ -178,41 +180,37 @@ if (isBrowser()) {
     return acc;
   }, {}) : {};
 
-  // get options
-  const apiKey = window.weployScriptTag.getAttribute(DATA_WEPLOY_KEY);
-
-
   // this is backward compatibility for use browser language
-  const disableAutoTranslateAttr = window.weployScriptTag.getAttribute("data-disable-auto-translate");
+  const disableAutoTranslateAttr = window.translationScriptTag.getAttribute("data-disable-auto-translate");
   const disableAutoTranslate = disableAutoTranslateAttr == "true";
-  const useBrowserLanguageAttr = window.weployScriptTag.getAttribute(DATA_USE_BROWSER_LANG);
+  const useBrowserLanguageAttr = window.translationScriptTag.getAttribute(DATA_USE_BROWSER_LANG);
   const useBrowserLanguage = useBrowserLanguageAttr != "false" && useBrowserLanguageAttr != false;
 
   // exclude classes
-  const excludeClassesAttr = (window.weployScriptTag.getAttribute(DATA_EXCLUDE_CLASSES) || "").trim()
+  const excludeClassesAttr = (window.translationScriptTag.getAttribute(DATA_EXCLUDE_CLASSES) || "").trim()
   const excludeClassesByComma = excludeClassesAttr.split(",").filter(className => !!className).map(className => className.trim());
   const excludeClassesBySpace = excludeClassesAttr.split(" ").filter(className => !!className).map(className => className.trim().replaceAll(",", ""));
   const mergedExcludeClasses = [...excludeClassesByComma, ...excludeClassesBySpace];
   const excludeClasses = [...new Set(mergedExcludeClasses)]; // get unique values
 
   // exclude contents
-  const excludeContentsAttr = (window.weployScriptTag.getAttribute(DATA_EXCLUDE_CONTENTS) || "").trim()
+  const excludeContentsAttr = (window.translationScriptTag.getAttribute(DATA_EXCLUDE_CONTENTS) || "").trim()
   const splittedContents = getTextInsideBrackets(excludeContentsAttr);
   const excludeContents = [...new Set(splittedContents)]; // get unique values
 
   // timeout
-  const timeoutAttr = window.weployScriptTag.getAttribute(DATA_DELAY);
+  const timeoutAttr = window.translationScriptTag.getAttribute(DATA_DELAY);
   const timeout = isNaN(Number(timeoutAttr)) ? 0 : Number(timeoutAttr);
 
-  const createSelector = window.weployScriptTag.getAttribute(DATA_AUTO_CREATE_SELECTOR) != "false";
+  const createSelector = window.translationScriptTag.getAttribute(DATA_AUTO_CREATE_SELECTOR) != "false";
 
-  const translateAttributes = window.weployScriptTag.getAttribute(DATA_TRANSLATE_ATTR) == "true";
+  const translateAttributes = window.translationScriptTag.getAttribute(DATA_TRANSLATE_ATTR) == "true";
 
-  const dynamicTranslation = paramsUpdateTranslation == "true" || (window.weployScriptTag.getAttribute(DATA_DYNAMIC_TRANSLATION) != "false");
+  const dynamicTranslation = paramsUpdateTranslation == "true" || (window.translationScriptTag.getAttribute(DATA_DYNAMIC_TRANSLATION) != "false");
 
-  const translateSplittedText = window.weployScriptTag.getAttribute(DATA_MERGE_INLINE) == "true";
+  const translateSplittedText = window.translationScriptTag.getAttribute(DATA_MERGE_INLINE) == "true";
 
-  const shouldReplaceLinks = window.weployScriptTag.getAttribute(DATA_REPLACE_LINKS) != "false";
+  const shouldReplaceLinks = window.translationScriptTag.getAttribute(DATA_REPLACE_LINKS) != "false";
 
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
@@ -229,7 +227,7 @@ if (isBrowser()) {
     langParam
   }
 
-  function initWeploy() {
+  function initTranslation() {
     // replace links with lang (for SEO purposes)
     if (shouldReplaceLinks && paramsLang && (paramsLang != originalLang)) {
       replaceLinks(paramsLang);
@@ -240,11 +238,11 @@ if (isBrowser()) {
   // console.log("document.readyState", document.readyState)
   if (document.readyState == 'complete') {
     // DOM is already loaded, run the code
-    initWeploy();
+    initTranslation();
   } else {
     // DOM is not loaded yet, wait for it
     document.addEventListener("DOMContentLoaded", function() {
-      initWeploy();
+      initTranslation();
     });
   }
 }

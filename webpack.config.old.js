@@ -10,7 +10,7 @@ module.exports = (env, argv) => {
         target: 'web',
         entry: './browser.js', // Update this with your entry file
         output: {
-            filename: 'translate.js',
+            filename: 'weploy-translate.js',
             path: path.resolve(__dirname, 'dist'),
         },
         module: {
@@ -44,14 +44,14 @@ module.exports = (env, argv) => {
                 },
                 // {
                 //     test: /\.css$/,
-                //     exclude: /translation\.css$/,
+                //     exclude: /weploy\.css$/,
                 //     use: 'null-loader', // Ignore other CSS files
                 // },
             ],
         },
         plugins: [
             new MiniCssExtractPlugin({
-                filename: 'translate.css',
+                filename: 'weploy-translate.css',
                 chunkFilename: '[id].css',
             }),
             new CircularDependencyPlugin({
@@ -71,7 +71,7 @@ module.exports = (env, argv) => {
                 'process.env': {
                     NODE_ENV: JSON.stringify(argv.mode),
                     NO_CACHE: JSON.stringify(env.NO_CACHE),
-                    BRAND: JSON.stringify('globalseo'),
+                    BRAND: JSON.stringify('weploy'),
                     CSS_PATH: JSON.stringify('../../globalseo.css'),
                     CSS_PATH_RAW: JSON.stringify('../../globalseo.css?raw'),
                 },

@@ -1,12 +1,12 @@
 const { decompressArrayBuffer, isCompressionSupported } = require("../compressions");
-const { isBrowser, API_URL, getWeployOptions, setWeployActiveLang, setWeployOptions } = require("../configs");
-const { renderWeploySelectorState } = require("../selector/renderWeploySelectorState");
+const { isBrowser, API_URL, getGlobalseoOptions, setGlobalseoActiveLang, setGlobalseoOptions } = require("../configs");
+const { renderSelectorState } = require("../selector/renderSelectorState");
 
 async function fetchLanguageList(apiKey) {
-  const options = getWeployOptions();
+  const options = getGlobalseoOptions();
   const langs = options.definedLanguages;
   if (langs && Array.isArray(langs) && langs.length) return langs;
-  if (window.weployError) return [];
+  if (window.globalseoError) return [];
   return [];
 
   const shouldCompressResponse = isCompressionSupported();
@@ -34,17 +34,17 @@ async function fetchLanguageList(apiKey) {
       flag: (res.flags || [])?.[index] || lang, // fallback to text if flag unavailable
       label: (res.labels || [])?.[index] || lang // fallback to text if flag unavailable
     }))
-    setWeployOptions({ definedLanguages: languagesWithFlagAndLabel })
-    setWeployActiveLang(languagesWithFlagAndLabel[0].lang)
+    setGlobalseoOptions({ definedLanguages: languagesWithFlagAndLabel })
+    setGlobalseoActiveLang(languagesWithFlagAndLabel[0].lang)
     return languagesWithFlagAndLabel
   })
   .catch((err) => {
     console.error(err);
-    // if (isBrowser()) window.weployOptions.definedLanguages = [] // store in global scope
-    // else weployOptions.definedLanguages = [] // for npm package
+    // if (isBrowser()) window.globalseoOptions.definedLanguages = [] // store in global scope
+    // else globalseoOptions.definedLanguages = [] // for npm package
     if (isBrowser()) {
-      window.weployError = err.message;
-      renderWeploySelectorState({ shouldUpdateActiveLang: false });
+      window.globalseoError = err.message;
+      renderSelectorState({ shouldUpdateActiveLang: false });
     }
     return [];
   })

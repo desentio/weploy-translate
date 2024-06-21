@@ -3,11 +3,11 @@ const { KV_URL } = require("../configs");
 
 async function getTranslationCacheFromKV(language, apiKey) {
   if (!language) {
-    throw new Error("WeployError: Missing language");
+    throw new Error("globalseoError: Missing language");
   }
 
   if (!apiKey) {
-    throw new Error("WeployError: Missing API Key");
+    throw new Error("globalseoError: Missing API Key");
   }
   const langIso = language.substr(0, 2);
   const cacheKey = `${apiKey}-${window.location.pathname}-${langIso}`;
@@ -17,7 +17,7 @@ async function getTranslationCacheFromKV(language, apiKey) {
       method: "GET",
       headers: {
         "cachekey": cacheKey,
-        "weployskip": "yes"
+        "globalseoskip": "yes"
       },
     })
     .then((r) => r.text())
@@ -32,7 +32,7 @@ async function getTranslationCacheFromKV(language, apiKey) {
     .then(resolve)
     .catch((err) => {
       // console.error(err);
-      // window.weployError = err.message;
+      // window.globalseoError = err.message;
       resolve({});
     })
   });

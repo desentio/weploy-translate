@@ -1,32 +1,31 @@
 const { loadingIconClassName, errorIconClassName, readyIconClassName, getLoadingGlobeIcon, getErrorGlobeIcon, getReadyGlobeIcon } = require("./icons");
-require('../../weploy.css');
+require(process.env.CSS_PATH || "../../translation.css")
+const cssModule = require(process.env.CSS_PATH_RAW || "../../translation.css?raw");
 
-const cssModule = require('../../weploy.css?raw');
-const { isBrowser, getWeployActiveLang, getWeployOptions } = require("../configs");
+const { isBrowser, getGlobalseoActiveLang, getGlobalseoOptions } = require("../configs");
 const { getLanguageFromLocalStorage } = require("../languages/getSelectedLanguage");
 const { fetchLanguageList } = require("../languages/fetchLanguageList");
-const { renderWeploySelectorState } = require("./renderWeploySelectorState");
-const { getWeployValueDisplays, setWeployValueDisplays } = require("./weployValueDisplays");
-
+const { renderSelectorState } = require("./renderSelectorState");
+const { getValueDisplays, setValueDisplays } = require("./valueDisplay");
 const css = cssModule.default || cssModule;
 
 function addOrReplaceLangParam(url, lang) {
   let urlObj = new URL(url);
   let params = new URLSearchParams(urlObj.search);
 
-  const options = getWeployOptions();
+  const options = getGlobalseoOptions();
   params.set(options.langParam || 'lang', lang);
   urlObj.search = params.toString();
 
   return urlObj.toString();
 }
 
-async function autoPosition(ul, weploySwitcher) {
-  // if (e.target != weploySwitcher) return;
+async function autoPosition(ul, globalseoSwitcher) {
+  // if (e.target != globalseoSwitcher) return;
   if(!ul) return;
   // const ul = e.target.querySelector("ul");
   const dropdownRect = ul.getBoundingClientRect();
-  const switcherRect = weploySwitcher.getBoundingClientRect(); //Use position of the weploySwitcherButton not the dropdown
+  const switcherRect = globalseoSwitcher.getBoundingClientRect(); //Use position of the globalseoSwitcherButton not the dropdown
   // Check if the element is outside the viewport on the right side
   if ((switcherRect.x + dropdownRect.width) >= window.innerWidth) {
     ul.style.right = '0px';
@@ -44,27 +43,27 @@ async function autoPosition(ul, weploySwitcher) {
   }
 }
 
-function hideDropDown(element, weploySwitcher) {
+function hideDropDown(element, globalseoSwitcher) {
   element.style.visibility = 'hidden';
   element.style.zIndex = '-1';
   element.style.pointerEvents = 'none';
 
-  if (weploySwitcher) {
-    weploySwitcher.style.overflow = 'hidden';
+  if (globalseoSwitcher) {
+    globalseoSwitcher.style.overflow = 'hidden';
   }
 }
 
 async function createLanguageSelect(apiKey, optsArgs = {}) {
   if (!isBrowser()) return;
   if (!apiKey) {
-    console.error("Weploy API key is required");
+    console.error("Globalseo API key is required");
     return;
   }  
 
   // Check if the style tag already exists
-  if (!document.getElementById('weploy-style')) {
+  if (!document.getElementById(`globalseo-style`)) {
     const style = document.createElement('style');
-    style.id = 'weploy-style';
+    style.id = `globalseo-style`;
     style.textContent = css;
     var docBody = document.body || document.getElementsByTagName("body")[0];
     if (docBody) docBody.appendChild(style);
@@ -72,33 +71,66 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
 
   const availableLangs = optsArgs.isInit ? [] : await fetchLanguageList(apiKey);
   const langInLocalStorage = optsArgs.isInit ? "" : await getLanguageFromLocalStorage();
-  const selectedLang = getWeployActiveLang() || langInLocalStorage || availableLangs?.[0]?.lang || optsArgs.originalLanguage || "";
+  const selectedLang = getGlobalseoActiveLang() || langInLocalStorage || availableLangs?.[0]?.lang || optsArgs.originalLanguage || "";
   const selectedLangUppercased = (selectedLang || "").substring(0, 2).toUpperCase();
   const selectedLangLowercased = (selectedLang || "").substring(0, 2).toLowerCase();
 
-  ['weploy-select', 'weploy-select-with-name'].forEach(className => {
-    const isWithLangLabel = className == "weploy-select-with-name";
+  ['weploy-select', 'weploy-select-with-name', 'globalseo-select'].forEach(className => {
+    const brandName = className.startsWith("weploy") ? "weploy" : "globalseo";
+    const isWithLangLabel = className == `${brandName}-select-with-name`;
     // Get elements by class
     const classElements = document.getElementsByClassName(className);
-    // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
-    const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="weploy-select"]`));
-    const idElements = isWithLangLabel ? idElementsStartsWithClassName : idElementsStartsWithClassName.filter(el => !el.id.includes("weploy-select-with-name")); 
+    // Get elements by ID, assuming IDs are like "globalseo-select-1", "globalseo-select-2", etc.
+    const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="${brandName}-select"]`));
+    const idElements = isWithLangLabel ? idElementsStartsWithClassName : idElementsStartsWithClassName.filter(el => !el.id.includes(`${brandName}-select-with-name`)); 
     // Combine and deduplicate elements
-    const weploySwitchers = Array.from(new Set([...classElements, ...idElements]));
+    const globalseoSwitchers = Array.from(new Set([...classElements, ...idElements]));
 
-    if (weploySwitchers.length > 0 && availableLangs) {
-      weploySwitchers.forEach((weploySwitcher) => {
+    // replace weploy with globalseo
+    if (brandName == 'weploy' && globalseoSwitchers.length > 0) {
+      globalseoSwitchers.forEach((el) => {
+        el.classList.add('globalseo-select');
+        el.classList.remove('weploy-select');
+        el.classList.remove('weploy-select-with-name');
+
+        el.classList.add('globalseo-lang-selector-wrapper');
+        el.classList.remove('weploy-lang-selector-wrapper')
+
+        el.classList.add('globalseo-exclude');
+        el.classList.remove('weploy-exclude');
+
+
+        ['loading', 'ready', 'error'].forEach((state) => {
+          const stateWrapper = el.querySelector(`.weploy-lang-selector-${state}`);
+          if (stateWrapper) {
+            stateWrapper.classList.add(`globalseo-lang-selector-${state}`);
+            stateWrapper.classList.remove(`weploy-lang-selector-${state}`);
+          }
+
+          const icon = el.querySelector(`.weploy-lang-selector-${state}-icon`);
+          if (icon) {
+            icon.classList.add(`globalseo-lang-selector-${state}-icon`);
+            icon.classList.remove(`weploy-lang-selector-${state}-icon`);
+          }
+        })
+
+      });
+      return;
+    }
+
+    if (globalseoSwitchers.length > 0 && availableLangs) {
+      globalseoSwitchers.forEach((globalseoSwitcher) => {
         // Create the select element if not already present
-        let selectorCreated = weploySwitcher.querySelector('.weploy-lang-selector-element');
+        let selectorCreated = globalseoSwitcher.querySelector(`.${brandName}-lang-selector-element`);
         if (!selectorCreated) {
-          const initializedSelectorByUser = weploySwitcher.querySelector('details');
+          const initializedSelectorByUser = globalseoSwitcher.querySelector('details');
 
           let languages = availableLangs
 
-          weploySwitcher.classList.add('weploy-lang-selector-wrapper')
-          weploySwitcher.classList.add('weploy-exclude')
+          globalseoSwitcher.classList.add(`${brandName}-lang-selector-wrapper`)
+          globalseoSwitcher.classList.add(`${brandName}-exclude`)
           document.addEventListener('click', function(event) {
-            let isClickInside = weploySwitcher.contains(event.target);
+            let isClickInside = globalseoSwitcher.contains(event.target);
           
             if (details && !isClickInside) {
               // Check if 'open' attribute is present before trying to remove it
@@ -108,29 +140,26 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
               // }
               const childUl = details.querySelector('ul');
               if (childUl) {
-                hideDropDown(childUl, weploySwitcher);
+                hideDropDown(childUl, globalseoSwitcher);
               }
             }
           });
-          
-          // let div = document.createElement('div');
-          // div.className = 'weploy-lang-selector-nav';
-          
+                    
           let details = initializedSelectorByUser || document.createElement('details');
           // details.dataset.behavior = 'languageSelector-topbar';
           details.role = 'group';
-          details.className = "weploy-lang-selector-element"
+          details.className = `${brandName}-lang-selector-element`
           details.open = true;
           details.onclick = (e) => { 
             e.preventDefault();
             const childUl = details.querySelector('ul');
             if (childUl) {
               if (childUl.style.visibility == 'hidden'){
-                weploySwitcher.style.overflow = 'unset';
+                globalseoSwitcher.style.overflow = 'unset';
                 childUl.removeAttribute('style');
-                autoPosition(childUl, weploySwitcher);
+                autoPosition(childUl, globalseoSwitcher);
               } else {
-                hideDropDown(childUl, weploySwitcher);
+                hideDropDown(childUl, globalseoSwitcher);
               }
             }
           }
@@ -145,6 +174,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           }
           summary.onclick = (e) => { e.preventDefault(); }
 
+          console.log("initializedSummaryByUser", initializedSummaryByUser?.childNodes)
           const initializedLoadingIcon = initializedSummaryByUser?.querySelector?.(`.${loadingIconClassName}`);
           const initializedErrorIcon = initializedSummaryByUser?.querySelector?.(`.${errorIconClassName}`);
           const initializedReadyIcon = initializedSummaryByUser?.querySelector?.(`.${readyIconClassName}`);
@@ -154,24 +184,24 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             initializedLoadingIcon?.querySelector?.('path')?.getAttribute('stroke') || 
             initializedErrorIcon?.querySelector?.('path')?.getAttribute('stroke') || 
             initializedReadyIcon?.querySelector?.('path')?.getAttribute('stroke') || 
-            weploySwitcher.getAttribute('data-icon-color') || 
+            globalseoSwitcher.getAttribute('data-icon-color') || 
             "#241c15";
           
           const loadingIcon = initializedLoadingIcon || getLoadingGlobeIcon(iconColor)
           const errorIcon = initializedErrorIcon || getErrorGlobeIcon(iconColor)
           const readyIcon = initializedReadyIcon || getReadyGlobeIcon(iconColor)
           
-          getWeployValueDisplays().push(summary);
+          getValueDisplays().push(summary);
           if (!initializedLoadingIcon) summary.insertBefore(loadingIcon, summary.firstChild)
           
           loadingIcon.after(errorIcon, readyIcon)
 
-          const initializedSpanInSummaryByUser = initializedSummaryByUser?.querySelector?.('.weploy-lang-selector-value')
+          const initializedSpanInSummaryByUser = initializedSummaryByUser?.querySelector?.(`.${brandName}-lang-selector-value`)
           let spanInSummary = initializedSpanInSummaryByUser || document.createElement('span');
           if (!initializedSpanInSummaryByUser) {
             spanInSummary.setAttribute('aria-hidden', 'true');
             // spanInSummary.textContent = selectedLangUppercased;
-            spanInSummary.classList.add('weploy-lang-selector-value');
+            spanInSummary.classList.add(`${brandName}-lang-selector-value`);
             if (iconColor) {
               spanInSummary.style.color = iconColor;
             }
@@ -184,7 +214,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           }
            
           // Create a dropdown icon
-          const initializedDropdownIconByUser = initializedSummaryByUser?.querySelector?.('.weploy-lang-selector-dropdown')
+          const initializedDropdownIconByUser = initializedSummaryByUser?.querySelector?.(`.${brandName}-lang-selector-dropdown`)
           const dropdownIcon = initializedDropdownIconByUser || document.createElement("div");
           if (!initializedDropdownIconByUser) {
             dropdownIcon.style.width = ".25rem";
@@ -192,7 +222,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             dropdownIcon.style.backgroundColor = iconColor;
             dropdownIcon.style.webkitClipPath = "polygon(50% 75%,100% 25%,0 25%)";
             dropdownIcon.style.clipPath = "polygon(50% 75%,100% 25%,0 25%)";
-            dropdownIcon.classList.add('weploy-lang-selector-dropdown');
+            dropdownIcon.classList.add(`${brandName}-lang-selector-dropdown`);
             summary.appendChild(dropdownIcon);
           } else {
             if (!dropdownIcon.style.backgroundColor) {
@@ -201,26 +231,26 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           }
           
           let ul = document.createElement('ul');
-          ul.className = 'weploy-lang-selector-menu-container';
+          ul.className = `${brandName}-lang-selector-menu-container`;
           details.appendChild(ul);
-          hideDropDown(ul, weploySwitcher);
+          hideDropDown(ul, globalseoSwitcher);
           
 
-          // weploySwitcher.onclick = autoPosition
+          // globalseoSwitcher.onclick = autoPosition
 
           if (languages.length < 2) {
             let li = document.createElement('li');
             ul.appendChild(li);
-            weploySwitcher.appendChild(details);
+            globalseoSwitcher.appendChild(details);
 
             li.style.cursor = 'auto';
 
-            if (window.weployError) {
+            if (window.globalseoError) {
               let errorTextDiv = document.createElement('div');
               li.appendChild(errorTextDiv);
 
               errorTextDiv.style.padding = '5px';
-              errorTextDiv.textContent = window.weployError;
+              errorTextDiv.textContent = window.globalseoError;
             }
             
           }
@@ -248,25 +278,25 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
                   details.removeAttribute('open');
                 }
 
-                window.weployTranslating = true;
-                renderWeploySelectorState();
+                window.globalseoTranslating = true;
+                renderSelectorState();
               });
 
-              a.className = `weploy-lang-selector-menu-container-item ${isSelected ? 'selected' : ''}`;
+              a.className = `${brandName}-lang-selector-menu-container-item ${isSelected ? 'selected' : ''}`;
 
               li.appendChild(a);
           
-              const options = getWeployOptions();
+              const options = getGlobalseoOptions();
               const langCode = options.customLanguageCode?.[language.lang] || language.lang;
               let span = document.createElement('span');
               span.setAttribute('aria-hidden', 'true');
-              span.className = 'weploy-lang-selector-menu-container-item-code';
+              span.className = `${brandName}-lang-selector-menu-container-item-code`;
               span.textContent = langCode.toUpperCase();
               a.appendChild(span);
           
               let p = document.createElement('div');
               p.lang = language.lang;
-              p.className = 'weploy-lang-selector-menu-container-item-locale';
+              p.className = `${brandName}-lang-selector-menu-container-item-locale`;
               p.textContent = language.label;
               a.appendChild(p);
 
@@ -274,7 +304,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
                 let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 svg.setAttribute('aria-hidden', 'true');
                 svg.setAttribute('viewBox', '0 0 24 24');
-                svg.setAttribute('class', 'weploy-lang-selector-menu-container-item-selected');
+                svg.setAttribute('class', `${brandName}-lang-selector-menu-container-item-selected`);
                 a.appendChild(svg);
         
                 let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -285,8 +315,8 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
               }
           });
           
-          if (!initializedSelectorByUser) weploySwitcher.appendChild(details);
-          autoPosition(ul, weploySwitcher);
+          if (!initializedSelectorByUser) globalseoSwitcher.appendChild(details);
+          autoPosition(ul, globalseoSwitcher);
         }
       });
     }
