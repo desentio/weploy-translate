@@ -1,18 +1,18 @@
-const { getWeployOptions, shouldTranslateInlineText, CONTEXT_LIMIT, MAX_WORDS_LENGTH_FOR_CONTEXT } = require("../configs");
+const { getGlobalseoOptions, shouldTranslateInlineText, CONTEXT_LIMIT, MAX_WORDS_LENGTH_FOR_CONTEXT, OLD_EXCLUDE_CLASS, MERGE_PREFIX } = require("../configs");
 const isUrl = require("./isUrl");
 
 function collectAllTextContentInsideNode(node, shouldExclude = false) {
-  const weployOptions = getWeployOptions();
+  const globalseoOptions = getGlobalseoOptions();
 
   const textNodes = [];
   node.childNodes.forEach((child) => {
-    if (shouldExclude && child && child.className && typeof child.className == "string" && child.className.includes("weploy-exclude")) return;
+    if (shouldExclude && child && child.className && typeof child.className == "string" && (child.className.includes(OLD_EXCLUDE_CLASS) || child.className.includes("globalseo-exclude"))) return;
 
     if (
       child &&
       child.className &&
       typeof child.className == "string" &&
-      (child.className.includes("weploy-exclude") || weployOptions.excludeClasses.length && weployOptions.excludeClasses.some(excludeClass => excludeClass && node.className.includes(excludeClass)) )
+      (child.className.includes(OLD_EXCLUDE_CLASS) || child.className.includes("globalseo-exclude") || globalseoOptions.excludeClasses.length && globalseoOptions.excludeClasses.some(excludeClass => excludeClass && node.className.includes(excludeClass)) )
     ) {
       return;
     }
@@ -39,7 +39,7 @@ function assignFullTextToTextNodes(node, textNodes, topLevelTagName) {
         child.fullTextIndex = textNodes.findIndex((textNode) => textNode === child);
         child.fullTextTagNames = fullTextTagNames;
         child.topLevelTagName = topLevelTagName;
-        child.cacheKey = `weploy-merge-${JSON.stringify(fullTextArray.filter(x => x && x.trim()))}`; // get rid of empty string
+        child.cacheKey = `${MERGE_PREFIX}-${JSON.stringify(fullTextArray.filter(x => x && x.trim()))}`; // get rid of empty string
       // }
     } else {
       assignFullTextToTextNodes(child, textNodes, topLevelTagName);
@@ -57,7 +57,7 @@ function extractTextNodes(node, textNodes) {
     
     if(isUrl(node.textContent)) return;
 
-    const options = getWeployOptions();
+    const options = getGlobalseoOptions();
     if (options.excludeContents.length && options.excludeContents.find((x) => {
       const regex = new RegExp(x);
       return regex.test(node.textContent);
@@ -266,13 +266,12 @@ function extractTextNodes(node, textNodes) {
 
     textNodes.push(node);
   } else {
-    const weployOptions = getWeployOptions();
-    // filter out weploy-exclude
+    const globalseoOptions = getGlobalseoOptions();
     if (
       node &&
       node.className &&
       typeof node.className == "string" &&
-      (node.className.includes("weploy-exclude") || weployOptions.excludeClasses.length && weployOptions.excludeClasses.some(excludeClass => excludeClass && node.className.includes(excludeClass)) )
+      (node.className.includes(OLD_EXCLUDE_CLASS) || node.className.includes("globalseo-exclude") || globalseoOptions.excludeClasses.length && globalseoOptions.excludeClasses.some(excludeClass => excludeClass && node.className.includes(excludeClass)) )
     ) {
       return;
     }

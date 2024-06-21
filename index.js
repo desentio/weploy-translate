@@ -1,14 +1,14 @@
-const { isBrowser, getWeployOptions, setWeployOptions, setWeployActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, shouldTranslateInlineText, getWeployActiveLang } = require('./utils/configs.js');
+const { isBrowser, getGlobalseoOptions, setGlobalseoOptions, setGlobalseoActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, shouldTranslateInlineText, getGlobalseoActiveLang, DEFAULT_UNTRANSLATED_VALUE, MERGE_PREFIX } = require('./utils/configs.js');
 const checkIfTranslatable = require('./utils/translation/checkIfTranslatable.js');
-const allWeployLanguagesList = require('./utils/languages/allWeployLanguagesList.js');
+const languagesList = require('./utils/languages/languageList.js');
 const { fetchLanguageList } = require('./utils/languages/fetchLanguageList.js');
 const { createLanguageSelect, addOrReplaceLangParam } = require('./utils/selector/createLanguageSelect.js');
-const { getLanguageFromLocalStorage, getSelectedLanguage } = require('./utils/languages/getSelectedLanguage.js');
-const delay = require('./utils/delay.js');
+const { getLanguageFromLocalStorage } = require('./utils/languages/getSelectedLanguage.js');
+// const delay = require('./utils/delay.js');
 const { debounce } = require('./utils/debounce.js');
 const extractTextNodes = require('./utils/translation/extractTextNodes.js');
 const getTranslationsFromAPI = require('./utils/translation/getTranslationsFromAPI.js');
-const { renderWeploySelectorState } = require('./utils/selector/renderWeploySelectorState.js');
+const { renderSelectorState } = require('./utils/selector/renderSelectorState.js');
 const getTranslationCacheFromCloudflare = require('./utils/translation/getTranslationCacheFromCloudflare.js');
 const { isCompressionSupported } = require('./utils/compressions.js');
 const isUrl = require('./utils/translation/isUrl.js');
@@ -66,13 +66,13 @@ async function setLocalStorageExpiration() {
   // expiration in 24 hours
   const expiration = nowTimestamp + (24 * 60 * 60 * 1000);
 
-  // get weployExpirationTimestamp from localStorage
-  const weployExpirationTimestamp = await window.localStorage.getItem("weployExpirationTimestamp");
-  const timestamp = Number(weployExpirationTimestamp);
+  // get globalseoExpirationTimestamp from localStorage
+  const globalseoExpirationTimestamp = await window.localStorage.getItem("globalseoExpirationTimestamp");
+  const timestamp = Number(globalseoExpirationTimestamp);
 
-  // if weployExpirationTimestamp is not set or not valid or already expired, set it to the current date timestamp
+  // if globalseoExpirationTimestamp is not set or not valid or already expired, set it to the current date timestamp
   if (isNaN(timestamp) || timestamp < nowTimestamp) {
-    window.localStorage.setItem("weployExpirationTimestamp", String(expiration));
+    window.localStorage.setItem("globalseoExpirationTimestamp", String(expiration));
   }
 }
 
@@ -106,7 +106,7 @@ function updateNode(node, language, type = "text", debugSource) {
   // update title
   if (node == document) {
     const newText = window.translationCache?.[window.location.pathname]?.[language]?.[document.title] || "";  
-    if (newText && !newText.includes("weploy-untranslated")) {
+    if (newText && !newText.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       document.title = newText;
     }
     return;
@@ -115,7 +115,7 @@ function updateNode(node, language, type = "text", debugSource) {
   // update meta tags
   if (node.tagName == "META") {
     const newText = window.translationCache?.[window.location.pathname]?.[language]?.[node.content] || "";  
-    if (newText && !newText.includes("weploy-untranslated")) {
+    if (newText && !newText.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       node.content = newText;
     }
     return;
@@ -126,11 +126,11 @@ function updateNode(node, language, type = "text", debugSource) {
     const newAlt = window.translationCache?.[window.location.pathname]?.[language]?.[node.alt] || "";
     const newTitle = window.translationCache?.[window.location.pathname]?.[language]?.[node.title] || "";
 
-    if (newAlt && !newAlt.includes("weploy-untranslated")) {
+    if (newAlt && !newAlt.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       node.alt = newAlt;
     }
 
-    if (newTitle && !newTitle.includes("weploy-untranslated")) {
+    if (newTitle && !newTitle.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       node.title = newTitle;
     }
     return;
@@ -139,7 +139,7 @@ function updateNode(node, language, type = "text", debugSource) {
   // update anchor title
   if (type == "seo" && node.tagName == "A") {
     const newTitle = window.translationCache?.[window.location.pathname]?.[language]?.[node.title] || "";
-    if (newTitle && !newTitle.includes("weploy-untranslated")) {
+    if (newTitle && !newTitle.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       node.title = newTitle;
     }
     return;
@@ -162,11 +162,7 @@ function updateNode(node, language, type = "text", debugSource) {
   //   )
   // }
 
-  if (cache.includes("weploy-merge") && fullTextArray) {
-    // if (node.textContent == "Cost-efficient" || text == "Cost-efficient") {
-    //   console.log("Cost-efficient weploy-merge");
-    // }
-
+  if (cache.includes(MERGE_PREFIX) && fullTextArray) {
     try {
       const parsedNewText = JSON.parse(newText);
       const translatedObject = typeof parsedNewText == 'string' ? JSON.parse(parsedNewText) : parsedNewText;
@@ -304,7 +300,7 @@ function updateNode(node, language, type = "text", debugSource) {
   // console.log("newText", newText)
   // console.log("cache", cache)
   // console.log("node.textContent", node.textContent == text, node.textContent)
-  if(newText && !newText.includes("weploy-untranslated")) {
+  if(newText && !newText.includes(DEFAULT_UNTRANSLATED_VALUE)) {
     // if (node.textContent == "Willkommen im Supermarkt" || text == "Willkommen im Supermarkt") {
     //   console.log("Willkommen im Supermarkt normal", node.textContent == text, node.textContent, text, newText)
     // }
@@ -331,7 +327,7 @@ function filterValidTextNodes(textNodes) {
 
 function isStillSameLang(language) {
   // return true;
-  const options = getWeployOptions();
+  const options = getGlobalseoOptions();
   const search = window.location.search;
   const params = new URLSearchParams(search);
   const activeLang = params.get(options.langParam || 'lang');
@@ -354,9 +350,9 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
   };
   
   // dont translate original language
-  const options = getWeployOptions()
+  const options = getGlobalseoOptions()
   const langs = options.definedLanguages;
-  // console.log("weploy langs", language, window.weployActiveLang, langs)
+  // console.log("globalseo langs", language, window.globalseoActiveLang, langs)
   if (langs && langs[0] && langs[0].lang == language.substring(0, 2).toLowerCase()) {
     // console.log("Original language is not translatable");
     return new Promise((resolve, reject) => {
@@ -489,14 +485,14 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
-    // console.log("weploy texts", notInCache);
-    // console.log("weploy start getting translations", notInCache.length);
+    // console.log("globalseo texts", notInCache);
+    // console.log("globalseo start getting translations", notInCache.length);
     // return;
 
     if (notInCache.length > 0) { 
-      window.weployError = false;
-      window.weployTranslating = true;
-      renderWeploySelectorState({ shouldUpdateActiveLang: false });
+      window.globalseoError = false;
+      window.globalseoTranslating = true;
+      renderSelectorState({ shouldUpdateActiveLang: false });
 
       let cacheFromCloudFlare = isCompressionSupported() ? await getTranslationCacheFromCloudflare(language, apiKey) : {};
 
@@ -520,7 +516,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       
       try {
         // If there are translations not in cache, fetch them from the API
-        const options = getWeployOptions();
+        const options = getGlobalseoOptions();
         const response = notCachedInCDN.length && options.dynamicTranslation ? await getTranslationsFromAPI(notCachedInCDN, language, apiKey) : [];
 
         // console.log("RESPONSE", response)
@@ -534,8 +530,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
           }
 
           // If the translation is not available, cache the original text
-          if (isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
-            window.translationCache[window.location.pathname][language][text] = "weploy-untranslated";
+          if (isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes(DEFAULT_UNTRANSLATED_VALUE)) {
+            window.translationCache[window.location.pathname][language][text] = DEFAULT_UNTRANSLATED_VALUE;
             window.untranslatedCache[window.location.pathname][language][text] = true;
           }
         });
@@ -565,8 +561,8 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
         const text = getCacheKey(node);
 
         // If the translation is not available, cache the original text
-        if (isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes("weploy-untranslated")) {
-          window.translationCache[window.location.pathname][language][text] = "weploy-untranslated";
+        if (isStillSameLang(language) && (window.translationCache?.[window.location.pathname]?.[language]?.[text] || "").includes(DEFAULT_UNTRANSLATED_VALUE)) {
+          window.translationCache[window.location.pathname][language][text] = DEFAULT_UNTRANSLATED_VALUE;
           window.untranslatedCache[window.location.pathname][language][text] = true;
         }
 
@@ -588,7 +584,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 }
 
 function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
-  const options = getWeployOptions();
+  const options = getGlobalseoOptions();
   return new Promise(async (resolve, reject) => {
     const seoNodes = []; // document will represent the title tag, if node == document then the updateNode function will update the title
 
@@ -612,7 +608,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         return true;
       });
 
-      const options = getWeployOptions();
+      const options = getGlobalseoOptions();
 
       const imgTags = options.translateAttributes ? Array.from(document.getElementsByTagName('img')) : [];
       // only include img tags that has alt or title attribute
@@ -653,9 +649,8 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         if (!prevValue[lang]) {
           prevValue[lang] = {};
         }
-        // Exclude keys that start with "weploy-merge"
         const filteredPageCache = Object.keys(pageCache[lang])
-          .filter(key => !key.startsWith("weploy-merge"))
+          .filter(key => !key.startsWith(MERGE_PREFIX))
           .reduce((obj, key) => {
             obj[key] = pageCache[lang][key];
             return obj;
@@ -669,7 +664,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
       // textContent as default
       textNode.originalTextContent = textNode.textContent;
 
-      // weploy-merge
+      // merge
       if (textNode.fullTextArray) {
         // console.log("textNodeThatNotInPrevPage FULLTEXTARRAY", textNode.fullTextArray)
         return [...prevTextNode, textNode]
@@ -692,7 +687,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
               return value == textNode.textContent
             })
 
-          // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage existingCache", existingCache)
+          if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage existingCache", existingCache)
 
           
           // original text found
@@ -705,7 +700,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         // }
       }
 
-      // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage original vs textContent", textNode.originalTextContent, textNode.textContent)
+      if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage original vs textContent", textNode.originalTextContent, textNode.textContent)
       return [...prevTextNode, textNode];
       // if (textNode.originalTextContent != textNode.textContent) {
       //   return [...prevTextNode, textNode];
@@ -720,8 +715,8 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
       setIsTranslationInitialized(true);
     }).catch(reject).finally(() => {
-      window.weployTranslating = false;
-      renderWeploySelectorState();
+      window.globalseoTranslating = false;
+      renderSelectorState();
     });
 
     resolve(undefined);
@@ -729,8 +724,8 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 }
 
 async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = false) {
-  const lang = getWeployActiveLang() || await getLanguageFromLocalStorage();
-  const options = getWeployOptions();
+  const lang = getGlobalseoActiveLang() || await getLanguageFromLocalStorage();
+  const options = getGlobalseoOptions();
   const originalLang = options?.originalLanguage;
 
   if (!window.langHistory) {
@@ -747,7 +742,7 @@ async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = fa
     // }
   }
 
-  // console.log("startTranslationCycle getWeployActiveLang", getWeployActiveLang(), isBrowser())
+  // console.log("startTranslationCycle getGlobalseoActiveLang", getGlobalseoActiveLang(), isBrowser())
   // console.log("startTranslationCycle lang", lang)
 
   return new Promise(async (resolve) => {
@@ -767,8 +762,8 @@ async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = fa
 
 function getDefinedLanguages(originalLanguage, allowedLanguages = []) {
   if (originalLanguage && allowedLanguages && allowedLanguages.length) {
-    const originalLang = allWeployLanguagesList.find(lang => lang.lang == originalLanguage);
-    const allowedLangs = allWeployLanguagesList.filter(lang => allowedLanguages.includes(lang.lang));
+    const originalLang = languagesList.find(lang => lang.lang == originalLanguage);
+    const allowedLangs = languagesList.filter(lang => allowedLanguages.includes(lang.lang));
     const langOptions= [originalLang, ...allowedLangs]
 
     if (originalLang) {
@@ -788,8 +783,8 @@ function setOptions(apiKey, optsArgs) {
     definedLanguages: getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages),
   }
 
-  setWeployOptions(mappedOpts)
-  // setWeployActiveLang(mappedOpts?.definedLanguages?.[0]?.lang)
+  setGlobalseoOptions(mappedOpts)
+  // setGlobalseoActiveLang(mappedOpts?.definedLanguages?.[0]?.lang)
 }
 
 async function getTranslations(apiKey, optsArgs = {}) {
@@ -812,7 +807,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
     return await new Promise(async (resolve, reject) => {
       try {
-        const timeout = getWeployOptions().timeout;
+        const timeout = getGlobalseoOptions().timeout;
         await startTranslationCycle(document.body, apiKey, timeout, true).catch(reject);
 
         if (isBrowser() && !isDomListenerAdded) {
@@ -824,21 +819,32 @@ async function getTranslations(apiKey, optsArgs = {}) {
             let nodes = [];
 
             // check if the selectors need to be recreated
-            let elements = Array.from(document.querySelectorAll('.weploy-lang-selector-loading')).filter(el => !el.querySelector('.weploy-lang-selector-ready-icon'));
+            let elementsWeploy = Array.from(document.querySelectorAll('.weploy-lang-selector-loading')).filter(el => !el.querySelector('.weploy-lang-selector-ready-icon'));
+
+            let elementsGlobalSeo = Array.from(document.querySelectorAll('.globalseo-lang-selector-loading')).filter(el => !el.querySelector('.globalseo-lang-selector-ready-icon'));
+
+            let elements = [...elementsWeploy, ...elementsGlobalSeo];
 
             for(let mutation of mutationsList) {
               if (mutation.type === 'childList') {
-                const isLangSelector = (mutation?.target?.className || "").includes("weploy-lang-selector-value")
+                function getIsLangSelector() {
+                  try {
+                    return (mutation?.target?.className || "").includes("globalseo-lang-selector-value") || (mutation?.target?.className || "").includes("weploy-lang-selector-value")
+                  } catch(err) {
+                    return false;
+                  }
+                }
+                const isLangSelector = getIsLangSelector();
 
                 // Handling added nodes
                 for(let addedNode of mutation.addedNodes) {
                   if (!isLangSelector) nodes.push(addedNode)
                 }
 
-                // Handling removed nodes
-                for(let removedNode of mutation.removedNodes) {
-                  if (!isLangSelector) nodes.push(removedNode)
-                }
+                // // Handling removed nodes 
+                // for(let removedNode of mutation.removedNodes) {
+                //   if (!isLangSelector) nodes.push(removedNode)
+                // }
               }
             }
 
@@ -863,68 +869,29 @@ async function getTranslations(apiKey, optsArgs = {}) {
         resolve(undefined);
       } catch(err) {
         console.log("getTranslations error", err);
-        if (window.shouldConsoleWeployError) console.error(err);
+        if (window.shouldConsoleglobalseoError) console.error(err);
         resolve(undefined);
       }
     })
   } catch(err) {
     console.log("getTranslations error 2", err);
-    if (window.shouldConsoleWeployError) console.error(err);
+    if (window.shouldConsoleglobalseoError) console.error(err);
   }
-}
-
-//@deprecated
-function switchLanguage(language) {
-  localStorage.setItem("language", language);
-  setWeployActiveLang(language);
-  const updatedUrl = addOrReplaceLangParam(window.location.href, language);
-  setTimeout(() => {
-    window.location.href = updatedUrl;
-    // location.reload();
-  }, 1000);
-}
-
-
-//@deprecated
-function handleChangeCustomSelect(target){
-  // Get elements by class
-  const classElements = Array.from(document.getElementsByClassName("weploy-select"));
-  // Get elements by ID, assuming IDs are like "weploy-select-1", "weploy-select-2", etc.
-  const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="weploy-select"]`));
-  const isWithLangLabel = Array.from(target.classList).includes("weploy-select-with-name")
-  const idElements = isWithLangLabel ? idElementsStartsWithClassName : idElementsStartsWithClassName.filter(el => !el.id.includes("weploy-select-with-name")); 
-  // Combine and deduplicate elements
-  const weploySwitchers = Array.from(new Set([...classElements, ...idElements]));
-
-  const newValue = target.value;
-  // Update only the select elements within weploySwitchers
-  weploySwitchers.forEach(sw => { 
-    const selects = sw.querySelector('select.weploy-exclude');
-    if (selects && selects !== target) {
-      selects.value = newValue;
-    }
-  });
-  switchLanguage(newValue);
 }
 
 if (isBrowser()) {
-  if (!window.weployUtils) {
-     window.weployUtils = {}
+  if (!window.globalseoUtils) {
+     window.globalseoUtils = {}
   }
-  window.weployUtils.isBrowser = isBrowser;
-  window.weployUtils.getTranslations = getTranslations;
-  window.weployUtils.switchLanguage = switchLanguage;
-  window.weployUtils.getSelectedLanguage = getSelectedLanguage;
-  window.weployUtils.createLanguageSelect = createLanguageSelect;
-  window.weployUtils.handleChangeCustomSelect = handleChangeCustomSelect;
-  window.weployUtils.getLanguageFromLocalStorage = getLanguageFromLocalStorage;
-  window.weployUtils.setOptions = setOptions
+  window.globalseoUtils.isBrowser = isBrowser;
+  window.globalseoUtils.getTranslations = getTranslations;
+  window.globalseoUtils.createLanguageSelect = createLanguageSelect;
+  window.globalseoUtils.getLanguageFromLocalStorage = getLanguageFromLocalStorage;
+  window.globalseoUtils.setOptions = setOptions
 }
 
 module.exports.isBrowser = isBrowser;
 module.exports.getTranslations = getTranslations;
-module.exports.switchLanguage = switchLanguage;
-module.exports.getSelectedLanguage = getSelectedLanguage;
 module.exports.createLanguageSelect = createLanguageSelect;
 module.exports.getLanguageFromLocalStorage = getLanguageFromLocalStorage;
 module.exports.setOptions = setOptions;

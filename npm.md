@@ -1,6 +1,6 @@
-![alt text](https://www.weploy.ai/perma-store/logo-black.png)
+![alt text](https://www.globalseo.ai/perma-store/logo-black.png)
 
-Enhance your website with GPT-4 powered translations. For more details, visit our website: [Weploy.ai](https://www.weploy.ai).
+Enhance your website with GPT-4 powered translations. For more details, visit our website: [Globalseo.ai](https://www.globalseo.ai).
 
 WARNING: We advise against using our npm package in your project due to potential unhandled bugs and missing features. Opt for the CDN version for seamless bug fixes without any action required on your end.
 
@@ -42,7 +42,7 @@ import { switchLanguage, getSelectedLanguage } from 'weploy-translate';
 Below is an example code for a language switcher. Customize as needed, but remember to call `switchLanguage(ISO639_Code)` to indicate a language change. This will be saved in the user's local storage. Use the appropriate ISO 639 Language code:
 ```html
 <select
-  className="weploy-exclude"
+  className="globalseo-exclude"
   value={language} 
   onChange={(e) => switchLanguage(e.target.value)}>
         <option value="de">🇩🇪</option>
