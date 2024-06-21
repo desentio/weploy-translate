@@ -685,9 +685,9 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 
       // if the text is already translated in the previous page, then find the original text
       if (window.langHistory?.length) {
-        const [prev] = window.langHistory[window.langHistory.length - 1];
-        if (prev != options.originalLanguage) {
-          const existingCache = Object.entries(allLangCacheInAllPages[prev])
+        // const [prev] = window.langHistory[window.langHistory.length - 1];
+        // if (prev != options.originalLanguage) {
+          const existingCache = Object.values(allLangCacheInAllPages).reduce((prev, value) =>  [...prev, ...Object.entries(value)], [])
             .find(([key, value]) => {
               return value == textNode.textContent
             })
@@ -702,10 +702,10 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
               textNode.context.replace(textNode.textContent, textNode.originalTextContent)
             }
           }
-        }
+        // }
       }
 
-      // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage GO", textNode.originalTextContent, textNode.textContent)
+      // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage original vs textContent", textNode.originalTextContent, textNode.textContent)
       return [...prevTextNode, textNode];
       // if (textNode.originalTextContent != textNode.textContent) {
       //   return [...prevTextNode, textNode];
