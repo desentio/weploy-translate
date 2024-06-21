@@ -174,7 +174,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           }
           summary.onclick = (e) => { e.preventDefault(); }
 
-          console.log("initializedSummaryByUser", initializedSummaryByUser?.childNodes)
+          // console.log("initializedSummaryByUser", initializedSummaryByUser?.childNodes)
           const initializedLoadingIcon = initializedSummaryByUser?.querySelector?.(`.${loadingIconClassName}`);
           const initializedErrorIcon = initializedSummaryByUser?.querySelector?.(`.${errorIconClassName}`);
           const initializedReadyIcon = initializedSummaryByUser?.querySelector?.(`.${readyIconClassName}`);

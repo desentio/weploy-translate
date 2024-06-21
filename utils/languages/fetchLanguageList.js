@@ -18,7 +18,7 @@ async function fetchLanguageList(apiKey) {
     headers["Accept"] = "application/octet-stream"; // to receive compressed response
   }
 
-  const availableLangs = await fetch(API_URL + "/weploy-projects/by-api-key", {
+  const availableLangs = await fetch(API_URL + "/globalseo-projects/by-api-key", {
     headers
   })
   .then((response) => shouldCompressResponse ? response.arrayBuffer() : response.json())

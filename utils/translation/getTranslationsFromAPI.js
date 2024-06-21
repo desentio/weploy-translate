@@ -34,7 +34,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
   let isOk = false;
 
   return await new Promise((resolve) => {
-    fetch(API_URL + "/weploy/get-translations", {
+    fetch(API_URL + "/globalseo/get-translations", {
       method: "POST",
       headers: {
         'Content-Type': shouldCompressPayload ? 'application/octet-stream' : "application/json",
