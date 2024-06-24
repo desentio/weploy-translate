@@ -789,6 +789,11 @@ function setOptions(apiKey, optsArgs) {
 
 async function getTranslations(apiKey, optsArgs = {}) {
   try {
+    if (!optsArgs?.originalLanguage) {
+      console.error("GLOBALSEO: data-original-language is required, please add it to the script tag")
+      return;
+    }
+
     setOptions(apiKey, optsArgs)
 
     // save language to local storage & delay 1 second to wait google translate
