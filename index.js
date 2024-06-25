@@ -485,7 +485,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
-    // console.log("globalseo texts", notInCache);
+    console.log("globalseo texts", notInCache);
     // console.log("globalseo start getting translations", notInCache.length);
     // return;
 
