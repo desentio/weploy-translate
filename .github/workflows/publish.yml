@@ -43,6 +43,15 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+    - name: Rename package name to weploy-translate
+      run: |
+        sed -i 's/"name": "globalseo"/"name": "weploy-translate"/' package.json
+
+    - name: Re-publish to NPM
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     - name: Push bumped version
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
