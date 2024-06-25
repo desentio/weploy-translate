@@ -235,6 +235,7 @@ function extractTextNodes(node, textNodes) {
         const context = textNodesForContextWithCurrentNode.reduce((acc, textNode) => {
           // if has sibling, then inject span (for splitting purpose on backend)
           if (textNode.parentNode.childNodes.length > 1) {
+            textNode.translationTagName = "SPAN"
             return `${acc} <span>${textNode.textContent}</span>`;
           } else {
             return `${acc} <${textNode.parentNode.tagName.toLowerCase()}>${textNode.textContent}</${textNode.parentNode.tagName.toLowerCase()}>`;
