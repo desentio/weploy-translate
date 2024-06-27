@@ -4,6 +4,8 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin'); // Add this line
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 const webpack = require('webpack');
+const packageJson = require('./package.json');
+const prevVersion = packageJson.version;
 
 module.exports = (env, argv) => {
     return {
@@ -74,6 +76,7 @@ module.exports = (env, argv) => {
                     BRAND: JSON.stringify('weploy'),
                     CSS_PATH: JSON.stringify('../../globalseo.css'),
                     CSS_PATH_RAW: JSON.stringify('../../globalseo.css?raw'),
+                    PREV_SCRIPT_VERSION: JSON.stringify(prevVersion),
                 },
             }),
         ],

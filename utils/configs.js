@@ -12,6 +12,7 @@ const OLD_EXCLUDE_CLASS = "weploy-exclude";
 const DEFAULT_UNTRANSLATED_VALUE = "weploy-untranslated";
 const MERGE_PREFIX = "weploy-merge";
 const BRAND  = process.env.BRAND || "globalseo";
+const PREV_SCRIPT_VERSION = process.env.PREV_SCRIPT_VERSION || "0.0.0";
 
 /** Translation Options */
 var globalseoOptions;
@@ -136,5 +137,6 @@ module.exports = {
   OLD_EXCLUDE_CLASS,
   DEFAULT_UNTRANSLATED_VALUE,
   MERGE_PREFIX,
-  BRAND
+  BRAND,
+  PREV_SCRIPT_VERSION
 }

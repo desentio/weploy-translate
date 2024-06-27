@@ -1,9 +1,10 @@
 const { getTranslations, isBrowser } = require("./index.js");
-const { BRAND } = require("./utils/configs.js");
+const { BRAND, PREV_SCRIPT_VERSION } = require("./utils/configs.js");
 // const { checkPage } = require("./utils/translation/checkPage.js");
 
 if (isBrowser()) {
   window.translationScriptTag = document.currentScript;
+  window.translationScriptPrevVersion = PREV_SCRIPT_VERSION // called prev version because it will bumped after published to npm
 
   // REQUIRED ATTRIBUTES
   const DATA_API_KEY = `data-${BRAND}-key`

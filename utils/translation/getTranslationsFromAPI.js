@@ -19,9 +19,10 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
     strings: strings,
     language: language,
     url: window.location.pathname,
+    scriptPrevVersion: window.translationScriptPrevVersion
   };
 
-  console.log("weploy payload:", finalPayload)
+  console.log("globalseo payload:", finalPayload)
 
   const stringifiedPayload = JSON.stringify(finalPayload);
 
