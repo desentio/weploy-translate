@@ -855,10 +855,10 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
             if (elements.length && optsArgs.createSelector) {
               createLanguageSelect(apiKey, optsArgs).then(() => {
-                if (nodes.length) startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+                if (nodes.length) startTranslationCycle(document.body, apiKey, 0).catch(reject)
               });
             } else {
-              if (nodes.length) startTranslationCycle(document.body, apiKey, 2000).catch(reject)
+              if (nodes.length) startTranslationCycle(document.body, apiKey, 0).catch(reject)
             }
           });
 
