@@ -743,7 +743,7 @@ async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = fa
   }
 
   // console.log("startTranslationCycle getGlobalseoActiveLang", getGlobalseoActiveLang(), isBrowser())
-  // console.log("startTranslationCycle lang", lang)
+  console.log("startTranslationCycle", "globalseo start translation", delay)
 
   return new Promise(async (resolve) => {
     if (!delay) {
