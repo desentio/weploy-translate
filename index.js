@@ -788,6 +788,8 @@ function setOptions(apiKey, optsArgs) {
 
 async function getTranslations(apiKey, optsArgs = {}) {
   try {
+    console.log("GLOBALSEO initializing...");
+    
     if (!optsArgs?.originalLanguage) {
       console.error("GLOBALSEO: data-original-language is required, please add it to the script tag")
       return;

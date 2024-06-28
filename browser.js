@@ -239,7 +239,7 @@ if (isBrowser()) {
   }
 
   // console.log("document.readyState", document.readyState)
-  if (document.readyState == 'complete') {
+  if (document.readyState == 'interactive' || document.readyState == 'complete') {
     // DOM is already loaded, run the code
     initTranslation();
   } else {
