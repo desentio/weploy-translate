@@ -62,6 +62,8 @@ if (isBrowser()) {
   const search = window.location.search;
   const params = new URLSearchParams(search);
   const paramsLang = params.get(langParam);
+  window.paramsLang = paramsLang;
+
   const paramsUpdateTranslation = params.get('globalseo_update_translation');
 
   // defined languages so dont need extra fetch

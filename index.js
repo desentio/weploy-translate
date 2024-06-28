@@ -584,7 +584,6 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 }
 
 function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
-  const options = getGlobalseoOptions();
   return new Promise(async (resolve, reject) => {
     const seoNodes = []; // document will represent the title tag, if node == document then the updateNode function will update the title
 
@@ -724,7 +723,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
 }
 
 async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = false) {
-  const lang = getGlobalseoActiveLang() || await getLanguageFromLocalStorage();
+  const lang = window.paramsLang || getGlobalseoActiveLang() || await getLanguageFromLocalStorage();
   const options = getGlobalseoOptions();
   const originalLang = options?.originalLanguage;
 
@@ -797,10 +796,10 @@ async function getTranslations(apiKey, optsArgs = {}) {
     setOptions(apiKey, optsArgs)
 
     // save language to local storage & delay 1 second to wait google translate
-    await Promise.allSettled([
-      optsArgs.originalLanguage ? getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages) : fetchLanguageList(apiKey),
-      // delay(1000)
-    ]);
+    // await Promise.allSettled([
+    //   optsArgs.originalLanguage ? getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages) : fetchLanguageList(apiKey),
+    //   // delay(1000)
+    // ]);
 
     if (optsArgs.createSelector) {
       await createLanguageSelect(apiKey, optsArgs);

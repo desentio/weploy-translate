@@ -62,7 +62,10 @@ function setGlobalseoOptions(value = {}) {
 var globalseoActiveLang;
 
 function getGlobalseoActiveLang() {
-  if (isBrowser()){ 
+  if (isBrowser()){
+    if (window.paramsLang) {
+      return window.paramsLang;
+    } 
     if (!window.globalseoActiveLang) {
       setGlobalseoActiveLang(null)
     }

@@ -2,12 +2,9 @@ const { getGlobalseoOptions, setGlobalseoActiveLang, getIsTranslationInitialized
 const { fetchLanguageList } = require("./fetchLanguageList");
 
 async function getLanguageFromLocalStorage() {
-  const optsArgs = getGlobalseoOptions()
-  const apiKey = optsArgs.apiKey
-
-  const search = window.location.search;
-  const params = new URLSearchParams(search);
-  const paramsLang = params.get(optsArgs.langParam || 'lang');
+  const options = getGlobalseoOptions()
+  const apiKey = options.apiKey
+  const paramsLang = window.paramsLang;
   const localStorageLang = localStorage.getItem("language");
 
   if (paramsLang && (paramsLang != localStorageLang)) {
@@ -16,11 +13,11 @@ async function getLanguageFromLocalStorage() {
     return paramsLang;
   }
 
-  const availableLangs = await fetchLanguageList(apiKey);
+  const availableLangs = options.definedLanguages || await fetchLanguageList(apiKey);
   let language = paramsLang || localStorageLang;
 
   if (!availableLangs.find(l => l.lang == language)) {
-    saveDefaultLanguageToLocalStorage(availableLangs, optsArgs.useBrowserLanguage);
+    saveDefaultLanguageToLocalStorage(availableLangs, options.useBrowserLanguage);
   } else {
     setGlobalseoActiveLang(language);
   }
