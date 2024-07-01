@@ -27,6 +27,7 @@ if (isBrowser()) {
   const DATA_CUSTOM_LANG_CODE = "data-custom-language-code"; // format: "kk=kz, en=us, ru=rs"
   const DATA_MERGE_INLINE = "data-translate-splitted-text"; // default: false
   const DATA_EXCLUDE_CONTENTS = "data-exclude-contents"; // format: "{{content1}}, {{content2}}"
+  const DATA_DEBOUNCE = "data-debounce" // format: "2000"
 
   // FEATURE: Prevent Google Translate from translating the page
   // Set the 'translate' attribute of the HTML tag to 'no'
@@ -222,6 +223,8 @@ if (isBrowser()) {
 
   const shouldReplaceLinks = window.translationScriptTag.getAttribute(DATA_REPLACE_LINKS) != "false";
 
+  const debounceDuration = window.translationScriptTag.getAttribute(DATA_DEBOUNCE);
+
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
@@ -234,7 +237,8 @@ if (isBrowser()) {
     translateAttributes,
     dynamicTranslation,
     translateSplittedText: false,
-    langParam
+    langParam,
+    debounceDuration
   }
 
   function initTranslation() {

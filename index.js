@@ -795,6 +795,8 @@ async function getTranslations(apiKey, optsArgs = {}) {
       return;
     }
 
+    const debounceDuration = optsArgs.debounceDuration || 0;
+
     setOptions(apiKey, optsArgs)
 
     // save language to local storage & delay 1 second to wait google translate
@@ -856,10 +858,10 @@ async function getTranslations(apiKey, optsArgs = {}) {
 
             if (elements.length && optsArgs.createSelector) {
               createLanguageSelect(apiKey, optsArgs).then(() => {
-                if (nodes.length) startTranslationCycle(document.body, apiKey, 0).catch(reject)
+                if (nodes.length) startTranslationCycle(document.body, apiKey, debounceDuration).catch(reject)
               });
             } else {
-              if (nodes.length) startTranslationCycle(document.body, apiKey, 0).catch(reject)
+              if (nodes.length) startTranslationCycle(document.body, apiKey, debounceDuration).catch(reject)
             }
           });
 
