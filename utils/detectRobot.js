@@ -12,7 +12,7 @@ const detectRobot = (userAgent) => {
     /semrush/,                                         // OTHER
   ].map((r) => r.source).join("|"),"i");               // BUILD REGEXP + "i" FLAG
 
-  return robots.test(userAgent);
+  return robots.test(userAgent) || userAgent.includes("Google");
 };
 
 module.exports = detectRobot;

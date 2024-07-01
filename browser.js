@@ -1,5 +1,6 @@
 const { getTranslations, isBrowser } = require("./index.js");
 const { BRAND, PREV_SCRIPT_VERSION } = require("./utils/configs.js");
+const detectRobot = require("./utils/detectRobot.js");
 // const { checkPage } = require("./utils/translation/checkPage.js");
 
 if (isBrowser()) {
@@ -164,14 +165,20 @@ if (isBrowser()) {
     console.log("Error checking expiration", e)
   }
 
-  const translationCache = window.localStorage.getItem("translationCachePerPage");
-  try {
-    const parsedTranslationCache = JSON.parse(translationCache);
-    if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
-      window.translationCache = parsedTranslationCache;
+  const userAgent = window.navigator.userAgent;
+  const isRobot = detectRobot(userAgent);
+  if (!isRobot) {
+    const translationCache = window.localStorage.getItem("translationCachePerPage");
+    try {
+      const parsedTranslationCache = JSON.parse(translationCache);
+      if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
+        window.translationCache = parsedTranslationCache;
+      }
+    } catch (e) {
+      console.log("Error parsing translation cache", e)
     }
-  } catch (e) {
-    console.log("Error parsing translation cache", e)
+  } else {
+    window.translationCache = {};
   }
 
   const customLanguageCodeAttr = window.translationScriptTag.getAttribute(DATA_CUSTOM_LANG_CODE); // format is "kk=kz, en=us, ru=rs"
