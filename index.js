@@ -485,7 +485,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
-    console.log("globalseo texts", notInCache);
+    // console.log("globalseo texts", notInCache);
     // console.log("globalseo start getting translations", notInCache.length);
     // return;
 
@@ -686,7 +686,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
               return value == textNode.textContent
             })
 
-          if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage existingCache", existingCache)
+          // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage existingCache", existingCache)
 
           
           // original text found
@@ -699,7 +699,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         // }
       }
 
-      if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage original vs textContent", textNode.originalTextContent, textNode.textContent)
+      // if (textNode.textContent == "Cama adicional") console.log("textNodeThatNotInPrevPage original vs textContent", textNode.originalTextContent, textNode.textContent)
       return [...prevTextNode, textNode];
       // if (textNode.originalTextContent != textNode.textContent) {
       //   return [...prevTextNode, textNode];
@@ -742,7 +742,7 @@ async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = fa
   }
 
   // console.log("startTranslationCycle getGlobalseoActiveLang", getGlobalseoActiveLang(), isBrowser())
-  console.log("startTranslationCycle", "globalseo start translation", delay)
+  // console.log("startTranslationCycle", "globalseo start translation", delay)
 
   return new Promise(async (resolve) => {
     if (!delay) {
@@ -788,7 +788,7 @@ function setOptions(apiKey, optsArgs) {
 
 async function getTranslations(apiKey, optsArgs = {}) {
   try {
-    console.log("GLOBALSEO initializing...");
+    // console.log("GLOBALSEO initializing...");
     
     if (!optsArgs?.originalLanguage) {
       console.error("GLOBALSEO: data-original-language is required, please add it to the script tag")
