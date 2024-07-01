@@ -1,3 +1,13 @@
+.globalseo-lang-selector-wrapper.floating {
+  position: fixed;
+  bottom: 0px;
+  right: 20px;
+  background: #fff;
+  padding: 10px;
+  z-index: 9999;
+  border-radius: 5px 0px 0px;
+}
+
 .globalseo-lang-selector-wrapper details ul.globalseo-lang-selector-menu-container {
   list-style: none;
   padding: 0!important;
