@@ -49,10 +49,10 @@ function assignFullTextToTextNodes(node, textNodes, topLevelTagName) {
 
 function extractTextNodes(node, textNodes) {
   if (!node) return;
-  if (node.tagName && ["SCRIPT", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "STYLE", "NOSCRIPT"].includes(node.tagName.toUpperCase())) return;
+  if (node.tagName && ["SCRIPT", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "SELECT", "OPTION", "STYLE", "NOSCRIPT"].includes(node.tagName.toUpperCase())) return;
 
   if (node.nodeType === Node.TEXT_NODE) {
-    if (node.parentNode.tagName && ["SCRIPT", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "STYLE", "NOSCRIPT"].includes(node.parentNode.tagName.toUpperCase())) return;
+    if (node.parentNode.tagName && ["SCRIPT", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "SELECT", "OPTION", "STYLE", "NOSCRIPT"].includes(node.parentNode.tagName.toUpperCase())) return;
 
     
     if(isUrl(node.textContent)) return;
