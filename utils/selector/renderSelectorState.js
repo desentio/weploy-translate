@@ -56,6 +56,9 @@ function renderSelectorState(opts = { shouldUpdateActiveLang: true }) {
     if (window.globalseoError) {
       selector.classList.add(errorClass);
       selector.classList.remove(readyClass, loadingClass); 
+      const ul = selector.nextElementSibling;
+      console.log("UL", ul)
+      ul.innerHTML = `<li class="globalseo-errormsg" style="padding: 10px!important;">ERROR: ${window.globalseoError}</li>`;
       return;
     }
 

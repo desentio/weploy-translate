@@ -1,3 +1,9 @@
+.globalseo-errormsg {
+  color: red;
+  font-size: 14px;
+  cursor: auto!important;
+}
+
 .globalseo-lang-selector-wrapper.floating {
   position: fixed;
   bottom: 0px;
@@ -11,6 +17,7 @@
 .globalseo-lang-selector-wrapper details ul.globalseo-lang-selector-menu-container {
   list-style: none;
   padding: 0!important;
+  background: #fff;
 }
 
 .globalseo-lang-selector-wrapper details ul.globalseo-lang-selector-menu-container li {
@@ -273,6 +280,7 @@
 .weploy-lang-selector-wrapper details ul.weploy-lang-selector-menu-container {
   list-style: none;
   padding: 0!important;
+  background: #fff;
 }
 
 .weploy-lang-selector-wrapper details ul.weploy-lang-selector-menu-container li {
