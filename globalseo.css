@@ -1,7 +1,10 @@
 .globalseo-errormsg {
+  display: block;
   color: red;
   font-size: 14px;
   cursor: auto!important;
+  border-top: 1px solid red;
+  padding: 10px!important;
 }
 
 .globalseo-lang-selector-wrapper.floating {
