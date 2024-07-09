@@ -93,7 +93,7 @@ if (isBrowser()) {
     if (!paramsLang || paramsLang == originalLang) {
       newCanonicalLinkTag.href = window.location.pathname;
     } else {
-      newCanonicalLinkTag.href = `${window.location.pathname}?${langParam}=${paramsLang}`;
+      newCanonicalLinkTag.href = `${window.location.host}${window.location.pathname}?${langParam}=${paramsLang}`;
     }
     newCanonicalLinkTag.setAttribute('rel', 'canonical');
     document.head.appendChild(newCanonicalLinkTag);
@@ -114,7 +114,7 @@ if (isBrowser()) {
       url.searchParams.set(langParam, lang);
       alternateLinkTag.setAttribute('rel', 'alternate');
       alternateLinkTag.setAttribute('hreflang', lang);
-      alternateLinkTag.href = `${window.location.pathname}?${langParam}=${lang}`;
+      alternateLinkTag.href = `${window.location.host}${window.location.pathname}?${langParam}=${lang}`;
       document.head.appendChild(alternateLinkTag);
     }
   }
