@@ -656,7 +656,6 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     }
 
     const options = getGlobalseoOptions();
-    console.log("options.translateFormPlaceholder", options.translateFormPlaceholder)
     if (options.translateFormPlaceholder) {
       const inputTags = Array.from(document.getElementsByTagName('input'));
       // only include input that has placeholder attribute
