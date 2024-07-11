@@ -1,5 +1,5 @@
 const { decompressArrayBuffer, isCompressionSupported } = require("../compressions");
-const { isBrowser, API_URL, getGlobalseoOptions, setGlobalseoActiveLang, setGlobalseoOptions } = require("../configs");
+const { isBrowser, API_URL, getGlobalseoOptions, setGlobalseoActiveLang, setGlobalseoOptions, SPECIAL_API_KEYS } = require("../configs");
 const { renderSelectorState } = require("../selector/renderSelectorState");
 
 async function fetchLanguageList(apiKey) {
@@ -7,7 +7,7 @@ async function fetchLanguageList(apiKey) {
   const langs = options.definedLanguages;
   if (langs && Array.isArray(langs) && langs.length) return langs;
   if (window.globalseoError) return [];
-  return [];
+  if (!SPECIAL_API_KEYS.includes(options.apiKey)) return [];
 
   const shouldCompressResponse = isCompressionSupported();
   const headers = {

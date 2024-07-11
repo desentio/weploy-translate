@@ -1,4 +1,4 @@
-const { isBrowser, getGlobalseoOptions, setGlobalseoOptions, setGlobalseoActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, shouldTranslateInlineText, getGlobalseoActiveLang, DEFAULT_UNTRANSLATED_VALUE, MERGE_PREFIX } = require('./utils/configs.js');
+const { isBrowser, getGlobalseoOptions, setGlobalseoOptions, setGlobalseoActiveLang, setIsTranslationInitialized, getIsTranslationInitialized, shouldTranslateInlineText, getGlobalseoActiveLang, DEFAULT_UNTRANSLATED_VALUE, MERGE_PREFIX, SPECIAL_API_KEYS } = require('./utils/configs.js');
 const checkIfTranslatable = require('./utils/translation/checkIfTranslatable.js');
 const languagesList = require('./utils/languages/languageList.js');
 const { fetchLanguageList } = require('./utils/languages/fetchLanguageList.js');
@@ -141,6 +141,14 @@ function updateNode(node, language, type = "text", debugSource) {
     const newTitle = window.translationCache?.[window.location.pathname]?.[language]?.[node.title] || "";
     if (newTitle && !newTitle.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       node.title = newTitle;
+    }
+    return;
+  }
+
+  if (type == "form" && (node.tagName == "TEXTAREA" || node.tagName == "INPUT")) {
+    const newPlaceholder = window.translationCache?.[window.location.pathname]?.[language]?.[node.placeholder] || "";
+    if (newPlaceholder && !newPlaceholder.includes(DEFAULT_UNTRANSLATED_VALUE)) {
+      node.placeholder = newPlaceholder;
     }
     return;
   }
@@ -340,7 +348,7 @@ function isStillSameLang(language) {
   }
 }
 
-function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = []) {
+function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [], otherNodes = []) {
   // console.log("LANGUGEE", language)
   // dont translate google translate
   if (isBrowser() && (document.querySelector('html.translated-ltr') || document.querySelector('html.translated-rtl'))) {
@@ -485,6 +493,24 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
       }
     });
 
+    otherNodes.forEach((node) => {
+      const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
+
+      if (node.tagName == "TEXTAREA" || node.tagName == "INPUT") {
+        const placeholderCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.placeholder]
+        // make sure the placeholder is not empty
+        if (
+          (node.placeholder || "").trim() && !placeholderCache && !allTranslationValuesInAllPages.includes(node.placeholder)
+        ) {
+          notInCache.push(node.placeholder);
+        }
+
+        if (placeholderCache) {
+          updateNode(node, language, "form", 5.2);
+        }
+      }
+    })
+
     // console.log("globalseo texts", notInCache);
     // console.log("globalseo start getting translations", notInCache.length);
     // return;
@@ -586,6 +612,7 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
 function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
   return new Promise(async (resolve, reject) => {
     const seoNodes = []; // document will represent the title tag, if node == document then the updateNode function will update the title
+    const otherNodes = []; // like form placeholder or other attributes that need to be translated
 
     if (shouldOptimizeSEO) {
       const metaTags = Array.from(document.getElementsByTagName('meta'));
@@ -625,6 +652,23 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
         ...cleanMetaTags,
         ...cleanImgTags,
         ...cleanAnchorTags,
+      )
+    }
+
+    const options = getGlobalseoOptions();
+    console.log("options.translateFormPlaceholder", options.translateFormPlaceholder)
+    if (options.translateFormPlaceholder) {
+      const inputTags = Array.from(document.getElementsByTagName('input'));
+      // only include input that has placeholder attribute
+      const cleanAnchorTags = inputTags.filter((node) => (node.placeholder || "").trim());
+
+      const textareaTags = Array.from(document.getElementsByTagName('textarea'));
+      // only include textarea that has placeholder attribute
+      const cleanTextareaTags = textareaTags.filter((node) => (node.placeholder || "").trim());
+
+      otherNodes.push(
+        ...cleanAnchorTags,
+        ...cleanTextareaTags,
       )
     }
 
@@ -711,7 +755,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     // .filter(x => x.fullTextArray || !values.includes(x.textContent))
     // console.log("textNodeThatNotInPrevPage", textNodeThatNotInPrevPage)
 
-    await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes).then(() => {
+    await translateNodes(textNodeThatNotInPrevPage, language, apiKey, seoNodes, otherNodes).then(() => {
       setIsTranslationInitialized(true);
     }).catch(reject).finally(() => {
       window.globalseoTranslating = false;
@@ -790,7 +834,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
   try {
     // console.log("GLOBALSEO initializing...");
     
-    if (!optsArgs?.originalLanguage) {
+    if (!optsArgs?.originalLanguage && !SPECIAL_API_KEYS.includes(apiKey)) {
       console.error("GLOBALSEO: data-original-language is required, please add it to the script tag")
       return;
     }

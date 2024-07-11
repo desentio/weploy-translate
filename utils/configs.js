@@ -13,6 +13,7 @@ const DEFAULT_UNTRANSLATED_VALUE = "weploy-untranslated";
 const MERGE_PREFIX = "weploy-merge";
 const BRAND  = process.env.BRAND || "globalseo";
 const PREV_SCRIPT_VERSION = process.env.PREV_SCRIPT_VERSION || "0.0.0";
+const SPECIAL_API_KEYS = ["cb20c25d-2d15-46ab-aac2-de5aa6b0aeda"]
 
 /** Translation Options */
 var globalseoOptions;
@@ -141,5 +142,6 @@ module.exports = {
   DEFAULT_UNTRANSLATED_VALUE,
   MERGE_PREFIX,
   BRAND,
-  PREV_SCRIPT_VERSION
+  PREV_SCRIPT_VERSION,
+  SPECIAL_API_KEYS
 }
