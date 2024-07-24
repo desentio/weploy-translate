@@ -100,6 +100,15 @@ function getTagName(node) {
   }
 }
 
+function decodeHTMLEntities(text = "") {
+  let textArea = document.createElement('textarea');
+  textArea.innerHTML = text;
+  let decodedText = textArea.value;
+  textArea = null; // Nullify the reference, so garbage collection can take care of it
+  return decodedText;
+}
+
+
 function updateNode(node, language, type = "text", debugSource) {
   // console.log("update node", debugSource, node, node.textContent, language);
 
@@ -107,7 +116,7 @@ function updateNode(node, language, type = "text", debugSource) {
   if (node == document) {
     const newText = window.translationCache?.[window.location.pathname]?.[language]?.[document.title] || "";  
     if (newText && !newText.includes(DEFAULT_UNTRANSLATED_VALUE)) {
-      document.title = newText;
+      document.title = decodeHTMLEntities(newText);
     }
     return;
   }
@@ -116,7 +125,7 @@ function updateNode(node, language, type = "text", debugSource) {
   if (node.tagName == "META") {
     const newText = window.translationCache?.[window.location.pathname]?.[language]?.[node.content] || "";  
     if (newText && !newText.includes(DEFAULT_UNTRANSLATED_VALUE)) {
-      node.content = newText;
+      node.content = decodeHTMLEntities(newText);
     }
     return;
   }
@@ -127,11 +136,11 @@ function updateNode(node, language, type = "text", debugSource) {
     const newTitle = window.translationCache?.[window.location.pathname]?.[language]?.[node.title] || "";
 
     if (newAlt && !newAlt.includes(DEFAULT_UNTRANSLATED_VALUE)) {
-      node.alt = newAlt;
+      node.alt = decodeHTMLEntities(newAlt);
     }
 
     if (newTitle && !newTitle.includes(DEFAULT_UNTRANSLATED_VALUE)) {
-      node.title = newTitle;
+      node.title = decodeHTMLEntities(newTitle);
     }
     return;
   }
@@ -140,7 +149,7 @@ function updateNode(node, language, type = "text", debugSource) {
   if (type == "seo" && node.tagName == "A") {
     const newTitle = window.translationCache?.[window.location.pathname]?.[language]?.[node.title] || "";
     if (newTitle && !newTitle.includes(DEFAULT_UNTRANSLATED_VALUE)) {
-      node.title = newTitle;
+      node.title = decodeHTMLEntities(newTitle);
     }
     return;
   }
@@ -148,7 +157,7 @@ function updateNode(node, language, type = "text", debugSource) {
   if (type == "form" && (node.tagName == "TEXTAREA" || node.tagName == "INPUT")) {
     const newPlaceholder = window.translationCache?.[window.location.pathname]?.[language]?.[node.placeholder] || "";
     if (newPlaceholder && !newPlaceholder.includes(DEFAULT_UNTRANSLATED_VALUE)) {
-      node.placeholder = newPlaceholder;
+      node.placeholder = decodeHTMLEntities(newPlaceholder);
     }
     return;
   }
@@ -295,7 +304,7 @@ function updateNode(node, language, type = "text", debugSource) {
         // make sure text is still the same before replacing
         if (node.textContent == text && newValue != text) {
           // console.log("node.textContent replace", node.textContent, text, newValue)
-          node.textContent = newValue; // TODO: right now we only replace based on translation position, later we should swap the node position to preserve the styles
+          node.textContent = decodeHTMLEntities(newValue); // TODO: right now we only replace based on translation position, later we should swap the node position to preserve the styles
         }
       }
     } catch(err) {
@@ -315,7 +324,7 @@ function updateNode(node, language, type = "text", debugSource) {
     // console.log("isTextStillTheSame", node.textContent == text)
     // make sure text is still the same before replacing
     if(node.textContent == text && newText != text) {
-      node.textContent = newText;
+      node.textContent = decodeHTMLEntities(newText);
     }
   }
 }
