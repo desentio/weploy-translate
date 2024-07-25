@@ -847,7 +847,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
       return;
     }
 
-    const debounceDuration = optsArgs.debounceDuration || 0;
+    const debounceDuration = optsArgs.debounceDuration == null ? 200 : optsArgs.debounceDuration;
 
     setOptions(apiKey, optsArgs)
 
