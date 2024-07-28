@@ -797,14 +797,17 @@ async function startTranslationCycle(node, apiKey, delay, shouldOptimizeSEO = fa
   // console.log("startTranslationCycle", "globalseo start translation", delay)
 
   return new Promise(async (resolve) => {
-    if (!delay) {
+    // execute the first translation attempt immediately
+    if (!delay && !window.isTranslationRunOnce) {
+      // console.log("RUN FIRST")
+      window.isTranslationRunOnce = true;
       await modifyHtmlStrings(node, lang, apiKey, shouldOptimizeSEO).catch(console.log)
       resolve(undefined)
     } else {
       debounce(async () => {
         await modifyHtmlStrings(node, lang, apiKey, shouldOptimizeSEO).catch(console.log);
         resolve(undefined);
-      }, delay)();
+      }, delay || 1)(); // must have at least 1 milisecond to prevent browser hanging in super fast rerender condition (rare extreme case)
     }
   })
   
@@ -846,8 +849,7 @@ async function getTranslations(apiKey, optsArgs = {}) {
       console.error("GLOBALSEO: data-original-language is required, please add it to the script tag")
       return;
     }
-
-    const debounceDuration = optsArgs.debounceDuration == null ? 200 : optsArgs.debounceDuration;
+    const debounceDuration = optsArgs.debounceDuration == null ? 0 : optsArgs.debounceDuration;
 
     setOptions(apiKey, optsArgs)
 
