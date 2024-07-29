@@ -73,7 +73,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
           resolve(data);
         })
         .catch((err) => {
-          // console.error(err);
+          console.error(err);
           if (isBrowser()) {
             window.globalseoError = err.message;
             renderSelectorState();
@@ -81,7 +81,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
           }
           resolve([]);
         })
-    }, 0)();
+    }, 500)();
   });
 }
 
