@@ -34,9 +34,9 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
   let isOk = false;
 
   return await new Promise((resolve) => {
-    apiDebounce(async () => {
+    apiDebounce(() => {
       console.log("globalseo payload:", finalPayload);
-      await fetch(API_URL + "/globalseo/get-translations", {
+      fetch(API_URL + "/globalseo/get-translations", {
         method: "POST",
         headers: {
           'Content-Type': shouldCompressPayload ? 'application/octet-stream' : "application/json",
