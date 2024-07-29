@@ -36,7 +36,7 @@ Common Optional Configuration:
 - data-replace-links: By default, this is set to true, which allows the service to replace links with the translated URLs by appending the language code to the URL. If you wish to disable this feature, set it to false.
 - data-auto-create-selector: By default, this is set to true, which automatically creates a language selector on your website (if you put the language selector code). If you prefer to create a custom language selector, set this to false.
 - data-timeout: Set the delay (in milliseconds) before the translation service is activated. This is useful for ensuring that the page content is fully loaded before translation begins.
-- data-dynamic-translation: By default, this is set to true, which enables dynamic translation of new content that is added to the page after the initial load. If you prefer to disable this feature, set it to false. Disabling this feature can prevent malicious actors from translating content that is not intended for translation.
+<!-- - data-dynamic-translation: By default, this is set to true, which enables dynamic translation of new content that is added to the page after the initial load. If you prefer to disable this feature, set it to false. Disabling this feature can prevent malicious actors from translating content that is not intended for translation. -->
 - data-translate-attributes: If enabled, this feature will translate title & alt attributes of images and title attributes of links. This feature is intended to improve SEO and accessibility. By default, this is set to false. To enable this feature, set it to true.
 
 Advanced Optional Configuration:
