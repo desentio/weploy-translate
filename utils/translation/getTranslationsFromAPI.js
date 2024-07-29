@@ -81,7 +81,7 @@ async function getTranslationsFromAPI(strings, language, apiKey) {
           }
           resolve([]);
         })
-    }, 500)();
+    }, 0)();
   });
 }
 
