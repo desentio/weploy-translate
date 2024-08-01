@@ -1,4 +1,5 @@
 const { getGlobalseoOptions, shouldTranslateInlineText, CONTEXT_LIMIT, MAX_WORDS_LENGTH_FOR_CONTEXT, OLD_EXCLUDE_CLASS, MERGE_PREFIX } = require("../configs");
+const isExcluded = require("./isExcluded");
 const isUrl = require("./isUrl");
 
 function collectAllTextContentInsideNode(node, shouldExclude = false) {
@@ -12,7 +13,7 @@ function collectAllTextContentInsideNode(node, shouldExclude = false) {
       child &&
       child.className &&
       typeof child.className == "string" &&
-      (child.className.includes(OLD_EXCLUDE_CLASS) || child.className.includes("globalseo-exclude") || globalseoOptions.excludeClasses.length && globalseoOptions.excludeClasses.some(excludeClass => excludeClass && node.className.includes(excludeClass)) )
+      isExcluded(child.className)
     ) {
       return;
     }
@@ -272,7 +273,7 @@ function extractTextNodes(node, textNodes) {
       node &&
       node.className &&
       typeof node.className == "string" &&
-      (node.className.includes(OLD_EXCLUDE_CLASS) || node.className.includes("globalseo-exclude") || globalseoOptions.excludeClasses.length && globalseoOptions.excludeClasses.some(excludeClass => excludeClass && node.className.includes(excludeClass)) )
+      isExcluded(node.className)
     ) {
       return;
     }

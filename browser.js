@@ -29,6 +29,7 @@ if (isBrowser()) {
   const DATA_EXCLUDE_CONTENTS = "data-exclude-contents"; // format: "{{content1}}, {{content2}}"
   const DATA_DEBOUNCE = "data-debounce" // format: "2000"
   const DATA_TRANSLATE_FORM_PLACEHOLDER = "data-translate-form-placeholder"
+  const DATA_TRANSLATE_SELECT_OPTIONS = "data-translate-select-options"
 
   // FEATURE: Prevent Google Translate from translating the page
   // Set the 'translate' attribute of the HTML tag to 'no'
@@ -228,6 +229,8 @@ if (isBrowser()) {
 
   const translateFormPlaceholder = window.translationScriptTag.getAttribute(DATA_TRANSLATE_FORM_PLACEHOLDER) == "true";
 
+  const translateSelectOptions = window.translationScriptTag.getAttribute(DATA_TRANSLATE_SELECT_OPTIONS) == "true";
+
   const options = {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
@@ -242,7 +245,8 @@ if (isBrowser()) {
     translateSplittedText: false,
     langParam,
     debounceDuration,
-    translateFormPlaceholder
+    translateFormPlaceholder,
+    translateSelectOptions
   }
 
   function initTranslation() {

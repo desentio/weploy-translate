@@ -12,6 +12,7 @@ const { renderSelectorState } = require('./utils/selector/renderSelectorState.js
 const getTranslationCacheFromCloudflare = require('./utils/translation/getTranslationCacheFromCloudflare.js');
 const { isCompressionSupported } = require('./utils/compressions.js');
 const isUrl = require('./utils/translation/isUrl.js');
+const isExcluded = require('./utils/translation/isExcluded.js');
 
 var isDomListenerAdded;
 
@@ -158,6 +159,14 @@ function updateNode(node, language, type = "text", debugSource) {
     const newPlaceholder = window.translationCache?.[window.location.pathname]?.[language]?.[node.placeholder] || "";
     if (newPlaceholder && !newPlaceholder.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       node.placeholder = decodeHTMLEntities(newPlaceholder);
+    }
+    return;
+  }
+
+  if (type == "form" && node.tagName == "OPTION") {
+    const newText = window.translationCache?.[window.location.pathname]?.[language]?.[node.textContent] || "";
+    if (newText && !newText.includes(DEFAULT_UNTRANSLATED_VALUE)) {
+      node.textContent = decodeHTMLEntities(newText);
     }
     return;
   }
@@ -518,6 +527,19 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
           updateNode(node, language, "form", 5.2);
         }
       }
+
+      if(node.tagName == "OPTION") {
+        const cache = window.translationCache?.[window.location.pathname]?.[language]?.[node.textContent]
+        if (
+          !cache && !allTranslationValuesInAllPages.includes(node.textContent)
+        ) {
+          notInCache.push(node.textContent);
+        }
+
+        if (cache) {
+          updateNode(node, language, "form", 5.21);
+        }
+      }
     })
 
     // console.log("globalseo texts", notInCache);
@@ -668,15 +690,25 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     if (options.translateFormPlaceholder) {
       const inputTags = Array.from(document.getElementsByTagName('input'));
       // only include input that has placeholder attribute
-      const cleanAnchorTags = inputTags.filter((node) => (node.placeholder || "").trim());
+      const cleanAnchorTags = inputTags.filter((node) => (node.placeholder || "").trim() && !isExcluded(node.className));
 
       const textareaTags = Array.from(document.getElementsByTagName('textarea'));
       // only include textarea that has placeholder attribute
-      const cleanTextareaTags = textareaTags.filter((node) => (node.placeholder || "").trim());
+      const cleanTextareaTags = textareaTags.filter((node) => (node.placeholder || "").trim() && !isExcluded(node.className));
 
       otherNodes.push(
         ...cleanAnchorTags,
         ...cleanTextareaTags,
+      )
+    }
+
+    if (options.translateSelectOptions) {
+      const optionTags = Array.from(document.getElementsByTagName('option'));
+      // only include option that has value attribute and make sure the select tag is not excluded
+      const cleanOptionTags = optionTags.filter((node) => (node.textContent || "").trim() && !isExcluded(node.className) && node.parentElement.tagName == "SELECT" && !isExcluded(node.parentElement.className));
+
+      otherNodes.push(
+        ...cleanOptionTags,
       )
     }
 
