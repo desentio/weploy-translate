@@ -30,16 +30,8 @@ Place the following script inside your <head> tag
 #### Optional Configuration:
 - **data-use-browser-language**: Automatically sets the language based on the user's browser language. Set to `false` to disable.
 - **data-exclude-classes**: List CSS class names to exclude from translation, separated by commas (e.g., `chatbot, no-translate`).
-- **data-replace-links**: Replaces links with translated URLs by appending the language code. Set to `false` to disable.
-- **data-auto-create-selector**: Automatically creates a language selector if the code is present. Set to `false` for a custom selector.
-- **data-timeout**: Delay (in milliseconds) before the translation service activates, ensuring the page content is fully loaded.
-- **data-translate-attributes**: Translates `title` & `alt` attributes of images and links. Improves SEO and accessibility. Set to `true` to enable.
 
-#### Advanced Configuration
-- **data-lang-parameter**: URL parameter for setting the language (default: "lang"). Use a custom value if preferred.
-- **data-custom-language-code**: Custom language code for the language selector (e.g., `kk=kz` for "KZ" instead of "KK").
-- **data-exclude-contents**: Excludes specific text from translation using regular expressions. Format: `{{regex1}} {{regex2}}`.
-- **data-translate-form-placeholder**: Translates form placeholders. Set to `true` to enable.
+View more options [here](#advanced-configuration).
 
 ### 2. Add the language selector
 Enable users to select a language by adding:
@@ -69,4 +61,12 @@ Note: Input fields and iframes are ignored by default.
 Direct users to a specific language version by using the /?lang=LANGUAGE_CODE URL parameter. For instance, example.com/?lang=ru will automatically translate the page into Russian.
 
 
+#### Advanced Configuration
+- **data-translate-attributes**: Translates `title` & `alt` attributes of images and links. Improves SEO and accessibility. Set to `true` to enable.
+- **data-lang-parameter**: URL parameter for setting the language (default: "lang"). Use a custom value if preferred.
+- **data-timeout**: Delay (in milliseconds) before the translation service activates, ensuring the page content is fully loaded.
+- **data-replace-links**: Replaces links with translated URLs by appending the language code. Set to `false` to disable.
+- **data-custom-language-code**: Custom language code for the language selector (e.g., `kk=kz` for "KZ" instead of "KK").
+- **data-exclude-contents**: Excludes specific text from translation using regular expressions. Format: `{{regex1}} {{regex2}}`.
+- **data-translate-form-placeholder**: Translates form placeholders. Set to `true` to enable.
 
