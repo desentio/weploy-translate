@@ -25,13 +25,12 @@ Place the following script inside your <head> tag
 ```
 
 #### Script Configuration:
-
-1. **Important:** Replace YOUR_API_KEY with the actual API key obtained from your project. This is crucial for enabling the translation services.
-2. Language Settings: data-original-language: Set this attribute to your website's primary language code (e.g., en for English, fr for French).
-3. data-allowed-languages: Configure this according to your Globalseo project's requirements. List the language codes (e.g., en, fr, de) that you wish to support on your site.
+1. Replace YOUR_API_KEY with the actual API key obtained from your project.
+2. Set `data-original-language` to your website's primary language code.
+3. Add the languages you want to translate your website to here: `data-allowed-languages`.
 
 #### Optional Configuration:
-- **data-use-browser-language**: Automatically translates the website based on the user's browser language. Set to `false` to disable.
+- **data-use-browser-language**: Automatically sets the language based on the user's browser language. Set to `false` to disable.
 - **data-exclude-classes**: List CSS class names to exclude from translation, separated by commas (e.g., `chatbot, no-translate`).
 - **data-replace-links**: Replaces links with translated URLs by appending the language code. Set to `false` to disable.
 - **data-auto-create-selector**: Automatically creates a language selector if the code is present. Set to `false` for a custom selector.
