@@ -30,6 +30,7 @@ Place the following script inside your <head> tag
 #### Optional Configuration:
 - **data-use-browser-language**: Automatically sets the language based on the user's browser language. Set to `false` to disable.
 - **data-exclude-classes**: List CSS class names to exclude from translation, separated by commas (e.g., `chatbot, no-translate`).
+- **data-exclude-ids**: List IDs to exclude from translation, separated by commas (e.g., `user-comment, code-snippet` will prevent translation of elements with ID `user-comment` and `code-snippet`).
 
 View more options [here](#advanced-configuration).
 

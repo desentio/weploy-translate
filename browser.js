@@ -16,6 +16,7 @@ if (isBrowser()) {
   // COMMON OPTIONAL ATTRIBUTES
   const DATA_USE_BROWSER_LANG = "data-use-browser-language"; // default: true
   const DATA_EXCLUDE_CLASSES = "data-exclude-classes";
+  const DATA_EXCLUDE_IDS = "data-exclude-ids";
   const DATA_REPLACE_LINKS = "data-replace-links"; // default: true
   const DATA_AUTO_CREATE_SELECTOR = "data-auto-create-selector"; // default: true
   const DATA_DELAY = "data-timeout"; // default: 0
@@ -206,6 +207,13 @@ if (isBrowser()) {
   const mergedExcludeClasses = [...excludeClassesByComma, ...excludeClassesBySpace];
   const excludeClasses = [...new Set(mergedExcludeClasses)]; // get unique values
 
+  // exclude ids
+  const excludeIdsAttr = (window.translationScriptTag.getAttribute(DATA_EXCLUDE_IDS) || "").trim()
+  const excludeIdsByComma = excludeIdsAttr.split(",").filter(id => !!id).map(id => id.trim());
+  const excludeIdsBySpace = excludeIdsAttr.split(" ").filter(id => !!id).map(id => id.trim().replaceAll(",", ""));
+  const mergedExcludeIds = [...excludeIdsByComma, ...excludeIdsBySpace];
+  const excludeIds = [...new Set(mergedExcludeIds)]; // get unique values
+
   // exclude contents
   const excludeContentsAttr = (window.translationScriptTag.getAttribute(DATA_EXCLUDE_CONTENTS) || "").trim()
   const splittedContents = getTextInsideBrackets(excludeContentsAttr);
@@ -235,6 +243,7 @@ if (isBrowser()) {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
     excludeClasses,
+    excludeIds,
     excludeContents,
     originalLanguage: originalLang,
     allowedLanguages: allowedLangs,

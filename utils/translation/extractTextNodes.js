@@ -1,5 +1,5 @@
 const { getGlobalseoOptions, shouldTranslateInlineText, CONTEXT_LIMIT, MAX_WORDS_LENGTH_FOR_CONTEXT, OLD_EXCLUDE_CLASS, MERGE_PREFIX } = require("../configs");
-const isExcluded = require("./isExcluded");
+const { isExcludedClassName, isExcludedId } = require("./isExcluded");
 const isUrl = require("./isUrl");
 
 function collectAllTextContentInsideNode(node, shouldExclude = false) {
@@ -13,10 +13,14 @@ function collectAllTextContentInsideNode(node, shouldExclude = false) {
       child &&
       child.className &&
       typeof child.className == "string" &&
-      isExcluded(child.className)
+      isExcludedClassName(child.className)
     ) {
       return;
     }
+
+    if (child && child.id && typeof child.id == "string" && isExcludedId(child.id)) {
+      return;
+    };
 
     if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
       textNodes.push(child);
@@ -273,10 +277,15 @@ function extractTextNodes(node, textNodes) {
       node &&
       node.className &&
       typeof node.className == "string" &&
-      isExcluded(node.className)
+      isExcludedClassName(node.className)
     ) {
       return;
     }
+
+    if (node && node.id && typeof node.id == "string" && isExcludedId(node.id)) {
+      return;
+    };
+
     for (let child of node.childNodes) {
       extractTextNodes(child, textNodes);
     }

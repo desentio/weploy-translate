@@ -12,7 +12,7 @@ const { renderSelectorState } = require('./utils/selector/renderSelectorState.js
 const getTranslationCacheFromCloudflare = require('./utils/translation/getTranslationCacheFromCloudflare.js');
 const { isCompressionSupported } = require('./utils/compressions.js');
 const isUrl = require('./utils/translation/isUrl.js');
-const isExcluded = require('./utils/translation/isExcluded.js');
+const { isExcludedClassName, isExcludedId } = require('./utils/translation/isExcluded.js');
 
 var isDomListenerAdded;
 
@@ -690,11 +690,11 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     if (options.translateFormPlaceholder) {
       const inputTags = Array.from(document.getElementsByTagName('input'));
       // only include input that has placeholder attribute
-      const cleanAnchorTags = inputTags.filter((node) => (node.placeholder || "").trim() && !isExcluded(node.className));
+      const cleanAnchorTags = inputTags.filter((node) => (node.placeholder || "").trim() && !isExcludedClassName(node.className) && !isExcludedId(node.id));
 
       const textareaTags = Array.from(document.getElementsByTagName('textarea'));
       // only include textarea that has placeholder attribute
-      const cleanTextareaTags = textareaTags.filter((node) => (node.placeholder || "").trim() && !isExcluded(node.className));
+      const cleanTextareaTags = textareaTags.filter((node) => (node.placeholder || "").trim() && !isExcludedClassName(node.className) && !isExcludedId(node.id));
 
       otherNodes.push(
         ...cleanAnchorTags,
@@ -705,7 +705,7 @@ function modifyHtmlStrings(rootElement, language, apiKey, shouldOptimizeSEO) {
     if (options.translateSelectOptions) {
       const optionTags = Array.from(document.getElementsByTagName('option'));
       // only include option that has value attribute and make sure the select tag is not excluded
-      const cleanOptionTags = optionTags.filter((node) => (node.textContent || "").trim() && !isExcluded(node.className) && node.parentElement.tagName == "SELECT" && !isExcluded(node.parentElement.className));
+      const cleanOptionTags = optionTags.filter((node) => (node.textContent || "").trim() && !isExcludedClassName(node.className) && node.parentElement.tagName == "SELECT" && !isExcludedClassName(node.parentElement.className) && !isExcludedId(node.parentElement.id) && !isExcludedId(node.id));
 
       otherNodes.push(
         ...cleanOptionTags,
@@ -864,6 +864,7 @@ function setOptions(apiKey, optsArgs) {
     timeout: optsArgs.timeout == null ? 0 : optsArgs.timeout,
     pathOptions: optsArgs.pathOptions || {},
     apiKey,
+    excludeIds: optsArgs.excludeIds || [],
     excludeClasses: optsArgs.excludeClasses || [],
     excludeContents: optsArgs.excludeContents || [],
     definedLanguages: getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages),
