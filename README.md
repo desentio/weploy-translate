@@ -41,7 +41,6 @@ Place the following script inside your <head> tag
 #### Advanced Configuration
 - **data-lang-parameter**: URL parameter for setting the language (default: "lang"). Use a custom value if preferred.
 - **data-custom-language-code**: Custom language code for the language selector (e.g., `kk=kz` for "KZ" instead of "KK").
-- **data-translate-splitted-text (BETA)**: Merges split text elements into a single translation unit. Set to `true` to enable (e.g., `<h1><span>My</span> <span>Brand</span></h1>`).
 - **data-exclude-contents**: Excludes specific text from translation using regular expressions. Format: `{{regex1}} {{regex2}}`.
 - **data-translate-form-placeholder**: Translates form placeholders. Set to `true` to enable.
 
