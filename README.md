@@ -60,8 +60,7 @@ Note: Input fields and iframes are ignored by default.
 
 Direct users to a specific language version by using the /?lang=LANGUAGE_CODE URL parameter. For instance, example.com/?lang=ru will automatically translate the page into Russian.
 
-
-#### Advanced Configuration
+## Advanced Configuration
 - **data-translate-attributes**: Translates `title` & `alt` attributes of images and links. Improves SEO and accessibility. Set to `true` to enable.
 - **data-lang-parameter**: URL parameter for setting the language (default: "lang"). Use a custom value if preferred.
 - **data-timeout**: Delay (in milliseconds) before the translation service activates, ensuring the page content is fully loaded.
