@@ -1,14 +1,12 @@
 Enhance your website with GPT-4 powered translations. For more details, visit our integration guides: [globalseo.ai/integration](https://www.globalseo.ai/integration).
 
-## About the Integration
-To set up Globalseo, all you need to do is add a custom code to the start of the body tag and embed a code for the language switcher. Additionally, ensure you have completed the following steps:
-
-- Sign up at https://app.globalseo.ai.
-- Create a project and select the languages into which you want to translate your website.
-- Copy the generated HTML code.
-- Save the project.
-
-# Setup your Integration
+### About the Integration
+To set up Globalseo, follow these steps:
+1. **Sign Up**: Go to [Globalseo](https://app.globalseo.ai) and sign up.
+2. **Create a Project**: Select the languages you want to translate your website into.
+3. **Copy the Code**: Copy the generated HTML code.
+4. **Embed the Code**: Add the custom code to the start of the `<body>` tag and include the code for the language switcher.
+5. **Save the Project**: Finalize by saving your project.
 
 ### 1. Insert the Script
 Place the following script inside your <head> tag
