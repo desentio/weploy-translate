@@ -19,7 +19,7 @@ if (isBrowser()) {
   const DATA_REPLACE_LINKS = "data-replace-links"; // default: true
   const DATA_AUTO_CREATE_SELECTOR = "data-auto-create-selector"; // default: true
   const DATA_DELAY = "data-timeout"; // default: 0
-  // const DATA_DYNAMIC_TRANSLATION = "data-dynamic-translation"; // default: true
+  const DATA_DYNAMIC_TRANSLATION = "data-dynamic-translation"; // default: true
   const DATA_TRANSLATE_ATTR = "data-translate-attributes"; // default: false
 
   // ADVANCED OPTIONAL ATTRIBUTES
@@ -219,7 +219,7 @@ if (isBrowser()) {
 
   const translateAttributes = window.translationScriptTag.getAttribute(DATA_TRANSLATE_ATTR) == "true";
 
-  // const dynamicTranslation = paramsUpdateTranslation == "true" || (window.translationScriptTag.getAttribute(DATA_DYNAMIC_TRANSLATION) != "false");
+  const dynamicTranslation = paramsUpdateTranslation == "true" || (window.translationScriptTag.getAttribute(DATA_DYNAMIC_TRANSLATION) != "false");
 
   const translateSplittedText = window.translationScriptTag.getAttribute(DATA_MERGE_INLINE) == "true";
 
@@ -241,7 +241,7 @@ if (isBrowser()) {
     timeout: timeout,
     customLanguageCode,
     translateAttributes,
-    dynamicTranslation: true, // always true for now to prevent misundertanding
+    dynamicTranslation,
     translateSplittedText: false,
     langParam,
     debounceDuration,
