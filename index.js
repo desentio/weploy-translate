@@ -387,10 +387,18 @@ function translateNodes(textNodes = [], language = "", apiKey = "", seoNodes = [
     })
   }
   return new Promise(async (resolve) => {
-    // Remove empty strings
+    // Remove empty strings & unmatched context
     const cleanTextNodes = textNodes.filter(
-      (textNode) =>
-        typeof textNode.textContent == "string" && !!textNode.textContent.trim()
+      (textNode) => {
+        const trimmed = (typeof textNode.textContent === "string" && textNode.textContent.trim()) || "";
+        const isNotEmpty = !!trimmed;
+
+        const isTextContentIsInContext = textNode.context && typeof textNode.context == 'string' ? 
+          textNode.context.includes(trimmed) :
+          true;
+          
+        return isNotEmpty && isTextContentIsInContext;
+      }
     );
 
     // Initialize cache if not exist yet
