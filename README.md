@@ -69,4 +69,4 @@ Direct users to a specific language version by using the /?lang=LANGUAGE_CODE UR
 - **data-custom-language-code**: Custom language code for the language selector (e.g., `kk=kz` for "KZ" instead of "KK").
 - **data-exclude-contents**: Excludes specific text from translation using regular expressions. Format: `{{regex1}} {{regex2}}`.
 - **data-translate-form-placeholder**: Translates form placeholders. Set to `true` to enable.
-
+- **data-dynamic-translation**: Allow GlobalSEO to automatically generate new translations. Set to `false` to disable. If you have already reached the quota limit, setting this to false will prevent the error message from appearing on your site.
