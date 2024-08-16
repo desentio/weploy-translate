@@ -2,10 +2,16 @@ const { getGlobalseoOptions, shouldTranslateInlineText, CONTEXT_LIMIT, MAX_WORDS
 const { isExcludedClassName, isExcludedId } = require("./isExcluded");
 const isUrl = require("./isUrl");
 
-function collectAllTextContentInsideNode(node, shouldExclude = false) {
-  const globalseoOptions = getGlobalseoOptions();
+function isIgnoredTagInContext(tagName) {
+  return tagName && ["HTML", "HEAD", "SCRIPT", "STYLE", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "SELECT", "OPTION", "NOSCRIPT"].includes(tagName.toUpperCase())
+}
 
+function collectAllTextContentInsideNode(node, shouldExclude = false) {
   const textNodes = [];
+  if (isIgnoredTagInContext(node.tagName)) {
+    return textNodes
+  }
+  
   node.childNodes.forEach((child) => {
     if (shouldExclude && child && child.className && typeof child.className == "string" && (child.className.includes(OLD_EXCLUDE_CLASS) || child.className.includes("globalseo-exclude"))) return;
 
@@ -21,6 +27,9 @@ function collectAllTextContentInsideNode(node, shouldExclude = false) {
     if (child && child.id && typeof child.id == "string" && isExcludedId(child.id)) {
       return;
     };
+
+    // if script tag or style tag skip
+    if (isIgnoredTagInContext(child.tagName)) return;
 
     if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
       textNodes.push(child);
