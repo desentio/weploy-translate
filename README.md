@@ -11,9 +11,9 @@ To set up Globalseo, follow these steps:
 ### 1. Insert the Script
 Place the following script inside your <head> tag
 ```html
-<link href="https://unpkg.com/weploy-translate/dist/translate.css" rel="stylesheet">
+<link href="https://unpkg.com/globalseo/dist/translate.css" rel="stylesheet">
 <script
-  src="https://unpkg.com/weploy-translate/dist/translate.js"
+  src="https://unpkg.com/globalseo/dist/translate.js"
   data-globalseo-key="YOUR_API_KEY"
   data-use-browser-language="true"
   data-original-language="en"
