@@ -1,15 +1,11 @@
-const { isBrowser } = require("../configs");
-
-function getValueDisplays() {
-  if (!isBrowser()) return [];
+function getValueDisplays(window) {
   if (!window.valueDisplays) {
-    setValueDisplays([]);
+    setValueDisplays(window, []);
   }
   return window.valueDisplays;
 }
 
-function setValueDisplays(value = []) {
-  if (!isBrowser()) return;
+function setValueDisplays(window, value = []) {
   window.valueDisplays = value;
 }
 

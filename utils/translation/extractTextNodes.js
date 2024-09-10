@@ -6,7 +6,7 @@ function isIgnoredTagInContext(tagName) {
   return tagName && ["HTML", "HEAD", "SCRIPT", "STYLE", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "SELECT", "OPTION", "NOSCRIPT"].includes(tagName.toUpperCase())
 }
 
-function collectAllTextContentInsideNode(node, shouldExclude = false) {
+function collectAllTextContentInsideNode(window, node, shouldExclude = false) {
   const textNodes = [];
   if (isIgnoredTagInContext(node.tagName)) {
     return textNodes
@@ -19,35 +19,35 @@ function collectAllTextContentInsideNode(node, shouldExclude = false) {
       child &&
       child.className &&
       typeof child.className == "string" &&
-      isExcludedClassName(child.className)
+      isExcludedClassName(window,child.className)
     ) {
       return;
     }
 
-    if (child && child.id && typeof child.id == "string" && isExcludedId(child.id)) {
+    if (child && child.id && typeof child.id == "string" && isExcludedId(window, child.id)) {
       return;
     };
 
     // if script tag or style tag skip
     if (isIgnoredTagInContext(child.tagName)) return;
 
-    if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
+    if (child.nodeType === window.Node.TEXT_NODE && child.textContent.trim()) {
       textNodes.push(child);
     } 
     
-    if (child.nodeType !== Node.TEXT_NODE) {
-      textNodes.push(...collectAllTextContentInsideNode(child));
+    if (child.nodeType !== window.Node.TEXT_NODE) {
+      textNodes.push(...collectAllTextContentInsideNode(window, child));
     }
   });
   return textNodes;
 }
 
-function assignFullTextToTextNodes(node, textNodes, topLevelTagName) {
+function assignFullTextToTextNodes(window, node, textNodes, topLevelTagName) {
   const fullTextArray = textNodes.map((textNode) => textNode.textContent);
   const fullTextTagNames = textNodes.map((textNodes) => textNodes.parentNode.tagName)
 
   node.childNodes.forEach((child) => {
-    if (child.nodeType === Node.TEXT_NODE) {
+    if (child.nodeType === window.Node.TEXT_NODE) {
       // if (child.textContent.trim()) {
         child.fullTextArray = fullTextArray;
         child.fullTextIndex = textNodes.findIndex((textNode) => textNode === child);
@@ -56,22 +56,22 @@ function assignFullTextToTextNodes(node, textNodes, topLevelTagName) {
         child.cacheKey = `${MERGE_PREFIX}-${JSON.stringify(fullTextArray.filter(x => x && x.trim()))}`; // get rid of empty string
       // }
     } else {
-      assignFullTextToTextNodes(child, textNodes, topLevelTagName);
+      assignFullTextToTextNodes(window, child, textNodes, topLevelTagName);
     }
   });
 }
 
-function extractTextNodes(node, textNodes) {
+function extractTextNodes(window, node, textNodes) {
   if (!node) return;
   if (node.tagName && ["SCRIPT", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "SELECT", "OPTION", "STYLE", "NOSCRIPT"].includes(node.tagName.toUpperCase())) return;
 
-  if (node.nodeType === Node.TEXT_NODE) {
+  if (node.nodeType === window.Node.TEXT_NODE) {
     if (node.parentNode.tagName && ["SCRIPT", "SVG", "PATH", "CIRCLE", "TEXTAREA", "INPUT", "SELECT", "OPTION", "STYLE", "NOSCRIPT"].includes(node.parentNode.tagName.toUpperCase())) return;
 
     
     if(isUrl(node.textContent)) return;
 
-    const options = getGlobalseoOptions();
+    const options = getGlobalseoOptions(window);
     if (options.excludeContents.length && options.excludeContents.find((x) => {
       const regex = new RegExp(x);
       return regex.test(node.textContent);
@@ -87,7 +87,7 @@ function extractTextNodes(node, textNodes) {
     // 4. all parent siblings are inline elements OR not inline BUT all of its children are inline
     // 5. all parent siblings are NOT links or buttons (it means they were navigations)
     if (
-      shouldTranslateInlineText() &&
+      shouldTranslateInlineText(window) &&
       !node.cacheKey && 
       // 2. must be a child of an inline element
       node.parentNode instanceof Element && window.getComputedStyle(node.parentNode).display === 'inline' &&
@@ -97,7 +97,7 @@ function extractTextNodes(node, textNodes) {
       const parentSiblings = [];
       
       (node.parentNode.parentNode.childNodes || []).forEach((child) => {
-        if (child.nodeType === Node.TEXT_NODE) {
+        if (child.nodeType === window.Node.TEXT_NODE) {
           if (child.textContent.trim()) {
             parentSiblings.push(child);
           }
@@ -108,7 +108,7 @@ function extractTextNodes(node, textNodes) {
 
       const parentSiblingsValidity = parentSiblings.map((child) => {
         // if text node
-        if (child.nodeType === Node.TEXT_NODE) {
+        if (child.nodeType === window.Node.TEXT_NODE) {
           return true;
         }
 
@@ -144,7 +144,7 @@ function extractTextNodes(node, textNodes) {
               }
             }
 
-            if (grandChild.nodeType === Node.TEXT_NODE) {
+            if (grandChild.nodeType === window.Node.TEXT_NODE) {
               inlineChildren.push(grandChild);
             }
           });
@@ -169,11 +169,11 @@ function extractTextNodes(node, textNodes) {
 
       if (parentSiblings.length > 1 && shouldAssignFullText && !isAllParentSiblingsAreLinksOrButtons) {
         // console.log('node', node, parentSiblings);
-        const textNodes = collectAllTextContentInsideNode(node.parentNode.parentNode);
+        const textNodes = collectAllTextContentInsideNode(window, node.parentNode.parentNode);
 
         if (textNodes.length > 1) {
           const topLevelTagName = node.parentNode.parentNode.tagName; // inject top level tagname for extra context
-          assignFullTextToTextNodes(node.parentNode.parentNode, textNodes, topLevelTagName);
+          assignFullTextToTextNodes(window, node.parentNode.parentNode, textNodes, topLevelTagName);
         };
       }
     }
@@ -188,7 +188,7 @@ function extractTextNodes(node, textNodes) {
 
     if (shouldAssignContext(node)) {
       // inject html around the text node as context
-      const textNodesForContext = collectAllTextContentInsideNode(node.parentNode.parentNode, true);
+      const textNodesForContext = collectAllTextContentInsideNode(window, node.parentNode.parentNode, true);
       // <div> Hello <div><div>Text 1 <span>fdfd</span></div></div> <h1>Text</h1></div>
 
       textNodesForContext.forEach((singleTextNode) => {
@@ -281,22 +281,22 @@ function extractTextNodes(node, textNodes) {
 
     textNodes.push(node);
   } else {
-    const globalseoOptions = getGlobalseoOptions();
+    const globalseoOptions = getGlobalseoOptions(window);
     if (
       node &&
       node.className &&
       typeof node.className == "string" &&
-      isExcludedClassName(node.className)
+      isExcludedClassName(window,node.className)
     ) {
       return;
     }
 
-    if (node && node.id && typeof node.id == "string" && isExcludedId(node.id)) {
+    if (node && node.id && typeof node.id == "string" && isExcludedId(window, node.id)) {
       return;
     };
 
     for (let child of node.childNodes) {
-      extractTextNodes(child, textNodes);
+      extractTextNodes(window, child, textNodes);
     }
   }
 }

@@ -1,26 +1,49 @@
+if (process.env.IS_WEBPACK) {
+  require(process.env.CSS_PATH || "../../globalseo.css")
+}
+
 const { loadingIconClassName, errorIconClassName, readyIconClassName, getLoadingGlobeIcon, getErrorGlobeIcon, getReadyGlobeIcon } = require("./icons");
-require(process.env.CSS_PATH || "../../translation.css")
-const cssModule = require(process.env.CSS_PATH_RAW || "../../translation.css?raw");
 
 const { isBrowser, getGlobalseoActiveLang, getGlobalseoOptions } = require("../configs");
 const { getLanguageFromLocalStorage } = require("../languages/getSelectedLanguage");
 const { fetchLanguageList } = require("../languages/fetchLanguageList");
 const { renderSelectorState } = require("./renderSelectorState");
 const { getValueDisplays, setValueDisplays } = require("./valueDisplay");
-const css = cssModule.default || cssModule;
 
-function addOrReplaceLangParam(url, lang) {
+
+function addOrReplaceLangParam(window, url, lang) {
   let urlObj = new URL(url);
-  let params = new URLSearchParams(urlObj.search);
 
-  const options = getGlobalseoOptions();
+  if (window.urlMode == "subdomain") {
+    let hostname = urlObj.hostname;
+    let subdomain = lang;
+
+    // get 2 last dots
+    let domain = hostname.split('.').slice(-2).join('.');
+    let newHostname = `${subdomain}.${domain}`;
+    urlObj.hostname = newHostname;
+    const newUrl = urlObj.toString();
+    // console.log("NEW URL", newUrl)
+    return newUrl;
+  }
+
+  if (window.urlMode == "path") {
+    let pathnames = urlObj.pathname.split('/');
+    pathnames.splice(1, 0, lang);
+    urlObj.pathname = pathnames.join('/');
+    return urlObj.toString();
+  }
+
+  let params = new URLSearchParams(urlObj.search);
+  const options = getGlobalseoOptions(window);
+  
   params.set(options.langParam || 'lang', lang);
   urlObj.search = params.toString();
 
   return urlObj.toString();
 }
 
-async function autoPosition(ul, globalseoSwitcher) {
+async function autoPosition(window, ul, globalseoSwitcher) {
   // if (e.target != globalseoSwitcher) return;
   if(!ul) return;
   // const ul = e.target.querySelector("ul");
@@ -53,25 +76,39 @@ function hideDropDown(element, globalseoSwitcher) {
   }
 }
 
-async function createLanguageSelect(apiKey, optsArgs = {}) {
-  if (!isBrowser()) return;
+async function createLanguageSelect(window, apiKey, optsArgs = {}) {
+  // if (!isBrowser()) return;
   if (!apiKey) {
     console.error("Globalseo API key is required");
     return;
   }  
 
-  // Check if the style tag already exists
-  if (!document.getElementById(`globalseo-style`)) {
-    const style = document.createElement('style');
+  function injectInlineStyle(css) {
+    const style = window.document.createElement('style');
     style.id = `globalseo-style`;
     style.textContent = css;
-    var docBody = document.body || document.getElementsByTagName("body")[0];
+    var docBody = window.document.body || window.document.getElementsByTagName("body")[0];
     if (docBody) docBody.appendChild(style);
   }
 
-  const availableLangs = optsArgs.isInit ? [] : await fetchLanguageList(apiKey);
-  const langInLocalStorage = optsArgs.isInit ? "" : await getLanguageFromLocalStorage();
-  const selectedLang = getGlobalseoActiveLang() || langInLocalStorage || availableLangs?.[0]?.lang || optsArgs.originalLanguage || "";
+  // Check if the style tag already exists
+  if (!window.document.getElementById(`globalseo-style`) && process.env.IS_WEBPACK) {
+    const cssModule = require(process.env.CSS_PATH_RAW || "../../globalseo.css?raw");
+    const css = cssModule.default || cssModule;
+    injectInlineStyle(css)
+  }
+
+  if (!window.document.getElementById(`globalseo-style`) && !process.env.IS_WEBPACK) {
+    const fs = require('fs')
+    const path = require('path');
+    const cssPath = path.join(__dirname, process.env.CSS_PATH || '../../globalseo.css');
+    const css = fs.readFileSync(cssPath, 'utf8').toString()
+    injectInlineStyle(css)
+  }
+
+  const availableLangs = optsArgs.isInit ? [] : await fetchLanguageList(window, apiKey);
+  const langInLocalStorage = optsArgs.isInit ? "" : await getLanguageFromLocalStorage(window);
+  const selectedLang = getGlobalseoActiveLang(window) || langInLocalStorage || availableLangs?.[0]?.lang || optsArgs.originalLanguage || "";
   const selectedLangUppercased = (selectedLang || "").substring(0, 2).toUpperCase();
   const selectedLangLowercased = (selectedLang || "").substring(0, 2).toLowerCase();
 
@@ -79,9 +116,9 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
     const brandName = className.startsWith("weploy") ? "weploy" : "globalseo";
     const isWithLangLabel = className == `${brandName}-select-with-name`;
     // Get elements by class
-    const classElements = document.getElementsByClassName(className);
+    const classElements = window.document.getElementsByClassName(className);
     // Get elements by ID, assuming IDs are like "globalseo-select-1", "globalseo-select-2", etc.
-    const idElementsStartsWithClassName = Array.from(document.querySelectorAll(`[id^="${brandName}-select"]`));
+    const idElementsStartsWithClassName = Array.from(window.document.querySelectorAll(`[id^="${brandName}-select"]`));
     const idElements = isWithLangLabel ? idElementsStartsWithClassName : idElementsStartsWithClassName.filter(el => !el.id.includes(`${brandName}-select-with-name`)); 
     // Combine and deduplicate elements
     const globalseoSwitchers = Array.from(new Set([...classElements, ...idElements]));
@@ -129,7 +166,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
 
           globalseoSwitcher.classList.add(`${brandName}-lang-selector-wrapper`)
           globalseoSwitcher.classList.add(`${brandName}-exclude`)
-          document.addEventListener('click', function(event) {
+          window.document.addEventListener('click', function(event) {
             let isClickInside = globalseoSwitcher.contains(event.target);
           
             if (details && !isClickInside) {
@@ -145,7 +182,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             }
           });
                     
-          let details = initializedSelectorByUser || document.createElement('details');
+          let details = initializedSelectorByUser || window.document.createElement('details');
           // details.dataset.behavior = 'languageSelector-topbar';
           details.role = 'group';
           details.className = `${brandName}-lang-selector-element`
@@ -157,7 +194,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
               if (childUl.style.visibility == 'hidden'){
                 globalseoSwitcher.style.overflow = 'unset';
                 childUl.removeAttribute('style');
-                autoPosition(childUl, globalseoSwitcher);
+                autoPosition(window, childUl, globalseoSwitcher);
               } else {
                 hideDropDown(childUl, globalseoSwitcher);
               }
@@ -165,7 +202,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           }
           
           const initializedSummaryByUser = initializedSelectorByUser?.querySelector?.('summary')
-          let summary = initializedSummaryByUser || document.createElement('summary');
+          let summary = initializedSummaryByUser || window.document.createElement('summary');
           if (!initializedSummaryByUser) {
             // summary.setAttribute('aria-expanded', 'true');
             // summary.setAttribute('aria-haspopup', 'true');
@@ -187,17 +224,17 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             globalseoSwitcher.getAttribute('data-icon-color') || 
             "#241c15";
           
-          const loadingIcon = initializedLoadingIcon || getLoadingGlobeIcon(iconColor)
-          const errorIcon = initializedErrorIcon || getErrorGlobeIcon(iconColor)
-          const readyIcon = initializedReadyIcon || getReadyGlobeIcon(iconColor)
+          const loadingIcon = initializedLoadingIcon || getLoadingGlobeIcon(window, iconColor)
+          const errorIcon = initializedErrorIcon || getErrorGlobeIcon(window, iconColor)
+          const readyIcon = initializedReadyIcon || getReadyGlobeIcon(window, iconColor)
           
-          getValueDisplays().push(summary);
+          getValueDisplays(window).push(summary);
           if (!initializedLoadingIcon) summary.insertBefore(loadingIcon, summary.firstChild)
           
           loadingIcon.after(errorIcon, readyIcon)
 
           const initializedSpanInSummaryByUser = initializedSummaryByUser?.querySelector?.(`.${brandName}-lang-selector-value`)
-          let spanInSummary = initializedSpanInSummaryByUser || document.createElement('span');
+          let spanInSummary = initializedSpanInSummaryByUser || window.document.createElement('span');
           if (!initializedSpanInSummaryByUser) {
             spanInSummary.setAttribute('aria-hidden', 'true');
             // spanInSummary.textContent = selectedLangUppercased;
@@ -212,10 +249,10 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
               spanInSummary.style.color = iconColor;
             }
           }
-           
+          
           // Create a dropdown icon
           const initializedDropdownIconByUser = initializedSummaryByUser?.querySelector?.(`.${brandName}-lang-selector-dropdown`)
-          const dropdownIcon = initializedDropdownIconByUser || document.createElement("div");
+          const dropdownIcon = initializedDropdownIconByUser || window.document.createElement("div");
           if (!initializedDropdownIconByUser) {
             dropdownIcon.style.width = ".25rem";
             dropdownIcon.style.height = ".25rem";
@@ -230,7 +267,7 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
             }
           }
           
-          let ul = document.createElement('ul');
+          let ul = window.document.createElement('ul');
           ul.className = `${brandName}-lang-selector-menu-container`;
           details.appendChild(ul);
           hideDropDown(ul, globalseoSwitcher);
@@ -239,14 +276,14 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           // globalseoSwitcher.onclick = autoPosition
 
           if (languages.length < 2) {
-            let li = document.createElement('li');
+            let li = window.document.createElement('li');
             ul.appendChild(li);
             globalseoSwitcher.appendChild(details);
 
             li.style.cursor = 'auto';
 
             if (window.globalseoError) {
-              let errorTextDiv = document.createElement('div');
+              let errorTextDiv = window.document.createElement('div');
               li.appendChild(errorTextDiv);
 
               errorTextDiv.style.padding = '5px';
@@ -258,11 +295,11 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           languages.forEach((language, index) => {
               const isSelected = language.lang == selectedLangLowercased;
 
-              let li = document.createElement('li');
+              let li = window.document.createElement('li');
               ul.appendChild(li);
 
-              let a = document.createElement('a');
-              const url = isSelected ? "#" : addOrReplaceLangParam(window.location.href, language.lang);
+              let a = window.document.createElement('a');
+              const url = isSelected ? "#" : addOrReplaceLangParam(window, window.location.href, language.lang);
 
               a.href = url;
               a.hreflang = language.lang;
@@ -279,35 +316,35 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
                 }
 
                 window.globalseoTranslating = true;
-                renderSelectorState();
+                renderSelectorState(window);
               });
 
               a.className = `${brandName}-lang-selector-menu-container-item ${isSelected ? 'selected' : ''}`;
 
               li.appendChild(a);
           
-              const options = getGlobalseoOptions();
+              const options = getGlobalseoOptions(window);
               const langCode = options.customLanguageCode?.[language.lang] || language.lang;
-              let span = document.createElement('span');
+              let span = window.document.createElement('span');
               span.setAttribute('aria-hidden', 'true');
               span.className = `${brandName}-lang-selector-menu-container-item-code`;
               span.textContent = langCode.toUpperCase();
               a.appendChild(span);
           
-              let p = document.createElement('div');
+              let p = window.document.createElement('div');
               p.lang = language.lang;
               p.className = `${brandName}-lang-selector-menu-container-item-locale`;
               p.textContent = language.label;
               a.appendChild(p);
 
               if (isSelected) {
-                let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                let svg = window.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 svg.setAttribute('aria-hidden', 'true');
                 svg.setAttribute('viewBox', '0 0 24 24');
                 svg.setAttribute('class', `${brandName}-lang-selector-menu-container-item-selected`);
                 a.appendChild(svg);
         
-                let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                let path = window.document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('fill-rule', 'evenodd');
                 path.setAttribute('clip-rule', 'evenodd');
                 path.setAttribute('d', 'M20.7071 7.70712L9.99995 18.4142L4.79285 13.2071L6.20706 11.7929L9.99995 15.5858L19.2928 6.29291L20.7071 7.70712Z');
@@ -316,12 +353,13 @@ async function createLanguageSelect(apiKey, optsArgs = {}) {
           });
           
           if (!initializedSelectorByUser) globalseoSwitcher.appendChild(details);
-          autoPosition(ul, globalseoSwitcher);
+          autoPosition(window, ul, globalseoSwitcher);
         }
       });
     }
   })
 }
+
 
 module.exports = {
   createLanguageSelect,

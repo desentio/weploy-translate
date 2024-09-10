@@ -1,7 +1,7 @@
 const { decompressString } = require("../compressions");
 const { CDN_URL } = require("../configs");
 
-async function getTranslationCacheFromCDN(language, apiKey) {
+async function getTranslationCacheFromCDN(window, language, apiKey) {
   if (!language) {
     throw new Error("globalseoError: Missing language");
   }
@@ -13,7 +13,7 @@ async function getTranslationCacheFromCDN(language, apiKey) {
   const cacheKey = `${apiKey}-${encodeURIComponent(window.location.pathname)}-${langIso}`;
 
   return await new Promise((resolve) => {
-    fetch(CDN_URL + `/globalseo/get-translation-cache/${cacheKey}.html`, {
+    window.fetch(CDN_URL + `/globalseo/get-translation-cache/${cacheKey}.html`, {
       method: "GET",
       headers: {
         "globalseoskip": "yes"
@@ -36,9 +36,9 @@ async function getTranslationCacheFromCDN(language, apiKey) {
           resolve({})
           return;
         }
-        return decompressString(str, 'gzip')
+        return decompressString(window, str, 'gzip')
       })
-      .then(JSON.parse)
+      .then((res) => JSON.parse(res || "{}"))
       .then(resolve)
       .catch((err) => {
         // console.error(err);

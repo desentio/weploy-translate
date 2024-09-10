@@ -18,108 +18,61 @@ const SPECIAL_API_KEYS = ["cb20c25d-2d15-46ab-aac2-de5aa6b0aeda"]
 /** Translation Options */
 var globalseoOptions;
 
-function getGlobalseoOptions() {
-  if (isBrowser()) {
-    if (!window.globalseoOptions) {
-      setGlobalseoOptions({})
-    }
-
-    const userAgent = window.navigator.userAgent;
-    const isRobot = detectRobot(userAgent);
-
-    if (isRobot) {
-      setGlobalseoOptions({
-        useBrowserLanguage: false,
-        isRobot: true
-      })
-      return window.globalseoOptions;
-    }
-
-    return window.globalseoOptions;
-  } else {
-    if (!globalseoOptions) {
-      setGlobalseoOptions({})
-    }
-    return globalseoOptions;
+function getGlobalseoOptions(window) {
+  if (!window.globalseoOptions) {
+    setGlobalseoOptions(window, {})
   }
+
+  const userAgent = window.navigator?.userAgent;
+  const isRobot = userAgent ? detectRobot(userAgent) : false;
+
+  if (isRobot) {
+    setGlobalseoOptions(window, {
+      useBrowserLanguage: false,
+      isRobot: true
+    })
+    return window.globalseoOptions;
+  }
+
+  return window.globalseoOptions;
 }
 
-function setGlobalseoOptions(value = {}) {
-  if (isBrowser()) {
+function setGlobalseoOptions(window, value = {}) {
     window.globalseoOptions = {
       ...(window.globalseoOptions || {}),
       ...value,
     };
-    
-  } else {
-    globalseoOptions = {
-      ...(globalseoOptions || {}),
-      ...value
-    };
-  }
 }
 
-/** Active Language */
-var globalseoActiveLang;
-
-function getGlobalseoActiveLang() {
-  if (isBrowser()){
-    if (window.paramsLang) {
-      return window.paramsLang;
-    } 
-    if (!window.globalseoActiveLang) {
-      setGlobalseoActiveLang(null)
-    }
-    return window.globalseoActiveLang;
-  } else {
-    if (!globalseoActiveLang) {
-      setGlobalseoActiveLang(null)
-    }
-    return globalseoActiveLang;
+function getGlobalseoActiveLang(window) {
+  if (window.paramsLang) {
+    return window.paramsLang;
+  } 
+  if (!window.globalseoActiveLang) {
+    setGlobalseoActiveLang(window, null)
   }
+  return window.globalseoActiveLang;
 }
 
-function setGlobalseoActiveLang(language) {
-  if (isBrowser()) {
-    window.globalseoActiveLang = language
-  } else {
-    globalseoActiveLang = language
-  }
+function setGlobalseoActiveLang(window, language) {
+  window.globalseoActiveLang = language
 }
 
-/** Is Translation Initialized */
-var isTranslationInitialized;
-
-function getIsTranslationInitialized() {
-  if (isBrowser()){ 
-    if (!window.isTranslationInitialized) {
-      setIsTranslationInitialized(null)
-    }
-    return window.isTranslationInitialized;
-  } else {
-    if (!isTranslationInitialized) {
-      setIsTranslationInitialized(null)
-    }
-    return isTranslationInitialized;
+function getIsTranslationInitialized(window) {
+  if (!window.isTranslationInitialized) {
+    setIsTranslationInitialized(window, null)
   }
+  return window.isTranslationInitialized;
 }
 
-function setIsTranslationInitialized(value) {
-  if (isBrowser()) {
-    window.isTranslationInitialized = value
-  } else {
-    isTranslationInitialized = value
-  }
+function setIsTranslationInitialized(window, value) {
+  window.isTranslationInitialized = value
 }
 
-function shouldTranslateInlineText() {
-  if (isBrowser()) {
-    const options = getGlobalseoOptions();
-    const shouldtranslateSplittedText = options?.translateSplittedText || USE_MERGE;
-    return shouldtranslateSplittedText;
-  } else {
-    return false;
-  }
+function shouldTranslateInlineText(window) {
+  const options = getGlobalseoOptions(window);
+  const shouldtranslateSplittedText = options?.translateSplittedText || USE_MERGE;
+  return shouldtranslateSplittedText;
 }
 
 module.exports = {

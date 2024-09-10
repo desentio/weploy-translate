@@ -2,9 +2,9 @@ const readyIconClassName = `globalseo-lang-selector-ready-icon`;
 const loadingIconClassName = `globalseo-lang-selector-loading-icon`;
 const errorIconClassName = `globalseo-lang-selector-error-icon`;
 
-function getReadyGlobeIcon(strokeColor) {
+function getReadyGlobeIcon(window, strokeColor) {
   // Create a new div element
-  var newDiv = document.createElement("div");
+  var newDiv = window.document.createElement("div");
 
   // Set the innerHTML of the div
   newDiv.innerHTML = `<svg class="${readyIconClassName}" width="20" height="20" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -14,9 +14,9 @@ function getReadyGlobeIcon(strokeColor) {
   return newDiv.getElementsByTagName("svg")[0];
 }
 
-function getLoadingGlobeIcon(strokeColor = "#241c15") {
+function getLoadingGlobeIcon(window, strokeColor = "#241c15") {
   // Create a new div element
-  const newDiv = document.createElement("div");
+  const newDiv = window.document.createElement("div");
 
   // Set the innerHTML of the div
   newDiv.innerHTML = `<svg class="${loadingIconClassName}" width="20" height="20" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,9 +29,9 @@ function getLoadingGlobeIcon(strokeColor = "#241c15") {
   return newDiv.getElementsByTagName("svg")[0];
 }
 
-function getErrorGlobeIcon(strokeColor) {
+function getErrorGlobeIcon(window, strokeColor) {
 // Create a new div element
-var newDiv = document.createElement("div");
+var newDiv = window.document.createElement("div");
 
 // Set the innerHTML of the div
 newDiv.innerHTML = `<svg class="${errorIconClassName}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 34 34" fill="none">

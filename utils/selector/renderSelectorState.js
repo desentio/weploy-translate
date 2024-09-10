@@ -1,4 +1,4 @@
-const { getGlobalseoActiveLang, getGlobalseoOptions } = require("../configs");
+const { getGlobalseoActiveLang, getGlobalseoOptions, isBrowser } = require("../configs");
 const { getValueDisplays } = require("./valueDisplay");
 
 const selectorStateClasses = {
@@ -14,12 +14,13 @@ const selectorStateClasses = {
   }
 }
 
-function renderSelectorState(opts = { shouldUpdateActiveLang: true }) {
-  if (!getValueDisplays().length) return;
+function renderSelectorState(window, opts = { shouldUpdateActiveLang: true }) {
+  if (!isBrowser()) return;
+  if (!getValueDisplays(window).length) return;
 
   const shouldUpdateActiveLang = opts.shouldUpdateActiveLang
 
-  getValueDisplays().forEach((selector) => {
+  getValueDisplays(window).forEach((selector) => {
     const weployValue = selector.querySelector('.weploy-lang-selector-value');
     if (weployValue) {
       weployValue.classList.add('globalseo-lang-selector-value');
@@ -42,8 +43,8 @@ function renderSelectorState(opts = { shouldUpdateActiveLang: true }) {
     const errorClass = selectorStateClasses[classKey].error;
 
     if (value && shouldUpdateActiveLang) {
-      const activeLang = getGlobalseoActiveLang() || "";
-      const options = getGlobalseoOptions();
+      const activeLang = getGlobalseoActiveLang(window) || "";
+      const options = getGlobalseoOptions(window);
       value.innerText = (options.customLanguageCode?.[activeLang] || activeLang).toUpperCase();
     }
 
@@ -57,7 +58,7 @@ function renderSelectorState(opts = { shouldUpdateActiveLang: true }) {
       selector.classList.add(errorClass);
       selector.classList.remove(readyClass, loadingClass); 
       const ul = selector.nextElementSibling;
-      const errorListItem = document.createElement('li');
+      const errorListItem = window.document.createElement('li');
       errorListItem.innerHTML = `<span class="globalseo-errormsg">ERROR: ${window.globalseoError}</span>`
       ul.appendChild(errorListItem);
       return;

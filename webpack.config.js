@@ -77,6 +77,7 @@ module.exports = (env, argv) => {
                     CSS_PATH: JSON.stringify('../../globalseo.css'),
                     CSS_PATH_RAW: JSON.stringify('../../globalseo.css?raw'),
                     PREV_SCRIPT_VERSION: JSON.stringify(prevVersion),
+                    IS_WEBPACK: JSON.stringify(true),
                 },
             }),
         ],
