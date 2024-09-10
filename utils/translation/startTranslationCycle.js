@@ -4,7 +4,10 @@ const modifyHtmlStrings = require("./modifyHtmlStrings");
 const { debounce } = require("../debounce");
 
 async function startTranslationCycle(window, node, apiKey, delay, shouldOptimizeSEO = false) {
-  if (window.preventInitialTranslation) return;
+  if (window.preventInitialTranslation) {
+    window.preventInitialTranslation = false;
+    return;
+  };
   const lang = window.paramsLang || getGlobalseoActiveLang(window) || await getLanguageFromLocalStorage(window);
   const options = getGlobalseoOptions(window);
   const originalLang = options?.originalLanguage;
