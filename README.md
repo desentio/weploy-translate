@@ -21,7 +21,7 @@ Place the following script inside your <head> tag
   data-exclude-classes=""
 ></script>
 ```
-
+ 
 #### Script Configuration:
 1. Replace YOUR_API_KEY with the actual API key obtained from your project.
 2. Set `data-original-language` to your website's primary language code.
