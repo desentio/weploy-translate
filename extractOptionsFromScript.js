@@ -7,16 +7,13 @@ const detectRobot = require("./utils/detectRobot");
  * @param {any} window - The global window object.
  * @param {Object} optsArgs - Options for extraction.
  * @param {string|null} optsArgs.activeLanguage - The active language (optional).
- * @param {"searchParams"|"subdomain"|"path"} optsArgs.urlMode - The URL mode.
- * @param {"globalseo"|"weploy"} optsArgs.brand - The brand name.
+ * @param {"globalseo"|"weploy"} [optsArgs.brand] - The brand name.
  *   - "searchParams": Extract options from query parameters.
  *   - "subdomain": Extract options from subdomains.
  *   - "pathname": Extract options from the path.
  */
 function extractOptionsFromScript(window, optsArgs = {
   activeLanguage: null,
-  urlMode: "searchParams",
-  brand: "globalseo"
 }) {
   if (isBrowser()) {
     if (!window.translationCache) {
@@ -40,6 +37,9 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_DELAY = "data-timeout"; // default: 0
   const DATA_DYNAMIC_TRANSLATION = "data-dynamic-translation"; // default: true
   const DATA_TRANSLATE_ATTR = "data-translate-attributes"; // default: false
+
+  // SUBDOMAIN OPTIONAL ATTRIBUTES
+  const DATA_TRANSLATION_MODE = "data-translation-mode"; // default: "searchParams"
 
   // ADVANCED OPTIONAL ATTRIBUTES
   const DATA_LANG_PARAMETER = "data-lang-parameter"; // default: "lang"
@@ -84,6 +84,7 @@ function extractOptionsFromScript(window, optsArgs = {
     return matches;
   }
 
+  const translationMode = window.translationScriptTag.getAttribute(DATA_TRANSLATION_MODE) || "searchParams";
 
   const langParam = window.translationScriptTag.getAttribute(DATA_LANG_PARAMETER) || "lang";
 
@@ -140,10 +141,10 @@ function extractOptionsFromScript(window, optsArgs = {
       url.searchParams.set(langParam, lang);
       alternateLinkTag.setAttribute('rel', 'alternate');
       alternateLinkTag.setAttribute('hreflang', lang);
-      if (optsArgs.urlMode == "searchParams") {
+      if (translationMode == "searchParams") {
         alternateLinkTag.href = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${langParam}=${lang}`;
       }
-      if (optsArgs.urlMode == "subdomain") {
+      if (translationMode == "subdomain") {
         // remove lang param
         url.searchParams.delete(langParam);
 
@@ -154,7 +155,7 @@ function extractOptionsFromScript(window, optsArgs = {
         url.hostname = subdomains.join('.');
         alternateLinkTag.href = url.href;
       }
-      if (optsArgs.urlMode == "path") {
+      if (translationMode == "path") {
         // remove lang param
         url.searchParams.delete(langParam);
         
@@ -287,7 +288,8 @@ function extractOptionsFromScript(window, optsArgs = {
     translateSelectOptions,
     shouldReplaceLinks,
     paramsLang,
-    apiKey
+    apiKey,
+    translationMode
   }
 }
 

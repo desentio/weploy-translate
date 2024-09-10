@@ -17,7 +17,7 @@ if (isBrowser()) {
   function initTranslation() {
     // replace links with lang (for SEO purposes)
     if (shouldReplaceLinks && paramsLang && (paramsLang != originalLanguage)) {
-      replaceLinks(window, {langParam, lang: paramsLang, urlMode: "searchParams"});
+      replaceLinks(window, {langParam, lang: paramsLang, translationMode: options.translationMode});
     }
     getTranslations(window, apiKey, options)
   }

@@ -1,4 +1,4 @@
-function replaceLinks(window, {langParam, lang, urlMode}) {
+function replaceLinks(window, {langParam, lang, translationMode}) {
   // Select all anchor tags
   let anchors = window.document.querySelectorAll('a');
 
@@ -17,7 +17,7 @@ function replaceLinks(window, {langParam, lang, urlMode}) {
     }
 
     const anchorDomain = anchor.hostname.split('.').slice(-2).join('.');
-    if (urlMode == 'subdomain' && anchorDomain === domain) {
+    if (translationMode == 'subdomain' && anchorDomain === domain) {
       // Create a new URL object
       let url = new URL(anchor.href);
 
@@ -29,7 +29,7 @@ function replaceLinks(window, {langParam, lang, urlMode}) {
 
       // Update the href of the anchor tag
       anchor.href = url.href;
-    } else if (urlMode == 'path' && anchor.hostname === window.location.hostname) {
+    } else if (translationMode == 'path' && anchor.hostname === window.location.hostname) {
       // Create a new URL object
       let url = new URL(anchor.href);
 

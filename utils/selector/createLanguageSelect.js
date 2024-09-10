@@ -14,20 +14,22 @@ const { getValueDisplays, setValueDisplays } = require("./valueDisplay");
 function addOrReplaceLangParam(window, url, lang) {
   let urlObj = new URL(url);
 
-  if (window.urlMode == "subdomain") {
+  const options = getGlobalseoOptions(window);
+
+  if (options.translationMode == "subdomain") {
     let hostname = urlObj.hostname;
     let subdomain = lang;
 
     // get 2 last dots
     let domain = hostname.split('.').slice(-2).join('.');
-    let newHostname = `${subdomain}.${domain}`;
+    let newHostname = options.originalLanguage == lang ? domain : `${subdomain}.${domain}`;
     urlObj.hostname = newHostname;
     const newUrl = urlObj.toString();
     // console.log("NEW URL", newUrl)
     return newUrl;
   }
 
-  if (window.urlMode == "path") {
+  if (options.translationMode == "path") {
     let pathnames = urlObj.pathname.split('/');
     pathnames.splice(1, 0, lang);
     urlObj.pathname = pathnames.join('/');
@@ -35,7 +37,6 @@ function addOrReplaceLangParam(window, url, lang) {
   }
 
   let params = new URLSearchParams(urlObj.search);
-  const options = getGlobalseoOptions(window);
   
   params.set(options.langParam || 'lang', lang);
   urlObj.search = params.toString();
