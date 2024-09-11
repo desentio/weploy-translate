@@ -2,8 +2,8 @@ function replaceLinks(window, {langParam, lang, translationMode}) {
   // Select all anchor tags
   let anchors = window.document.querySelectorAll('a');
 
-  // Main domain
-  const domain = window.location.hostname.split('.').slice(-2).join('.');
+  // domain
+  const domain = window.location.hostname.split('.').slice(1).join('.');
 
   // Loop through all anchor tags
   for (let i = 0; i < anchors.length; i++) {
@@ -16,20 +16,24 @@ function replaceLinks(window, {langParam, lang, translationMode}) {
       anchor.href = fullHref;
     }
 
-    const anchorDomain = anchor.hostname.split('.').slice(-2).join('.');
-    if (translationMode == 'subdomain' && anchorDomain === domain) {
+    if (anchor.hostname != window.location.hostname) {
+      // Check if the link is external
+      continue;
+    }
+
+    if (translationMode == 'subdomain') {
       // Create a new URL object
       let url = new URL(anchor.href);
 
       // append the first subdomain with lang
       // google.com -> en.google.com
-      let subdomains = url.hostname.split('.');
-      subdomains.splice(0, 0, lang);
-      url.hostname = subdomains.join('.');
+      // let subdomains = url.hostname.split('.');
+      // subdomains.splice(0, 0, lang);
+      url.hostname = `${lang}.${domain}`;
 
       // Update the href of the anchor tag
       anchor.href = url.href;
-    } else if (translationMode == 'path' && anchor.hostname === window.location.hostname) {
+    } else if (translationMode == 'path') {
       // Create a new URL object
       let url = new URL(anchor.href);
 
@@ -41,7 +45,7 @@ function replaceLinks(window, {langParam, lang, translationMode}) {
 
       // Update the href of the anchor tag
       anchor.href = url.href;
-    } else if ((anchor.hostname === window.location.hostname) && anchor.href !== `${window.location.href}#`) {
+    } else if (anchor.href !== `${window.location.href}#`) {
       // Check if the link is internal and does not contain a hash
 
       // Create a new URL object

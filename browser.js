@@ -9,14 +9,14 @@ if (isBrowser()) {
   window.translationScriptPrevVersion = PREV_SCRIPT_VERSION // called prev version because it will bumped after published to npm
 
   const options = extractOptionsFromScript(window)
-  const {shouldReplaceLinks, langParam, paramsLang, originalLanguage, apiKey} = options
+  const {shouldReplaceLinks, langParam, paramsLang, originalLanguage, apiKey, translationMode} = options
   // shouldReplaceLinks,
   //   paramsLang,
   //   apiKey
 
   function initTranslation() {
     // replace links with lang (for SEO purposes)
-    if (shouldReplaceLinks && paramsLang && (paramsLang != originalLanguage)) {
+    if (translationMode != 'subdomain' && shouldReplaceLinks && paramsLang && (paramsLang != originalLanguage)) {
       replaceLinks(window, {langParam, lang: paramsLang, translationMode: options.translationMode});
     }
     getTranslations(window, apiKey, options)

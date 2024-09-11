@@ -20,12 +20,11 @@ function addOrReplaceLangParam(window, url, lang) {
     let hostname = urlObj.hostname;
     let subdomain = lang;
 
-    // get 2 last dots
-    let domain = hostname.split('.').slice(-2).join('.');
+    // get the domain without the subdomain
+    let domain = hostname.split('.').slice(1).join('.');
     let newHostname = options.originalLanguage == lang ? domain : `${subdomain}.${domain}`;
     urlObj.hostname = newHostname;
     const newUrl = urlObj.toString();
-    // console.log("NEW URL", newUrl)
     return newUrl;
   }
 
@@ -77,8 +76,10 @@ function hideDropDown(element, globalseoSwitcher) {
   }
 }
 
-async function createLanguageSelect(window, apiKey, optsArgs = {}) {
+async function createLanguageSelect(window, optsArgs = {}) {
   // if (!isBrowser()) return;
+  const options = getGlobalseoOptions(window);
+  const apiKey = options.apiKey;
   if (!apiKey) {
     console.error("Globalseo API key is required");
     return;
@@ -186,7 +187,10 @@ async function createLanguageSelect(window, apiKey, optsArgs = {}) {
           let details = initializedSelectorByUser || window.document.createElement('details');
           // details.dataset.behavior = 'languageSelector-topbar';
           details.role = 'group';
-          details.className = `${brandName}-lang-selector-element`
+          // worker should not add this so the addEventListener will work in browser
+          if (isBrowser()) {
+            details.className = `${brandName}-lang-selector-element`
+          }
           details.open = true;
           details.onclick = (e) => { 
             e.preventDefault();

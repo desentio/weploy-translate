@@ -5,6 +5,7 @@ const setOptions = require('./utils/options/setOptions.js');
 const startTranslationCycle = require('./utils/translation/startTranslationCycle.js');
 const extractOptionsFromScript = require('./extractOptionsFromScript.js');
 const replaceLinks = require('./replaceLinks.js');
+const { renderSelectorState } = require('./utils/selector/renderSelectorState.js');
 
 async function getTranslations(window, apiKey, optsArgs = {}) {
   try {
@@ -25,9 +26,12 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
     // ]);
 
     if (optsArgs.createSelector && isBrowser()) {
-      await createLanguageSelect(window, apiKey, optsArgs);
+      await createLanguageSelect(window, optsArgs);
     }
 
+    if (isBrowser() && optsArgs.translationMode == "subdomain") {
+      return window;
+    }
 
     // handle google translate
     if (isBrowser() && (window.document.querySelector('html.translated-ltr') || window.document.querySelector('html.translated-rtl'))) return;
@@ -87,7 +91,7 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
             }
 
             if (elements.length && optsArgs.createSelector) {
-              createLanguageSelect(window, apiKey, optsArgs).then(() => {
+              createLanguageSelect(window, optsArgs).then(() => {
                 if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration).catch(console.log)
               });
             } else {
@@ -131,6 +135,7 @@ if (isBrowser()) {
   window.globalseoUtils.setOptions = setOptions
   window.globalseoUtils.extractOptionsFromScript = extractOptionsFromScript;
   window.globalseoUtils.replaceLinks = replaceLinks;
+  window.globalseoUtils.renderSelectorState = renderSelectorState;
 }
 
 module.exports.isBrowser = isBrowser;
@@ -140,3 +145,4 @@ module.exports.getLanguageFromLocalStorage = getLanguageFromLocalStorage;
 module.exports.setOptions = setOptions;
 module.exports.extractOptionsFromScript = extractOptionsFromScript;
 module.exports.replaceLinks = replaceLinks;
+module.exports.renderSelectorState = renderSelectorState;

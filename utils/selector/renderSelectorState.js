@@ -14,13 +14,12 @@ const selectorStateClasses = {
   }
 }
 
-function renderSelectorState(window, opts = { shouldUpdateActiveLang: true }) {
-  if (!isBrowser()) return;
+async function renderSelectorState(window, opts = { shouldUpdateActiveLang: true, shouldLog: false }) {
   if (!getValueDisplays(window).length) return;
 
   const shouldUpdateActiveLang = opts.shouldUpdateActiveLang
 
-  getValueDisplays(window).forEach((selector) => {
+  const promised = getValueDisplays(window).map(async (selector) => {
     const weployValue = selector.querySelector('.weploy-lang-selector-value');
     if (weployValue) {
       weployValue.classList.add('globalseo-lang-selector-value');
@@ -45,7 +44,7 @@ function renderSelectorState(window, opts = { shouldUpdateActiveLang: true }) {
     if (value && shouldUpdateActiveLang) {
       const activeLang = getGlobalseoActiveLang(window) || "";
       const options = getGlobalseoOptions(window);
-      value.innerText = (options.customLanguageCode?.[activeLang] || activeLang).toUpperCase();
+      value.textContent = (options.customLanguageCode?.[activeLang] || activeLang).toUpperCase();
     }
 
     if (window.globalseoTranslating) {
@@ -64,12 +63,17 @@ function renderSelectorState(window, opts = { shouldUpdateActiveLang: true }) {
       return;
     }
 
-    setTimeout(() => {
-      selector.classList.add(readyClass);
-      selector.classList.remove(errorClass, loadingClass);
-    }, 200)
-    return;
+    const delay = window.isWorker ? 0 : 200;
+    return await new Promise((resolve) => {
+      setTimeout(() => {
+        selector.classList.add(readyClass);
+        selector.classList.remove(errorClass, loadingClass);
+        resolve(undefined)
+      }, delay)
+    })    
   });
+
+  await Promise.all(promised);
 }
 
 module.exports = {
