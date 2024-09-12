@@ -14,7 +14,7 @@ const selectorStateClasses = {
   }
 }
 
-async function renderSelectorState(window, opts = { shouldUpdateActiveLang: true, shouldLog: false }) {
+async function renderSelectorState(window, opts = { shouldUpdateActiveLang: true, shouldLog: false, delay: 200 }) {
   if (!getValueDisplays(window).length) return;
 
   const shouldUpdateActiveLang = opts.shouldUpdateActiveLang
@@ -63,7 +63,7 @@ async function renderSelectorState(window, opts = { shouldUpdateActiveLang: true
       return;
     }
 
-    const delay = window.isWorker ? 0 : 200;
+    const delay = window.isWorker ? 0 : opts.delay;
     return await new Promise((resolve) => {
       setTimeout(() => {
         selector.classList.add(readyClass);

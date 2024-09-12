@@ -30,6 +30,7 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
     }
 
     if (isBrowser() && optsArgs.translationMode == "subdomain") {
+      await renderSelectorState(window, { shouldUpdateActiveLang: true, delay: 0, shouldLog: false })
       return window;
     }
 
