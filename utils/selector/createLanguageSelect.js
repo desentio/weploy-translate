@@ -17,12 +17,12 @@ function addOrReplaceLangParam(window, url, lang) {
   const options = getGlobalseoOptions(window);
 
   if (options.translationMode == "subdomain") {
-    if (isBrowser()) return url;
     let hostname = urlObj.hostname;
     let subdomain = lang;
 
     // get the domain without the subdomain
     let domain = hostname.split('.').slice(1).join('.');
+    console.log("DEBUG: domain", options.originalLanguage == lang, options.originalLanguage, lang, subdomain, domain);
     let newHostname = options.originalLanguage == lang ? domain : `${subdomain}.${domain}`;
     urlObj.hostname = newHostname;
     const newUrl = urlObj.toString();
