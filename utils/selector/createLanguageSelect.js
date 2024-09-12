@@ -16,7 +16,8 @@ function addOrReplaceLangParam(window, url, lang) {
 
   const options = getGlobalseoOptions(window);
 
-  if (isBrowser() && options.translationMode == "subdomain") {
+  if (options.translationMode == "subdomain") {
+    if (isBrowser()) return url;
     let hostname = urlObj.hostname;
     let subdomain = lang;
 
