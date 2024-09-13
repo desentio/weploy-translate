@@ -21,8 +21,9 @@ function addOrReplaceLangParam(window, url, lang) {
     let subdomain = lang;
 
     // get the domain without the subdomain
-    let domain = window.isWorker ? hostname.split('.').slice(1).join('.') : hostname;
-    console.log("DEBUG: domain", options.originalLanguage == lang, options.originalLanguage, lang, subdomain, domain);
+    let rawDomain = window.isWorker ? hostname.split('.').slice(1).join('.') : hostname;
+    const isContainsWWW = rawDomain.startsWith('www.');
+    const domain = isContainsWWW ? rawDomain.substring(4) : rawDomain;
     let newHostname = options.originalLanguage == lang ? domain : `${subdomain}.${domain}`;
     urlObj.hostname = newHostname;
     const newUrl = urlObj.toString();
