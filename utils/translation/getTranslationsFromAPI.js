@@ -20,6 +20,7 @@ async function getTranslationsFromAPI(window, strings, language, apiKey) {
     strings: strings,
     language: language,
     url: window.location.pathname,
+    fullUrl: window.location.href,
     scriptPrevVersion: window.translationScriptPrevVersion
   };
 
