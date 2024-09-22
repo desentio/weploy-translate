@@ -51,9 +51,17 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_TRANSLATE_SELECT_OPTIONS = "data-translate-select-options"
 
   // WORKER ATTRIBUTES
-  const DATA_PREVENT_INIT_TRANSLATION = "data-prevent-init-translation" // default: false
-  const preventInitialTranslation = window.translationScriptTag.getAttribute(DATA_PREVENT_INIT_TRANSLATION) == "true";
-  window.preventInitialTranslation = preventInitialTranslation;
+  // const DATA_PREVENT_INIT_TRANSLATION = "data-prevent-init-translation" // default: false
+  // const preventInitialTranslation = window.translationScriptTag.getAttribute(DATA_PREVENT_INIT_TRANSLATION) == "true";
+
+  const DATA_ACTIVE_SUBDOMAIN = "data-active-subdomain"; // default: undefined
+  const activeSubdomain = window.translationScriptTag.getAttribute(DATA_ACTIVE_SUBDOMAIN);
+
+  // prevent initial translation for subdomain (but allow translation on dynamic content)
+  if (activeSubdomain) {
+    window.preventInitialTranslation = true;
+    window.activeSubdomain = activeSubdomain;
+  }
 
   // FEATURE: Prevent Google Translate from translating the page
   // Set the 'translate' attribute of the HTML tag to 'no'
@@ -108,6 +116,8 @@ function extractOptionsFromScript(window, optsArgs = {
   }
 
   function handleLinkTags() {
+    const domain = activeSubdomain ? window.location.hostname.split('.').slice(1).join('.') : window.location.hostname;
+
     // FEATURE: Create a canonical link tag for translated pages
     // e.g. https://example.com/path?lang=es
     // Cleanup the original canonical link tag
@@ -117,11 +127,25 @@ function extractOptionsFromScript(window, optsArgs = {
     }
 
     const newCanonicalLinkTag = window.document.createElement('link');
-    if (!paramsLang || paramsLang == originalLang) {
-      newCanonicalLinkTag.href = window.location.pathname;
-    } else {
-      newCanonicalLinkTag.href = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${langParam}=${paramsLang}`;
+    if (translationMode == "searchParams") {
+      if (!paramsLang || paramsLang == originalLang) {
+        newCanonicalLinkTag.href = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+      } else {
+        newCanonicalLinkTag.href = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${langParam}=${paramsLang}`;
+      }
     }
+
+    if (translationMode == "subdomain") {
+      if (activeLang == originalLang) {
+        newCanonicalLinkTag.href = `${window.location.protocol}//${domain}${window.location.pathname}`;
+      } else {
+        // Create a new URL object
+        let url = new URL(window.location.href);
+        url.hostname = `${activeLang}.${domain}`;
+        newCanonicalLinkTag.href = url.href;
+      }
+    }
+    
     newCanonicalLinkTag.setAttribute('rel', 'canonical');
     window.document.head.appendChild(newCanonicalLinkTag);
 
@@ -129,7 +153,7 @@ function extractOptionsFromScript(window, optsArgs = {
     const alternateLinkTag = window.document.createElement('link');
     alternateLinkTag.setAttribute('rel', 'alternate');
     alternateLinkTag.setAttribute('hreflang', originalLang);
-    alternateLinkTag.href = window.location.pathname;
+    alternateLinkTag.href = `${window.location.protocol}//${domain}${window.location.pathname}`;
     window.document.head.appendChild(alternateLinkTag);
 
     // Add alternate link tags for allowed languages
@@ -145,14 +169,9 @@ function extractOptionsFromScript(window, optsArgs = {
         alternateLinkTag.href = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${langParam}=${lang}`;
       }
       if (translationMode == "subdomain") {
-        // remove lang param
-        url.searchParams.delete(langParam);
-
-        // append the first subdomain with lang
-        // google.com -> en.google.com
-        let subdomains = url.hostname.split('.');
-        subdomains.splice(0, 0, lang);
-        url.hostname = subdomains.join('.');
+        // Create a new URL object
+        let url = new URL(window.location.href);
+        url.hostname = `${lang}.${domain}`;
         alternateLinkTag.href = url.href;
       }
       if (translationMode == "path") {
@@ -171,7 +190,9 @@ function extractOptionsFromScript(window, optsArgs = {
     }
   }
 
-  handleLinkTags();
+  if (!activeSubdomain || window.isWorker) {
+    handleLinkTags();
+  }
 
   // console.log(process.env.NO_CACHE)
 
