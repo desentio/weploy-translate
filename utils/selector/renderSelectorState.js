@@ -57,6 +57,13 @@ async function renderSelectorState(window, opts = { shouldUpdateActiveLang: true
       selector.classList.add(errorClass);
       selector.classList.remove(readyClass, loadingClass); 
       const ul = selector.nextElementSibling;
+
+      const existingError = ul.querySelector('.globalseo-errormsg');
+      if (existingError) {
+        existingError.innerHTML = `ERROR: ${window.globalseoError}`;
+        return;
+      }
+      
       const errorListItem = window.document.createElement('li');
       errorListItem.innerHTML = `<span class="globalseo-errormsg">ERROR: ${window.globalseoError}</span>`
       ul.appendChild(errorListItem);
