@@ -172,7 +172,7 @@ function extractOptionsFromScript(window, optsArgs = {
       if (translationMode == "subdomain") {
         // Create a new URL object
         let url = new URL(window.location.href);
-        url.hostname = activeSubdomain ? `${lang}.${domainWithoutWww}${window.location.pathname}` : `${lang}.${domain}${window.location.pathname}`;
+        url.hostname = activeSubdomain ? `${lang}.${domain}${window.location.pathname}` : `${lang}.${domainWithoutWww}${window.location.pathname}`;
         alternateLinkTag.href = url.href;
       }
       if (translationMode == "path") {
