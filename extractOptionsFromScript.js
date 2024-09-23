@@ -116,7 +116,7 @@ function extractOptionsFromScript(window, optsArgs = {
   }
 
   function handleLinkTags() {
-    const domain = activeSubdomain ? window.location.hostname.split('.').slice(1).join('.') : window.location.hostname;
+    const domain = activeSubdomain ? window.location.hostname.replace("https://www.", "https://").replace("http://www.", "http://").split('.').slice(1).join('.') : window.location.hostname;
 
     // FEATURE: Create a canonical link tag for translated pages
     // e.g. https://example.com/path?lang=es
