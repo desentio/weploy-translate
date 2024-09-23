@@ -116,7 +116,8 @@ function extractOptionsFromScript(window, optsArgs = {
   }
 
   function handleLinkTags() {
-    const domain = activeSubdomain ? window.location.hostname.split('.').slice(1).join('.') : window.location.hostname;
+    const domainWithoutWww = window.location.hostname.split('.').slice(1).join('.')
+    const domain = activeSubdomain ? domainWithoutWww : window.location.hostname;
 
     // FEATURE: Create a canonical link tag for translated pages
     // e.g. https://example.com/path?lang=es
@@ -141,7 +142,7 @@ function extractOptionsFromScript(window, optsArgs = {
       } else {
         // Create a new URL object
         let url = new URL(window.location.href);
-        url.hostname = `${activeLang}.${domain}`;
+        url.hostname = `${activeLang}.${domain}${window.location.pathname}`;
         newCanonicalLinkTag.href = url.href;
       }
     }
@@ -171,7 +172,7 @@ function extractOptionsFromScript(window, optsArgs = {
       if (translationMode == "subdomain") {
         // Create a new URL object
         let url = new URL(window.location.href);
-        url.hostname = `${lang}.${domain}`;
+        url.hostname = activeSubdomain ? `${lang}.${domainWithoutWww}${window.location.pathname}` : `${lang}.${domain}${window.location.pathname}`;
         alternateLinkTag.href = url.href;
       }
       if (translationMode == "path") {
