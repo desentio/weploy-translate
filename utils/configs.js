@@ -45,7 +45,8 @@ function setGlobalseoOptions(window, value = {}) {
 }
 
 function getGlobalseoActiveLang(window) {
-  if (window.paramsLang) {
+  const options = getGlobalseoOptions(window);
+  if (window.paramsLang && options.translationMode != 'subdomain') {
     return window.paramsLang;
   } 
   if (!window.globalseoActiveLang) {
@@ -55,6 +56,13 @@ function getGlobalseoActiveLang(window) {
 }
 
 function setGlobalseoActiveLang(window, language) {
+  const options = getGlobalseoOptions(window);
+
+  if (options.translationMode == 'subdomain' && !window.isWorker) {
+    window.globalseoActiveLang = options.originalLanguage
+    return;
+  }
+
   window.globalseoActiveLang = language
 }
 

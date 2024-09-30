@@ -8,8 +8,9 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
     window.preventInitialTranslation = false;
     return;
   };
-  const lang = window.paramsLang || getGlobalseoActiveLang(window) || await getLanguageFromLocalStorage(window);
   const options = getGlobalseoOptions(window);
+
+  const lang = options?.translationMode == "subdomain" && !window.isWorker ? getGlobalseoActiveLang(window) : (window.paramsLang || getGlobalseoActiveLang(window) || await getLanguageFromLocalStorage(window));
   const originalLang = options?.originalLanguage;
 
   if (!window.langHistory) {

@@ -110,7 +110,8 @@ function extractOptionsFromScript(window, optsArgs = {
   const allowedLangAttr = window.translationScriptTag.getAttribute(DATA_ALLOWED_LANGUAGES);
   const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => lang && lang.trim() != originalLang).map(lang => lang.trim());
 
-  const activeLang = window.globalseoActiveLang || paramsLang || originalLang;
+  // always use original language for subdomain
+  const activeLang = translationMode == "subdomain" && !window.isWorker ? window.globalseoActiveLang : (window.globalseoActiveLang || paramsLang || originalLang);
   if (window.document.documentElement.lang != activeLang) {
     window.document.documentElement.lang = activeLang;
   }
