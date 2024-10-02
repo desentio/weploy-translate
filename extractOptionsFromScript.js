@@ -112,7 +112,8 @@ function extractOptionsFromScript(window, optsArgs = {
 
   // always use original language for subdomain
   const activeLang = translationMode == "subdomain" && !window.isWorker ? window.globalseoActiveLang : (window.globalseoActiveLang || paramsLang || originalLang);
-  if (window.document.documentElement.lang != activeLang) {
+
+  if (activeLang && (window.document.documentElement.lang != activeLang)) {
     window.document.documentElement.lang = activeLang;
   }
 
