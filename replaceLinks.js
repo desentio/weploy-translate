@@ -16,8 +16,10 @@ function replaceLinks(window, {langParam, lang, translationMode}) {
       anchor.href = fullHref;
     }
 
-    const hostnameToCompare = window.isWorker ? domain : window.location.hostname;
-    if (anchor.hostname != hostnameToCompare && anchor.hostname != `www.${hostnameToCompare}`) {
+    // check for en.domain.com OR www.domain.com OR domain.com
+    const isInternal = (anchor.hostname == `${lang}.${domain}`) || (anchor.hostname == `www.${domain}`) || anchor.hostname == window.location.hostname;
+
+    if (!isInternal) {
       // Check if the link is external
       continue;
     }
