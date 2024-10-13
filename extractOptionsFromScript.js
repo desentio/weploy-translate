@@ -1,5 +1,7 @@
 const { isBrowser, BRAND } = require("./utils/configs");
 const detectRobot = require("./utils/detectRobot");
+const getPrefixedPathname = require("./utils/translation-mode/getPrefixedPathname");
+const getUnprefixedPathname = require("./utils/translation-mode/getUnprefixedPathname");
 
 /**
  * Extracts options from a script.
@@ -49,6 +51,7 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_DEBOUNCE = "data-debounce" // format: "2000"
   const DATA_TRANSLATE_FORM_PLACEHOLDER = "data-translate-form-placeholder"
   const DATA_TRANSLATE_SELECT_OPTIONS = "data-translate-select-options"
+  const DATA_DOMAIN_SOURCE_PREFIX = "data-domain-source-prefix"
 
   // WORKER ATTRIBUTES
   // const DATA_PREVENT_INIT_TRANSLATION = "data-prevent-init-translation" // default: false
@@ -117,6 +120,10 @@ function extractOptionsFromScript(window, optsArgs = {
     window.document.documentElement.lang = activeLang;
   }
 
+  const domainSourcePrefixAttr = window.translationScriptTag.getAttribute(DATA_DOMAIN_SOURCE_PREFIX) || "";
+  // cleaned up the slashes at the beginning and end (clean up mutiple slashes too)
+  const domainSourcePrefix = domainSourcePrefixAttr.replace(/^\/+|\/+$/g, "");
+
   function handleLinkTags() {
     const domainWithoutWww = window.location.hostname.split('.').slice(1).join('.').replace("https://www.", "https://").replace("http://www.", "http://");
     const domain = activeSubdomain ? domainWithoutWww : window.location.hostname;
@@ -144,7 +151,8 @@ function extractOptionsFromScript(window, optsArgs = {
       } else {
         // Create a new URL object
         let url = new URL(window.location.href);
-        url.hostname = `${activeLang}.${domain}${window.location.pathname}`;
+        url.hostname = `${activeLang}.${domain}`;
+        url.pathname = getUnprefixedPathname(window, domainSourcePrefix, url.pathname);
         newCanonicalLinkTag.href = url.href;
       }
     }
@@ -156,7 +164,8 @@ function extractOptionsFromScript(window, optsArgs = {
     const alternateLinkTag = window.document.createElement('link');
     alternateLinkTag.setAttribute('rel', 'alternate');
     alternateLinkTag.setAttribute('hreflang', originalLang);
-    alternateLinkTag.href = `${window.location.protocol}//${domain}${window.location.pathname}`;
+    // append prefix to the original lang because the subdomain will be accessed without the prefix
+    alternateLinkTag.href = `${window.location.protocol}//${domain}${getPrefixedPathname(window, domainSourcePrefix, window.location.pathname)}`;
     window.document.head.appendChild(alternateLinkTag);
 
     // Add alternate link tags for allowed languages
@@ -174,7 +183,8 @@ function extractOptionsFromScript(window, optsArgs = {
       if (translationMode == "subdomain") {
         // Create a new URL object
         let url = new URL(window.location.href);
-        url.hostname = activeSubdomain ? `${lang}.${domain}${window.location.pathname}` : `${lang}.${domainWithoutWww}${window.location.pathname}`;
+        url.hostname = activeSubdomain ? `${lang}.${domain}` : `${lang}.${domainWithoutWww}`;
+        url.pathname = getUnprefixedPathname(window, domainSourcePrefix, url.pathname);
         alternateLinkTag.href = url.href;
       }
       if (translationMode == "path") {
@@ -313,7 +323,8 @@ function extractOptionsFromScript(window, optsArgs = {
     shouldReplaceLinks,
     paramsLang,
     apiKey,
-    translationMode
+    translationMode,
+    domainSourcePrefix
   }
 }
 

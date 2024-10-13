@@ -1,4 +1,6 @@
-function replaceLinks(window, {langParam, lang, translationMode}) {
+const getUnprefixedPathname = require("./utils/translation-mode/getUnprefixedPathname");
+
+function replaceLinks(window, {langParam, lang, translationMode, prefix}) {
   // Select all anchor tags
   let anchors = window.document.querySelectorAll('a');
 
@@ -34,6 +36,10 @@ function replaceLinks(window, {langParam, lang, translationMode}) {
       // subdomains.splice(0, 0, lang);
       url.hostname = `${lang}.${domain}`;
 
+      if (prefix) {
+        url.pathname = getUnprefixedPathname(window, prefix, url.pathname);
+      }
+      
       // Update the href of the anchor tag
       anchor.href = url.href;
     } else if (translationMode == 'path') {

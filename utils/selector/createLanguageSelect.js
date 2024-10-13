@@ -9,6 +9,8 @@ const { getLanguageFromLocalStorage } = require("../languages/getSelectedLanguag
 const { fetchLanguageList } = require("../languages/fetchLanguageList");
 const { renderSelectorState } = require("./renderSelectorState");
 const { getValueDisplays, setValueDisplays } = require("./valueDisplay");
+const getUnprefixedPathname = require("../translation-mode/getUnprefixedPathname");
+const getPrefixedPathname = require("../translation-mode/getPrefixedPathname");
 
 
 function addOrReplaceLangParam(window, url, lang) {
@@ -352,13 +354,28 @@ async function createLanguageSelect(window, optsArgs = {}) {
           }
           
           languages.forEach((language, index) => {
+              const options = getGlobalseoOptions(window);
+
               const isSelected = language.lang == selectedLangLowercased;
 
               let li = window.document.createElement('li');
               ul.appendChild(li);
 
               let a = window.document.createElement('a');
-              const url = isSelected ? "#" : addOrReplaceLangParam(window, window.location.href, language.lang);
+
+              const prefix = options.domainSourcePrefix;
+
+              const newUrl = new URL(window.location.href);
+
+              if (prefix && options.translationMode == "subdomain") {
+                if (options.originalLanguage == language.lang) {
+                  newUrl.pathname = getPrefixedPathname(window, prefix, newUrl.pathname);
+                } else {
+                  newUrl.pathname = getUnprefixedPathname(window, prefix, newUrl.pathname);
+                }
+              }
+
+              const url = isSelected ? "#" : addOrReplaceLangParam(window, newUrl.href, language.lang);
 
               a.href = url;
               a.hreflang = language.lang;
@@ -371,7 +388,6 @@ async function createLanguageSelect(window, optsArgs = {}) {
 
               li.appendChild(a);
           
-              const options = getGlobalseoOptions(window);
               const langCode = options.customLanguageCode?.[language.lang] || language.lang;
               let span = window.document.createElement('span');
               span.setAttribute('aria-hidden', 'true');
