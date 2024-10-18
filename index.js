@@ -29,9 +29,15 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
       await createLanguageSelect(window, optsArgs);
     }
 
-    if (!window.isWorker && optsArgs.translationMode == "subdomain") {
+    if (!window.isWorker && optsArgs.translationMode == "subdomain") {      
       await renderSelectorState(window, { shouldUpdateActiveLang: true, delay: 0, shouldLog: false })
-      return window;
+
+      // dont translate anything on original site
+      if (!window.activeSubdomain) {
+        return window;
+      } else {
+        window.globalseoActiveLang = window.activeSubdomain;
+      }
     }
 
     // handle google translate
