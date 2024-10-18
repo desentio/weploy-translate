@@ -59,7 +59,7 @@ function setGlobalseoActiveLang(window, language) {
   const options = getGlobalseoOptions(window);
 
   if (options.translationMode == 'subdomain' && !window.isWorker) {
-    window.globalseoActiveLang = options.originalLanguage
+    window.globalseoActiveLang = window.activeSubdomain || options.originalLanguage
     return;
   }
 
