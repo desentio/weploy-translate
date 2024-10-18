@@ -10,6 +10,29 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
   };
   const options = getGlobalseoOptions(window);
 
+  // replace src because nextjs will replace the whole html on rerender
+  if (options.translationMode == "subdomain" && !window.isWorker && window.activeSubdomain) {
+    // get all elements with src attribute
+    const elements = window.document.querySelectorAll("[src]");
+
+    const elementsWithRelativeSrc = Array.from(elements).filter(el => {
+      const srcAttribute = el.getAttribute("src");
+      return srcAttribute.startsWith("/") || srcAttribute.startsWith("./") || srcAttribute.startsWith("../")
+    });
+
+    // get the original website (based on current subdomain url but without the subdomain)
+    const originalWebsite = window.location.origin.replace(window.activeSubdomain + ".", "");
+    const originalWebsiteHostname = new URL(originalWebsite).hostname;
+
+    // replace the hostname of the src with the original hostname
+    elementsWithRelativeSrc.forEach(el => {
+      // use URL class
+      const url = new URL(el.src);
+      url.hostname = originalWebsiteHostname;
+      el.src = url.href;
+    })
+  }
+
   const lang = options?.translationMode == "subdomain" && !window.isWorker ? getGlobalseoActiveLang(window) : (window.paramsLang || getGlobalseoActiveLang(window) || await getLanguageFromLocalStorage(window));
   const originalLang = options?.originalLanguage;
 
