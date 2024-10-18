@@ -17,7 +17,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
 
     const elementsWithRelativeSrc = Array.from(elements).filter(el => {
       const srcAttribute = el.getAttribute("src");
-      return srcAttribute.startsWith("/") || srcAttribute.startsWith("./") || srcAttribute.startsWith("../")
+      return !srcAttribute.startsWith("http")
     });
 
     // get the original website (based on current subdomain url but without the subdomain)
