@@ -13,7 +13,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
   // replace src because nextjs will replace the whole html on rerender
   if (options.translationMode == "subdomain" && !window.isWorker && window.activeSubdomain) {
     // get all elements with src attribute
-    const elements = window.document.querySelectorAll("[src]");
+    const elements = window.document.querySelectorAll("img[src]");
 
     const elementsWithRelativeSrc = Array.from(elements).filter(el => {
       const srcAttribute = el.getAttribute("src");
