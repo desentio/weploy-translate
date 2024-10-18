@@ -32,6 +32,21 @@ function collectAllTextContentInsideNode(window, node, shouldExclude = false) {
     if (isIgnoredTagInContext(child.tagName)) return;
 
     if (child.nodeType === window.Node.TEXT_NODE && child.textContent.trim()) {
+
+      // assign original text to parent element
+      if (window.isWorker) {
+        const parentElement = child.parentNode;
+        parentElement.setAttribute("data-original-text", child.textContent);
+      } else {
+        // compare with original text
+        const originalText = child.parentNode.getAttribute("data-original-text");
+
+        // if same then dont translate
+        if (child.textContent === originalText) {
+          return
+        }
+      }
+
       textNodes.push(child);
     } 
     
