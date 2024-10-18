@@ -240,6 +240,22 @@ function extractOptionsFromScript(window, optsArgs = {
         const parsedTranslationCache = JSON.parse(translationCache);
         if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
           window.translationCache = parsedTranslationCache;
+
+          const injectedCacheElement = document.getElementById("globalseo-translation-cache");
+          if (injectedCacheElement) {
+            try {
+              const stringifiedCache = injectedCacheElement.textContent;
+              const parsedCache = JSON.parse(stringifiedCache);
+              window.translationCache = {
+                ...window.translationCache,
+                [window.location.pathname]: {
+                  ...parsedCache[window.location.pathname]
+                }
+              }
+            } catch(error) {
+              // do nothing
+            }
+          }
         }
       } catch (e) {
         console.log("Error parsing translation cache", e)
