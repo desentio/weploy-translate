@@ -55,7 +55,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
 
   return await new Promise((resolve) => {
     // execute the first translation attempt immediately
-    if (window.isWorker || (!delay && !window.isTranslationRunOnce)) {
+    if (window.isWorker || (!delay && !window.isTranslationRunOnce) || (window.activeSubdomain && window.translationCache?.[window.location.pathname]?.[window.activeSubdomain])) {
       // console.log("RUN FIRST")
       window.isTranslationRunOnce = true;
       modifyHtmlStrings(window, node, lang, apiKey, shouldOptimizeSEO).catch(console.log).finally(() => {
@@ -69,7 +69,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
           resolve(undefined)
         });
         // disable debounce if cache found
-      }, window.activeSubdomain && window.translationCache?.[window.location.pathname]?.[window.activeSubdomain] ? 0 : (delay || 1))(); // must have at least 1 milisecond to prevent browser hanging in super fast rerender condition (rare extreme case)
+      }, (delay || 1))(); // must have at least 1 milisecond to prevent browser hanging in super fast rerender condition (rare extreme case)
     }
   })
   
