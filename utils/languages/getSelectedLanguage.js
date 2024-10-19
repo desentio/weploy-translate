@@ -9,7 +9,7 @@ async function getLanguageFromLocalStorage(window) {
   const localStorageLang = localStorage.getItem("language");
 
   if (paramsLang && (paramsLang != localStorageLang)) {
-    if (!getIsTranslationInitialized(window)) localStorage.setItem("language", paramsLang);
+    if (!getIsTranslationInitialized(window)) localStorage.setItem("language", window.activeSubdomain || paramsLang);
     setGlobalseoActiveLang(window, paramsLang);
     return paramsLang;
   }
@@ -40,7 +40,7 @@ function saveDefaultLanguageToLocalStorage(window, availableLangs = [], useBrows
   const langInAvailableLangsOrFirst = langInAvailableLangs?.lang || availableLangs[0].lang // If the language is not in the available languages, use the first available language
   const langToSave = useBrowserLang ? langInAvailableLangsOrFirst : availableLangs[0].lang // If useBrowserLang is true, use the language from the browser, otherwise use the first available language
   // Save the language to local storage
-  if (!getIsTranslationInitialized(window)) localStorage.setItem("language", langToSave);
+  if (!getIsTranslationInitialized(window)) localStorage.setItem("language", window.activeSubdomain || langToSave);
   setGlobalseoActiveLang(window, langToSave);
 }
 

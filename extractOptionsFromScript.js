@@ -252,6 +252,9 @@ function extractOptionsFromScript(window, optsArgs = {
                   ...parsedCache[window.location.pathname]
                 }
               }
+
+              // set to local storage
+              window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
             } catch(error) {
               // do nothing
             }
