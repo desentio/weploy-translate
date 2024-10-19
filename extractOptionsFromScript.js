@@ -245,42 +245,41 @@ function extractOptionsFromScript(window, optsArgs = {
         const parsedTranslationCache = JSON.parse(translationCache);
         if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
           window.translationCache = parsedTranslationCache;
+          // const injectedCacheElement = document.getElementById("globalseo-translation-cache");
+          // if (!thisScriptTranslationCache && injectedCacheElement) {
+          //   try {
+          //     const stringifiedCache = injectedCacheElement.textContent;
+          //     const parsedCache = JSON.parse(stringifiedCache);
+          //     window.translationCache = {
+          //       ...window.translationCache,
+          //       [window.location.pathname]: {
+          //         ...parsedCache[window.location.pathname]
+          //       }
+          //     }
 
-          const thisScriptTranslationCache = window.translationScriptTag.getAttribute(DATA_TRANSLATION_CACHE);
-          if (thisScriptTranslationCache) {
-            try {
-              const parsedThisScriptTranslationCache = JSON.parse(thisScriptTranslationCache);
-              window.translationCache = {
-                ...window.translationCache,
-                ...parsedThisScriptTranslationCache
-              }
+          //     // set to local storage
+          //     // if (!window.isWorker && !window.activeSubdomain) {
+          //     window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+          //     // }
+          //   } catch(error) {
+          //     // do nothing
+          //   }
+          // }
+        }
 
-              window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
-            } catch (e) {
-              console.log("Error parsing this script translation cache", e)
+        // handle cache coming from server side rendering
+        const thisScriptTranslationCache = window.translationScriptTag.getAttribute(DATA_TRANSLATION_CACHE);
+        if (thisScriptTranslationCache) {
+          const parsedThisScriptTranslationCache = JSON.parse(thisScriptTranslationCache);
+          window.translationCache = {
+            ...window.translationCache,
+            [window.location.pathname]: {
+              ...window.translationCache[window.location.pathname],
+              ...parsedThisScriptTranslationCache[window.location.pathname]
             }
           }
 
-          const injectedCacheElement = document.getElementById("globalseo-translation-cache");
-          if (!thisScriptTranslationCache && injectedCacheElement) {
-            try {
-              const stringifiedCache = injectedCacheElement.textContent;
-              const parsedCache = JSON.parse(stringifiedCache);
-              window.translationCache = {
-                ...window.translationCache,
-                [window.location.pathname]: {
-                  ...parsedCache[window.location.pathname]
-                }
-              }
-
-              // set to local storage
-              // if (!window.isWorker && !window.activeSubdomain) {
-              window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
-              // }
-            } catch(error) {
-              // do nothing
-            }
-          }
+          window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
         }
       } catch (e) {
         console.log("Error parsing translation cache", e)
