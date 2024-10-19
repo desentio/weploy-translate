@@ -5,36 +5,40 @@ const { PREV_SCRIPT_VERSION } = require("./utils/configs.js");
 // const { checkPage } = require("./utils/translation/checkPage.js");
 
 if (isBrowser()) {
-  // prevent multiple scripts execution
-  if (window.firstGlobalseoScriptExecuted) return;
-  window.firstGlobalseoScriptExecuted = true;
+  try {
+    // prevent multiple scripts execution
+    if (window.firstGlobalseoScriptExecuted) throw new Error("Script already executed");
+    window.firstGlobalseoScriptExecuted = true;
 
-  window.translationScriptTag = window.document.currentScript;
-  window.translationScriptPrevVersion = PREV_SCRIPT_VERSION // called prev version because it will bumped after published to npm
+    window.translationScriptTag = window.document.currentScript;
+    window.translationScriptPrevVersion = PREV_SCRIPT_VERSION // called prev version because it will bumped after published to npm
 
-  const options = extractOptionsFromScript(window)
-  const {shouldReplaceLinks, langParam, paramsLang, originalLanguage, apiKey, translationMode} = options
-  // shouldReplaceLinks,
-  //   paramsLang,
-  //   apiKey
+    const options = extractOptionsFromScript(window)
+    const {shouldReplaceLinks, langParam, paramsLang, originalLanguage, apiKey, translationMode} = options
+    // shouldReplaceLinks,
+    //   paramsLang,
+    //   apiKey
 
-  function initTranslation() {
-    // replace links with lang (for SEO purposes)
-    if (translationMode != 'subdomain' && shouldReplaceLinks && paramsLang && (paramsLang != originalLanguage)) {
-      replaceLinks(window, {langParam, lang: paramsLang, translationMode: options.translationMode});
+    function initTranslation() {
+      // replace links with lang (for SEO purposes)
+      if (translationMode != 'subdomain' && shouldReplaceLinks && paramsLang && (paramsLang != originalLanguage)) {
+        replaceLinks(window, {langParam, lang: paramsLang, translationMode: options.translationMode});
+      }
+      getTranslations(window, apiKey, options)
     }
-    getTranslations(window, apiKey, options)
-  }
 
-  // console.log("window.document.readyState", window.document.readyState)
-  if (window.document.readyState == 'interactive' || window.document.readyState == 'complete') {
-    // DOM is already loaded, run the code
-    initTranslation();
-  } else {
-    // DOM is not loaded yet, wait for it
-    window.document.addEventListener("DOMContentLoaded", function() {
+    // console.log("window.document.readyState", window.document.readyState)
+    if (window.document.readyState == 'interactive' || window.document.readyState == 'complete') {
+      // DOM is already loaded, run the code
       initTranslation();
-    });
+    } else {
+      // DOM is not loaded yet, wait for it
+      window.document.addEventListener("DOMContentLoaded", function() {
+        initTranslation();
+      });
+    }
+  } catch (error) {
+    console.error("GLOBALSEO Error: ", error);
   }
 }
 
