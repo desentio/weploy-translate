@@ -213,23 +213,26 @@ function extractOptionsFromScript(window, optsArgs = {
   // checkPage();
 
   if (isBrowser()) {
-    try {
-      // get the current date
-      const now = new Date();
-  
-      // get the current date timestamp
-      const nowTimestamp = now.getTime();
-  
-      // get existing expiration timestamp
-      const globalseoExpirationTimestamp = window.localStorage.getItem("globalseoExpirationTimestamp");
-      const expiration = Number(globalseoExpirationTimestamp);
-  
-      if (!isNaN(expiration) && expiration < nowTimestamp) {
-        window.localStorage.removeItem("globalseoExpirationTimestamp");
-        window.localStorage.removeItem("translationCachePerPage");
+    // subdomain may dont need to check expiration
+    if (!window.isWorker && !window.activeSubdomain) {
+      try {
+        // get the current date
+        const now = new Date();
+    
+        // get the current date timestamp
+        const nowTimestamp = now.getTime();
+    
+        // get existing expiration timestamp
+        const globalseoExpirationTimestamp = window.localStorage.getItem("globalseoExpirationTimestamp");
+        const expiration = Number(globalseoExpirationTimestamp);
+    
+        if (!isNaN(expiration) && expiration < nowTimestamp) {
+          window.localStorage.removeItem("globalseoExpirationTimestamp");
+          window.localStorage.removeItem("translationCachePerPage");
+        }
+      } catch (e) {
+        console.log("Error checking expiration", e)
       }
-    } catch (e) {
-      console.log("Error checking expiration", e)
     }
   
     const userAgent = window.navigator.userAgent;
@@ -254,7 +257,9 @@ function extractOptionsFromScript(window, optsArgs = {
               }
 
               // set to local storage
-              window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+              if (!window.isWorker && !window.activeSubdomain) {
+                window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+              }
             } catch(error) {
               // do nothing
             }

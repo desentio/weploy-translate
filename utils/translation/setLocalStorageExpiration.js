@@ -1,4 +1,5 @@
 async function setLocalStorageExpiration(window) {
+  if (window.activeSubdomain) return;
   // get the current date
   const now = new Date();
 
