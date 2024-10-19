@@ -68,7 +68,8 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
           // console.log("FINALLY 2")
           resolve(undefined)
         });
-      }, delay || 1)(); // must have at least 1 milisecond to prevent browser hanging in super fast rerender condition (rare extreme case)
+        // disable debounce if cache found
+      }, window.activeSubdomain && window.translationCache?.[window.location.pathname]?.[window.activeSubdomain] ? 0 : (delay || 1))(); // must have at least 1 milisecond to prevent browser hanging in super fast rerender condition (rare extreme case)
     }
   })
   
