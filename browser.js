@@ -5,6 +5,10 @@ const { PREV_SCRIPT_VERSION } = require("./utils/configs.js");
 // const { checkPage } = require("./utils/translation/checkPage.js");
 
 if (isBrowser()) {
+  // prevent multiple scripts execution
+  if (window.firstGlobalseoScriptExecuted) return;
+  window.firstGlobalseoScriptExecuted = true;
+
   window.translationScriptTag = window.document.currentScript;
   window.translationScriptPrevVersion = PREV_SCRIPT_VERSION // called prev version because it will bumped after published to npm
 
