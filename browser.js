@@ -38,7 +38,7 @@ if (isBrowser()) {
       });
     }
   } catch (error) {
-    console.error("GLOBALSEO Error: ", error);
+    console.log("GLOBALSEO:", error);
   }
 }
 
