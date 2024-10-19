@@ -53,6 +53,8 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_TRANSLATE_SELECT_OPTIONS = "data-translate-select-options"
   const DATA_DOMAIN_SOURCE_PREFIX = "data-domain-source-prefix"
 
+  const DATA_TRANSLATION_CACHE = "data-translation-cache";
+
   // WORKER ATTRIBUTES
   // const DATA_PREVENT_INIT_TRANSLATION = "data-prevent-init-translation" // default: false
   // const preventInitialTranslation = window.translationScriptTag.getAttribute(DATA_PREVENT_INIT_TRANSLATION) == "true";
@@ -244,8 +246,23 @@ function extractOptionsFromScript(window, optsArgs = {
         if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
           window.translationCache = parsedTranslationCache;
 
+          const thisScriptTranslationCache = window.translationScriptTag.getAttribute(DATA_TRANSLATION_CACHE);
+          if (thisScriptTranslationCache) {
+            try {
+              const parsedThisScriptTranslationCache = JSON.parse(thisScriptTranslationCache);
+              window.translationCache = {
+                ...window.translationCache,
+                ...parsedThisScriptTranslationCache
+              }
+
+              window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+            } catch (e) {
+              console.log("Error parsing this script translation cache", e)
+            }
+          }
+
           const injectedCacheElement = document.getElementById("globalseo-translation-cache");
-          if (injectedCacheElement) {
+          if (!thisScriptTranslationCache && injectedCacheElement) {
             try {
               const stringifiedCache = injectedCacheElement.textContent;
               const parsedCache = JSON.parse(stringifiedCache);
@@ -257,9 +274,9 @@ function extractOptionsFromScript(window, optsArgs = {
               }
 
               // set to local storage
-              if (!window.isWorker && !window.activeSubdomain) {
-                window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
-              }
+              // if (!window.isWorker && !window.activeSubdomain) {
+              window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
+              // }
             } catch(error) {
               // do nothing
             }
