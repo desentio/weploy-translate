@@ -29,7 +29,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
       // replace the hostname of the src with the original hostname
       elementsWithRelativeSrc.forEach(el => {
         // use URL class
-        const url = new URL(el[attr]);
+        const url = new URL(attr == "srcset" ? `${window.location.origin}/${el.srcset.startsWith("/") ? el.slice(1) : el}` : el.src);
         url.hostname = originalWebsiteHostname;
         el[attr] = url.href;
       })
