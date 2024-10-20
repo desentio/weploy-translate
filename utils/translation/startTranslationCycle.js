@@ -15,24 +15,28 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
     // get all elements with src attribute
 
     ["src", "srcset"].forEach(attr => {
-      const elements = window.document.querySelectorAll(`[${attr}]`);
+      try {
+        const elements = window.document.querySelectorAll(`[${attr}]`);
 
-      const elementsWithRelativeSrc = Array.from(elements).filter(el => {
-        const srcAttribute = el.getAttribute(attr);
-        return !srcAttribute.startsWith("http")
-      });
+        const elementsWithRelativeSrc = Array.from(elements).filter(el => {
+          const srcAttribute = el.getAttribute(attr);
+          return !srcAttribute.startsWith("http")
+        });
 
-      // get the original website (based on current subdomain url but without the subdomain)
-      const originalWebsite = window.location.origin.replace(window.activeSubdomain + ".", "");
-      const originalWebsiteHostname = new URL(originalWebsite).hostname;
+        // get the original website (based on current subdomain url but without the subdomain)
+        const originalWebsite = window.location.origin.replace(window.activeSubdomain + ".", "");
+        const originalWebsiteHostname = new URL(originalWebsite).hostname;
 
-      // replace the hostname of the src with the original hostname
-      elementsWithRelativeSrc.forEach(el => {
-        // use URL class
-        const url = new URL(attr == "srcset" ? `${window.location.origin}/${el.srcset.startsWith("/") ? el.slice(1) : el}` : el.src);
-        url.hostname = originalWebsiteHostname;
-        el[attr] = url.href;
-      })
+        // replace the hostname of the src with the original hostname
+        elementsWithRelativeSrc.forEach(el => {
+          // use URL class
+          const url = new URL(attr == "srcset" ? `${window.location.origin}/${el.srcset.startsWith("/") ? el.srcset.slice(1) : el}` : el.src);
+          url.hostname = originalWebsiteHostname;
+          el[attr] = url.href;
+        })
+      } catch(err) {
+        // do nothing
+      }      
     })
   }
 
