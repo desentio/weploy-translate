@@ -12,7 +12,7 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix}) {
     let anchor = anchors[i];
 
     // assign full url if it's relative path
-    if (!anchor.href.startsWith("http")) {
+    if (!anchor.href.startsWith("http") && (anchor.getAttribute("href") != "#")) {
       const currentUrl = new URL(window.location.href);
       const fullHref = `${currentUrl.protocol}//${currentUrl.hostname}${anchor.href}`;
       anchor.href = fullHref;
