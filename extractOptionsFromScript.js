@@ -3,6 +3,27 @@ const detectRobot = require("./utils/detectRobot");
 const getPrefixedPathname = require("./utils/translation-mode/getPrefixedPathname");
 const getUnprefixedPathname = require("./utils/translation-mode/getUnprefixedPathname");
 
+function replaceCustomLinks(window, customLinks = {}) {
+  // find all tags with href and src
+  const tagsWithSrc = window.document.querySelectorAll("[src]");
+  const tagsWithHref = window.document.querySelectorAll("[href]");
+
+  // replace the links
+  for (let tag of tagsWithSrc) {
+    const src = tag.getAttribute("src");
+    if (customLinks[src]) {
+      tag.setAttribute("src", customLinks[src]);
+    }
+  }
+  
+  for (let tag of tagsWithHref) {
+    const href = tag.getAttribute("href");
+    if (customLinks[href]) {
+      tag.setAttribute("href", customLinks[href]);
+    }
+  }
+}
+
 /**
  * Extracts options from a script.
  *
@@ -52,12 +73,28 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_TRANSLATE_FORM_PLACEHOLDER = "data-translate-form-placeholder"
   const DATA_TRANSLATE_SELECT_OPTIONS = "data-translate-select-options"
   const DATA_DOMAIN_SOURCE_PREFIX = "data-domain-source-prefix"
+  const DATA_CUSTOM_LINKS = "data-custom-links"
 
   const DATA_TRANSLATION_CACHE = "data-translation-cache";
 
   // WORKER ATTRIBUTES
   // const DATA_PREVENT_INIT_TRANSLATION = "data-prevent-init-translation" // default: false
   // const preventInitialTranslation = window.translationScriptTag.getAttribute(DATA_PREVENT_INIT_TRANSLATION) == "true";
+
+  const customLinksAttribute = window.translationScriptTag.getAttribute(DATA_CUSTOM_LINKS);
+  let customLinks = {};
+  try {
+    // format: [oldUrl,newUrl], [oldUrl,newUrl]
+    const parsed = JSON.parse(`[${customLinksAttribute}]`);
+    customLinks = parsed.reduce((acc, [oldUrl, newUrl]) => {
+      acc[oldUrl] = newUrl;
+      return acc;
+    }, {});
+    
+    replaceCustomLinks(window, customLinks);
+  } catch (e) {
+    customLinks = {};
+  }
 
   const DATA_ACTIVE_SUBDOMAIN = "data-active-subdomain"; // default: undefined
   const activeSubdomain = window.translationScriptTag.getAttribute(DATA_ACTIVE_SUBDOMAIN);
@@ -364,7 +401,8 @@ function extractOptionsFromScript(window, optsArgs = {
     paramsLang,
     apiKey,
     translationMode,
-    domainSourcePrefix
+    domainSourcePrefix,
+    customLinks,
   }
 }
 
