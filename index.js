@@ -99,10 +99,14 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
 
             if (elements.length && optsArgs.createSelector) {
               createLanguageSelect(window, optsArgs).then(() => {
-                if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration).catch(console.log)
+                if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration)
+                  .catch(console.log)
+                  .finally(() => renderSelectorState(window))
               });
             } else {
-              if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration).catch(console.log)
+              if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration)
+                .catch(console.log)
+                .finally(() => renderSelectorState(window))
             }
           });
 

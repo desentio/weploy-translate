@@ -97,7 +97,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
     if (
       window.isWorker
       || (!delay && !window.isTranslationRunOnce)
-      // || (window.activeSubdomain && window.translationCache?.[window.location.pathname]?.[window.activeSubdomain])
+      || (window.activeSubdomain && window.translationCache?.[window.location.pathname]?.[window.activeSubdomain])
     ) {
       // console.log("RUN FIRST")
       window.isTranslationRunOnce = true;
