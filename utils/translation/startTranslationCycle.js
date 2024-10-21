@@ -34,7 +34,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
             const srcset = el.srcset.split(", ");
             const newSrcset = srcset.map(src => {
               const [srcUrl, srcWidth] = src.split(" ");
-              const url = new URL(srcUrl);
+              const url = new URL(srcUrl, window.location.origin);
               url.hostname = originalWebsiteHostname;
               return `${url.href} ${srcWidth}`;
             }).join(", ");
