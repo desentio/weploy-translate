@@ -29,10 +29,21 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
 
         // replace the hostname of the src with the original hostname
         elementsWithRelativeSrc.forEach(el => {
-          // use URL class
-          const url = new URL(attr == "srcset" ? `${window.location.origin}/${el.srcset.startsWith("/") ? el.srcset.slice(1) : el}` : el.src);
-          url.hostname = originalWebsiteHostname;
-          el[attr] = url.href;
+          if (attr == "srcset") {
+             // handle srcset
+            const srcset = el.srcset.split(", ");
+            const newSrcset = srcset.map(src => {
+              const [srcUrl, srcWidth] = src.split(" ");
+              const url = new URL(srcUrl);
+              url.hostname = originalWebsiteHostname;
+              return `${url.href} ${srcWidth}`;
+            }).join(", ");
+            el.srcset = newSrcset;
+          } else {
+            const url = new URL(el[attr]);
+            url.hostname = originalWebsiteHostname;
+            el[attr] = url.href;
+          }
         })
       } catch(err) {
         // do nothing
