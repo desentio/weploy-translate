@@ -11,7 +11,7 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
   const options = getGlobalseoOptions(window);
 
   // replace src because nextjs will replace the whole html on rerender
-  if (options.translationMode == "subdomain" && !window.isWorker && window.activeSubdomain) {
+  if (options.translationMode == "subdomain" && window.activeSubdomain) {
     // get all elements with src attribute
 
     ["src", "srcset"].forEach(attr => {
