@@ -81,7 +81,16 @@ function extractOptionsFromScript(window, optsArgs = {
   // const DATA_PREVENT_INIT_TRANSLATION = "data-prevent-init-translation" // default: false
   // const preventInitialTranslation = window.translationScriptTag.getAttribute(DATA_PREVENT_INIT_TRANSLATION) == "true";
 
-  const customLinksAttribute = window.translationScriptTag.getAttribute(DATA_CUSTOM_LINKS);
+  const DATA_ACTIVE_SUBDOMAIN = "data-active-subdomain"; // default: undefined
+  const activeSubdomain = window.translationScriptTag.getAttribute(DATA_ACTIVE_SUBDOMAIN);
+
+  // prevent initial translation for subdomain (but allow translation on dynamic content)
+  if (activeSubdomain) {
+    window.preventInitialTranslation = true;
+    window.activeSubdomain = activeSubdomain;
+  }
+
+  const customLinksAttribute = window.translationScriptTag.getAttribute(`${DATA_CUSTOM_LINKS}-${activeSubdomain}`);
   let customLinks = {};
   try {
     // format: [oldUrl,newUrl], [oldUrl,newUrl]
@@ -94,15 +103,6 @@ function extractOptionsFromScript(window, optsArgs = {
     replaceCustomLinks(window, customLinks);
   } catch (e) {
     customLinks = {};
-  }
-
-  const DATA_ACTIVE_SUBDOMAIN = "data-active-subdomain"; // default: undefined
-  const activeSubdomain = window.translationScriptTag.getAttribute(DATA_ACTIVE_SUBDOMAIN);
-
-  // prevent initial translation for subdomain (but allow translation on dynamic content)
-  if (activeSubdomain) {
-    window.preventInitialTranslation = true;
-    window.activeSubdomain = activeSubdomain;
   }
 
   // FEATURE: Prevent Google Translate from translating the page
