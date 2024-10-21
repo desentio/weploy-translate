@@ -68,9 +68,9 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
             let nodes = [];
 
             // check if the selectors need to be recreated
-            let elementsWeploy = Array.from(window.document.querySelectorAll('.weploy-lang-selector-loading')).filter(el => !el.querySelector('.weploy-lang-selector-ready-icon'));
+            let elementsWeploy = Array.from(window.document.querySelectorAll('.weploy-select')).filter(el => !el.querySelector('.weploy-lang-selector-ready-icon'));
 
-            let elementsGlobalSeo = Array.from(window.document.querySelectorAll('.globalseo-lang-selector-loading')).filter(el => !el.querySelector('.globalseo-lang-selector-ready-icon'));
+            let elementsGlobalSeo = Array.from(window.document.querySelectorAll('.globalseo-select')).filter(el => !el.querySelector('.globalseo-lang-selector-ready-icon'));
 
             let elements = [...elementsWeploy, ...elementsGlobalSeo];
 
