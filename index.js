@@ -74,6 +74,15 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
 
             let elements = [...elementsWeploy, ...elementsGlobalSeo];
 
+            // remove classname to recreate selectors
+            elements.forEach(el => {
+              const details = el.querySelector('details')
+              if (details) {
+                details.classList.remove('globalseo-lang-selector-element');
+                details.classList.remove('weploy-lang-selector-element');
+              }
+            })
+
             for(let mutation of mutationsList) {
               if (mutation.type === 'childList') {
                 function getIsLangSelector() {
@@ -97,16 +106,12 @@ async function getTranslations(window, apiKey, optsArgs = {}) {
               }
             }
 
-            if (elements.length && optsArgs.createSelector) {
+            if (elements.length && optsArgs.createSelector) {              
               createLanguageSelect(window, optsArgs).then(() => {
-                if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration)
-                  .catch(console.log)
-                  .finally(() => renderSelectorState(window))
+                if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration).catch(console.log)
               });
             } else {
-              if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration)
-                .catch(console.log)
-                .finally(() => renderSelectorState(window))
+              if (nodes.length) startTranslationCycle(window, window.document.body, apiKey, debounceDuration).catch(console.log)
             }
           });
 

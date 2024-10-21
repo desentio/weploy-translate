@@ -79,7 +79,8 @@ function translateNodes(window, textNodes = [], language = "", apiKey = "", seoN
 
     // Check cache for each textNode
     cleanTextNodes.forEach((node) => {
-      const text = getCacheKey(window, node);
+      const originalTextFromServer = node.parentNode.getAttribute("data-original-text");
+      const text = originalTextFromServer || getCacheKey(window, node);
       const tagName = getTagName(window, node);
       const context = node.context;
 
