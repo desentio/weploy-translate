@@ -85,7 +85,7 @@ function extractOptionsFromScript(window, optsArgs = {
   let customLinks = {};
   try {
     // format: [oldUrl,newUrl], [oldUrl,newUrl]
-    const parsed = JSON.parse(`[${customLinksAttribute}]`);
+    const parsed = JSON.parse(`[${customLinksAttribute.replaceAll('\'', '"')}]`);
     customLinks = parsed.reduce((acc, [oldUrl, newUrl]) => {
       acc[oldUrl] = newUrl;
       return acc;
