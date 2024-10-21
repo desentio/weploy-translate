@@ -13,7 +13,6 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
   // replace src because nextjs will replace the whole html on rerender
   if (options.translationMode == "subdomain" && window.activeSubdomain) {
     // get all elements with src attribute
-
     ["src", "srcset"].forEach(attr => {
       try {
         const elements = window.document.querySelectorAll(`[${attr}]`);
@@ -45,6 +44,28 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
             el[attr] = url.href;
           }
         })
+      } catch(err) {
+        // do nothing
+      }      
+    })
+
+
+    // replace all internal links behavior to force reload using window.location.href
+    const links = window.document.querySelectorAll("a");
+    links.forEach(link => {
+      try {
+        const href = link.href;
+        const url = new URL(href);
+        const origin = url.origin;
+        if (origin == window.location.origin) {
+          // add onclick
+          link.onclick = (e) => {
+            e.preventDefault();
+            window.location.href = href;
+
+            return true;
+          }
+        }
       } catch(err) {
         // do nothing
       }      
