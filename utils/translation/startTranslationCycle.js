@@ -73,7 +73,11 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
 
   return await new Promise((resolve) => {
     // execute the first translation attempt immediately
-    if (window.isWorker || (!delay && !window.isTranslationRunOnce) || (window.activeSubdomain && window.translationCache?.[window.location.pathname]?.[window.activeSubdomain])) {
+    if (
+      window.isWorker
+      || (!delay && !window.isTranslationRunOnce)
+      // || (window.activeSubdomain && window.translationCache?.[window.location.pathname]?.[window.activeSubdomain])
+    ) {
       // console.log("RUN FIRST")
       window.isTranslationRunOnce = true;
       modifyHtmlStrings(window, node, lang, apiKey, shouldOptimizeSEO).catch(console.log).finally(() => {
