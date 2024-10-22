@@ -2,6 +2,7 @@ const { getGlobalseoActiveLang, getGlobalseoOptions } = require("../configs");
 const { getLanguageFromLocalStorage } = require("../languages/getSelectedLanguage");
 const modifyHtmlStrings = require("./modifyHtmlStrings");
 const { debounce } = require("../debounce");
+const { renderSelectorState } = require("../selector/renderSelectorState");
 
 async function startTranslationCycle(window, node, apiKey, delay, shouldOptimizeSEO = false) {
   if (window.preventInitialTranslation) {
@@ -9,6 +10,17 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
     return;
   };
   const options = getGlobalseoOptions(window);
+
+  if (!window.isWorker && options.translationMode == "subdomain") {      
+    await renderSelectorState(window, { shouldUpdateActiveLang: true, delay: 0, shouldLog: false })
+
+    // dont translate anything on original site
+    if (!window.activeSubdomain) {
+      return window;
+    } else {
+      window.globalseoActiveLang = window.activeSubdomain;
+    }
+  }
 
   // replace src because nextjs will replace the whole html on rerender
   if (options.translationMode == "subdomain" && window.activeSubdomain) {
