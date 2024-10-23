@@ -282,26 +282,24 @@ function extractOptionsFromScript(window, optsArgs = {
         const parsedTranslationCache = JSON.parse(translationCache);
         if (parsedTranslationCache && typeof parsedTranslationCache === "object") {
           window.translationCache = parsedTranslationCache;
-          // const injectedCacheElement = document.getElementById("globalseo-translation-cache");
-          // if (!thisScriptTranslationCache && injectedCacheElement) {
-          //   try {
-          //     const stringifiedCache = injectedCacheElement.textContent;
-          //     const parsedCache = JSON.parse(stringifiedCache);
-          //     window.translationCache = {
-          //       ...window.translationCache,
-          //       [window.location.pathname]: {
-          //         ...parsedCache[window.location.pathname]
-          //       }
-          //     }
+        }
 
-          //     // set to local storage
-          //     // if (!window.isWorker && !window.activeSubdomain) {
-          //     window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
-          //     // }
-          //   } catch(error) {
-          //     // do nothing
-          //   }
-          // }
+        const injectedCacheElement = document.getElementById("globalseo-translation-cache");
+        if (injectedCacheElement) {
+          try {
+            const stringifiedCache = injectedCacheElement.textContent;
+            const parsedCache = JSON.parse(stringifiedCache);
+
+            window.translationCache = {
+              ...window.translationCache,
+              [window.location.pathname]: {
+                ...window.translationCache[window.location.pathname],
+                ...parsedCache[window.location.pathname]
+              }
+            }
+          } catch(error) {
+            // do nothing
+          }
         }
 
         // handle cache coming from server side rendering
@@ -315,9 +313,9 @@ function extractOptionsFromScript(window, optsArgs = {
               ...parsedThisScriptTranslationCache[window.location.pathname]
             }
           }
-
-          window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
         }
+
+        window.localStorage.setItem("translationCachePerPage", JSON.stringify(window.translationCache));
       } catch (e) {
         console.log("Error parsing translation cache", e)
       }
