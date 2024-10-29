@@ -10,7 +10,7 @@ function getActiveLang(window) {
     return subdomain;    
   }
 
-  if (options.translationMode == "path") {
+  if (options.translationMode == "subdirectory") {
     const path = window.location.pathname.split('/');
     return path[1];
   }

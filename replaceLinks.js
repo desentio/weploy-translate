@@ -42,7 +42,7 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix}) {
       
       // Update the href of the anchor tag
       anchor.href = url.href;
-    } else if (translationMode == 'path') {
+    } else if (translationMode == 'subdirectory') {
       // Create a new URL object
       let url = new URL(anchor.href);
 

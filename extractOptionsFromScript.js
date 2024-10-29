@@ -226,7 +226,7 @@ function extractOptionsFromScript(window, optsArgs = {
         url.pathname = getUnprefixedPathname(window, domainSourcePrefix, url.pathname);
         alternateLinkTag.href = url.href;
       }
-      if (translationMode == "path") {
+      if (translationMode == "subdirectory") {
         // remove lang param
         url.searchParams.delete(langParam);
         

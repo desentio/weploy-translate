@@ -32,7 +32,7 @@ function addOrReplaceLangParam(window, url, lang) {
     return newUrl;
   }
 
-  if (options.translationMode == "path") {
+  if (options.translationMode == "subdirectory") {
     let pathnames = urlObj.pathname.split('/');
     pathnames.splice(1, 0, lang);
     urlObj.pathname = pathnames.join('/');
