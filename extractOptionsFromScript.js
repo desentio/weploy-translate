@@ -185,7 +185,7 @@ function extractOptionsFromScript(window, optsArgs = {
     }
 
     if (translationMode == "subdomain") {
-      if (activeLang == originalLang) {
+      if (!activeLang || (activeLang == originalLang)) {
         newCanonicalLinkTag.href = `${window.location.protocol}//${domain}${window.location.pathname}`;
       } else {
         // Create a new URL object
