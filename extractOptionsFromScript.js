@@ -203,8 +203,10 @@ function extractOptionsFromScript(window, optsArgs = {
     const alternateLinkTag = window.document.createElement('link');
     alternateLinkTag.setAttribute('rel', 'alternate');
     alternateLinkTag.setAttribute('hreflang', originalLang);
-    // append prefix to the original lang because the subdomain will be accessed without the prefix
-    alternateLinkTag.href = `${window.location.protocol}//${domain}${getPrefixedPathname(window, domainSourcePrefix, window.location.pathname)}`;
+
+    const subdirectoryHref = `${window.location.protocol}//${domain}${getUnprefixedPathname(window, domainSourcePrefix, window.location.pathname)}`
+    // append prefix to the original lang because the subdomain will be accessed without the prefix (dont append if subdirectory mode)
+    alternateLinkTag.href = translationMode == "subdirectory" ? subdirectoryHref : `${window.location.protocol}//${domain}${getPrefixedPathname(window, domainSourcePrefix, window.location.pathname)}`;
     window.document.head.appendChild(alternateLinkTag);
 
     // Add alternate link tags for allowed languages

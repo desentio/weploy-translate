@@ -375,6 +375,15 @@ async function createLanguageSelect(window, optsArgs = {}) {
                 }
               }
 
+              if (prefix && options.translationMode == "subdirectory") {
+                newUrl.pathname = getUnprefixedPathname(window, prefix, newUrl.pathname);
+                // if (options.originalLanguage == language.lang) {
+                //   newUrl.pathname = getUnprefixedPathname(window, prefix, newUrl.pathname);
+                // } else {
+                //   newUrl.pathname = getUnprefixedPathname(window, prefix, newUrl.pathname);
+                // }
+              }
+
               const url = isSelected ? "#" : addOrReplaceLangParam(window, newUrl.href, language.lang);
 
               a.href = url;
