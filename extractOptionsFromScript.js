@@ -31,7 +31,6 @@ function replaceCustomLinks(window, customLinks = {}, domainFromServer) {
       const url = new URL(href, window.location.origin);
       const hostname = url.hostname;
       const hostnameWithoutWWW = hostname.replace("www.", "");
-      console.log("DOMAIN", domainFromServer, hostnameWithoutWWW)
       if (domainFromServer == hostnameWithoutWWW) {
         tag.setAttribute("href", url.href);
       }
@@ -190,8 +189,6 @@ function extractOptionsFromScript(window, optsArgs = {
   if (translationMode == "subdirectory" && !window.isWorker) {
     activeLang = window.globalseoActiveLang
   }
-
-  console.log("DOC LANG", activeLang)
   
   if (activeLang && (window.document.documentElement.lang != activeLang)) {
     window.document.documentElement.lang = activeLang;
@@ -273,7 +270,6 @@ function extractOptionsFromScript(window, optsArgs = {
     // const cleanPathname = `${window.location.pathname.replace(domainSourcePrefix, "").replace(`/${originalLang}/`, '/')}`; // cleanup from  language to get the real pathname
     const originalPathname = getPrefixedPathname(window, domainSourcePrefix, subdirUrl.pathname) // add back the prefix
     const subdirectoryHref = `${window.location.protocol}//${domain}${originalPathname}`
-    console.log("PATHNM2", activeSubdirectory, cleanPathname, originalPathname, subdirectoryHref, translationMode)
     // append prefix to the original lang because the subdomain will be accessed without the prefix (dont append if subdirectory mode)
     alternateLinkTag.href = translationMode == "subdirectory" ? subdirectoryHref : `${window.location.protocol}//${domain}${getPrefixedPathname(window, domainSourcePrefix, window.location.pathname)}`;
     window.document.head.appendChild(alternateLinkTag);
