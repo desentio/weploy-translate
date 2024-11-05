@@ -54,10 +54,18 @@ function updateNode(window, node, language, type = "text", debugSource) {
     return;
   }
 
-  if (type == "form" && (node.tagName == "TEXTAREA" || node.tagName == "INPUT")) {
+  if (type == "form" && (node.tagName == "TEXTAREA" || (node.tagName == "INPUT" && node.type != "button" && node.type != "submit"))) {
     const newPlaceholder = window.translationCache?.[window.location.pathname]?.[language]?.[node.placeholder] || "";
     if (newPlaceholder && !newPlaceholder.includes(DEFAULT_UNTRANSLATED_VALUE)) {
       node.placeholder = decodeHTMLEntities(window, newPlaceholder);
+    }
+    return;
+  }
+
+  if (type == "form" && (node.tagName == "INPUT" && (node.type == "button" || node.type == "submit"))) {
+    const newValue = window.translationCache?.[window.location.pathname]?.[language]?.[node.value] || "";
+    if (newValue && !newValue.includes(DEFAULT_UNTRANSLATED_VALUE)) {
+      node.value = decodeHTMLEntities(window, newValue);
     }
     return;
   }

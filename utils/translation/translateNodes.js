@@ -167,7 +167,7 @@ function translateNodes(window, textNodes = [], language = "", apiKey = "", seoN
     otherNodes.forEach((node) => {
       const allTranslationValuesInAllPages = Object.values(window.translationCache).map(x => Object.values(x[language] || {}))
 
-      if (node.tagName == "TEXTAREA" || node.tagName == "INPUT") {
+      if (node.tagName == "TEXTAREA" || (node.tagName == "INPUT" && node.type != "button" && node.type != "submit")) {
         const placeholderCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.placeholder]
         // make sure the placeholder is not empty
         if (
@@ -178,6 +178,20 @@ function translateNodes(window, textNodes = [], language = "", apiKey = "", seoN
 
         if (placeholderCache) {
           updateNode(window, node, language, "form", 5.2);
+        }
+      }
+
+      if(node.tagName == "INPUT" && (node.type == "button" || node.type == "submit")) {
+        const valueCache = window.translationCache?.[window.location.pathname]?.[language]?.[node.value]
+        // make sure the value is not empty
+        if (
+          (node.value || "").trim() && !valueCache && !allTranslationValuesInAllPages.includes(node.value)
+        ) {
+          notInCache.push(node.value);
+        }
+
+        if (valueCache) {
+          updateNode(window, node, language, "form", 5.20);
         }
       }
 

@@ -78,6 +78,18 @@ function modifyHtmlStrings(window, rootElement, language, apiKey, shouldOptimize
       )
     }
 
+    // translate input type="submit" & input type="button"
+    const inputTypeButtonTags = Array.from(window.document.querySelectorAll('input[type="button"]'));
+    const inputTypeSubmitTags = Array.from(window.document.querySelectorAll('input[type="submit"]'));
+    const cleanInputTypeButtonTags = inputTypeButtonTags.filter((node) => (node.value || "").trim() && !isExcludedClassName(window,node.className) && !isExcludedId(window, node.id));
+    const cleanInputTypeSubmitTags = inputTypeSubmitTags.filter((node) => (node.value || "").trim() && !isExcludedClassName(window,node.className) && !isExcludedId(window, node.id));
+
+    otherNodes.push(
+      ...cleanInputTypeButtonTags,
+      ...cleanInputTypeSubmitTags,
+    )
+
+
     const textNodes = [];
     extractTextNodes(window, rootElement, textNodes);
 
