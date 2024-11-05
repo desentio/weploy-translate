@@ -3,7 +3,7 @@ const detectRobot = require("./utils/detectRobot");
 const getPrefixedPathname = require("./utils/translation-mode/getPrefixedPathname");
 const getUnprefixedPathname = require("./utils/translation-mode/getUnprefixedPathname");
 
-function replaceCustomLinks(window, customLinks = {}) {
+function replaceCustomLinks(window, customLinks = {}, domainFromServer) {
   // find all tags with href and src
   const tagsWithSrc = window.document.querySelectorAll("[src]");
   const tagsWithHref = window.document.querySelectorAll("[href]");
@@ -13,6 +13,13 @@ function replaceCustomLinks(window, customLinks = {}) {
     const src = tag.getAttribute("src");
     if (customLinks[src]) {
       tag.setAttribute("src", customLinks[src]);
+    } else {
+      const url = new URL(src, window.location.origin);
+      const hostname = url.hostname;
+      const hostnameWithoutWWW = hostname.replace("www.", "");
+      if (domainFromServer == hostnameWithoutWWW) {
+        tag.setAttribute("src", url.href);
+      }
     }
   }
   
@@ -20,6 +27,14 @@ function replaceCustomLinks(window, customLinks = {}) {
     const href = tag.getAttribute("href");
     if (customLinks[href]) {
       tag.setAttribute("href", customLinks[href]);
+    } else {
+      const url = new URL(href, window.location.origin);
+      const hostname = url.hostname;
+      const hostnameWithoutWWW = hostname.replace("www.", "");
+      console.log("DOMAIN", domainFromServer, hostnameWithoutWWW)
+      if (domainFromServer == hostnameWithoutWWW) {
+        tag.setAttribute("href", url.href);
+      }
     }
   }
 }
@@ -30,6 +45,7 @@ function replaceCustomLinks(window, customLinks = {}) {
  * @param {any} window - The global window object.
  * @param {Object} optsArgs - Options for extraction.
  * @param {string|null} optsArgs.activeLanguage - The active language (optional).
+ * @param {string|null} optsArgs.domainFromServer - The domain from the server (optional).
  * @param {"globalseo"|"weploy"} [optsArgs.brand] - The brand name.
  *   - "searchParams": Extract options from query parameters.
  *   - "subdomain": Extract options from subdomains.
@@ -37,6 +53,7 @@ function replaceCustomLinks(window, customLinks = {}) {
  */
 function extractOptionsFromScript(window, optsArgs = {
   activeLanguage: null,
+  domainFromServer: null,
 }) {
   if (isBrowser()) {
     if (!window.translationCache) {
@@ -76,6 +93,7 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_CUSTOM_LINKS = "data-custom-links"
 
   const DATA_TRANSLATION_CACHE = "data-translation-cache";
+  const DATA_SOURCE_ORIGIN = "data-source-origin";
 
   // WORKER ATTRIBUTES
   // const DATA_PREVENT_INIT_TRANSLATION = "data-prevent-init-translation" // default: false
@@ -84,13 +102,23 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_ACTIVE_SUBDOMAIN = "data-active-subdomain"; // default: undefined
   const activeSubdomain = window.translationScriptTag.getAttribute(DATA_ACTIVE_SUBDOMAIN);
 
+  const DATA_ACTIVE_SUBDIRECTORY = "data-active-subdirectory"; // default: undefined
+  const activeSubdirectory = window.translationScriptTag.getAttribute(DATA_ACTIVE_SUBDIRECTORY);
+
   // prevent initial translation for subdomain (but allow translation on dynamic content)
   if (activeSubdomain) {
     window.preventInitialTranslation = true;
     window.activeSubdomain = activeSubdomain;
   }
 
-  const customLinksAttribute = window.translationScriptTag.getAttribute(`${DATA_CUSTOM_LINKS}-${activeSubdomain}`);
+  if (activeSubdirectory) {
+    window.preventInitialTranslation = true;
+    window.activeSubdirectory = activeSubdirectory;
+  }
+
+  const activeServerSideLang = activeSubdomain || activeSubdirectory;
+
+  const customLinksAttribute = window.translationScriptTag.getAttribute(`${DATA_CUSTOM_LINKS}-${activeServerSideLang}`);
   let customLinks = {};
   try {
     // format: [oldUrl,newUrl], [oldUrl,newUrl]
@@ -100,7 +128,7 @@ function extractOptionsFromScript(window, optsArgs = {
       return acc;
     }, {});
     
-    replaceCustomLinks(window, customLinks);
+    replaceCustomLinks(window, customLinks, optsArgs.domainFromServer);
   } catch (e) {
     customLinks = {};
   }
@@ -153,8 +181,18 @@ function extractOptionsFromScript(window, optsArgs = {
   const allowedLangs = (allowedLangAttr || "").trim().toLowerCase().split(",").filter(lang => lang && lang.trim() != originalLang).map(lang => lang.trim());
 
   // always use original language for subdomain
-  const activeLang = translationMode == "subdomain" && !window.isWorker ? window.globalseoActiveLang : (window.globalseoActiveLang || paramsLang || originalLang);
+  let activeLang = (window.globalseoActiveLang || paramsLang || originalLang);
 
+  if (translationMode == "subdomain" && !window.isWorker) {
+    activeLang = window.globalseoActiveLang
+  }
+
+  if (translationMode == "subdirectory" && !window.isWorker) {
+    activeLang = window.globalseoActiveLang
+  }
+
+  console.log("DOC LANG", activeLang)
+  
   if (activeLang && (window.document.documentElement.lang != activeLang)) {
     window.document.documentElement.lang = activeLang;
   }
@@ -165,7 +203,16 @@ function extractOptionsFromScript(window, optsArgs = {
 
   function handleLinkTags() {
     const domainWithoutWww = window.location.hostname.split('.').slice(1).join('.').replace("https://www.", "https://").replace("http://www.", "http://");
-    const domain = activeSubdomain ? domainWithoutWww : window.location.hostname;
+    let domain = window.location.hostname;
+
+    if (activeSubdomain) {
+      domain = domainWithoutWww
+    }
+
+    if (activeSubdirectory && optsArgs.domainFromServer) {
+      domain = optsArgs.domainFromServer;
+    }
+    
 
     // FEATURE: Create a canonical link tag for translated pages
     // e.g. https://example.com/path?lang=es
@@ -195,6 +242,19 @@ function extractOptionsFromScript(window, optsArgs = {
         newCanonicalLinkTag.href = url.href;
       }
     }
+
+    if (translationMode == "subdirectory") {
+      if (!activeLang || (activeLang == originalLang)) {
+        newCanonicalLinkTag.href = `${window.location.protocol}//${domain}${window.location.pathname}`;
+      } else {
+        let url = new URL(window.location.href);
+        url.hostname = domain;
+        // url.pathname = url.pathname.replace(domainSourcePrefix, "");
+        url.pathname = getUnprefixedPathname(window, domainSourcePrefix, url.pathname);
+
+        newCanonicalLinkTag.href = url.href;
+      }
+    }
     
     newCanonicalLinkTag.setAttribute('rel', 'canonical');
     window.document.head.appendChild(newCanonicalLinkTag);
@@ -204,7 +264,16 @@ function extractOptionsFromScript(window, optsArgs = {
     alternateLinkTag.setAttribute('rel', 'alternate');
     alternateLinkTag.setAttribute('hreflang', originalLang);
 
-    const subdirectoryHref = `${window.location.protocol}//${domain}${getUnprefixedPathname(window, domainSourcePrefix, window.location.pathname)}`
+    const subdirUrl = new URL(window.location.href);
+    // cleanup from prefix and language to get the real pathname
+    subdirUrl.pathname = getUnprefixedPathname(window, domainSourcePrefix, subdirUrl.pathname);
+    subdirUrl.pathname = subdirUrl.pathname.replace(`/${activeSubdirectory}/`, '/'); 
+    const cleanPathname = subdirUrl.pathname;
+    
+    // const cleanPathname = `${window.location.pathname.replace(domainSourcePrefix, "").replace(`/${originalLang}/`, '/')}`; // cleanup from  language to get the real pathname
+    const originalPathname = getPrefixedPathname(window, domainSourcePrefix, subdirUrl.pathname) // add back the prefix
+    const subdirectoryHref = `${window.location.protocol}//${domain}${originalPathname}`
+    console.log("PATHNM2", activeSubdirectory, cleanPathname, originalPathname, subdirectoryHref, translationMode)
     // append prefix to the original lang because the subdomain will be accessed without the prefix (dont append if subdirectory mode)
     alternateLinkTag.href = translationMode == "subdirectory" ? subdirectoryHref : `${window.location.protocol}//${domain}${getPrefixedPathname(window, domainSourcePrefix, window.location.pathname)}`;
     window.document.head.appendChild(alternateLinkTag);
@@ -234,9 +303,13 @@ function extractOptionsFromScript(window, optsArgs = {
         
         // append the first slash with lang
         // google.com -> google.com/en
+        // url.pathname = url.pathname.replace(domainSourcePrefix, "")
+        url.pathname = getUnprefixedPathname(window, domainSourcePrefix, url.pathname);
+        url.pathname = url.pathname.replace(`/${activeSubdirectory}/`, '/'); // cleanup from prefix and language to get the real pathname
         let pathnames = url.pathname.split('/');
-        pathnames.splice(1, 0, lang);
+        if (lang && (lang != originalLang)) pathnames.splice(1, 0, lang);
         url.pathname = pathnames.join('/');
+        if (lang == originalLang) url.pathname = `${domainSourcePrefix}${url.pathname}`
         alternateLinkTag.href = url.href;
       }
       
@@ -244,7 +317,7 @@ function extractOptionsFromScript(window, optsArgs = {
     }
   }
 
-  if (!activeSubdomain || window.isWorker) {
+  if ((!activeSubdomain && !activeSubdirectory )|| window.isWorker) {
     handleLinkTags();
   }
 
@@ -255,7 +328,7 @@ function extractOptionsFromScript(window, optsArgs = {
 
   if (isBrowser()) {
     // subdomain may dont need to check expiration
-    if (!window.isWorker && !window.activeSubdomain) {
+    if (!window.isWorker && !window.activeSubdomain && !window.activeSubdirectory) {
       try {
         // get the current date
         const now = new Date();
@@ -380,6 +453,8 @@ function extractOptionsFromScript(window, optsArgs = {
 
   const translateSelectOptions = window.translationScriptTag.getAttribute(DATA_TRANSLATE_SELECT_OPTIONS) == "true";
 
+  const sourceOrigin = window.translationScriptTag.getAttribute(DATA_SOURCE_ORIGIN);
+
   return {
     useBrowserLanguage: !disableAutoTranslate && useBrowserLanguage,
     createSelector: createSelector,
@@ -403,6 +478,7 @@ function extractOptionsFromScript(window, optsArgs = {
     translationMode,
     domainSourcePrefix,
     customLinks,
+    sourceOrigin,
   }
 }
 

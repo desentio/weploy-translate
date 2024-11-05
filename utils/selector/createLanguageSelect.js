@@ -34,8 +34,11 @@ function addOrReplaceLangParam(window, url, lang) {
 
   if (options.translationMode == "subdirectory") {
     let pathnames = urlObj.pathname.split('/');
-    pathnames.splice(1, 0, lang);
+    if (lang && lang != options.originalLanguage) pathnames.splice(1, 0, lang);
     urlObj.pathname = pathnames.join('/');
+    if ((!lang || lang == options.originalLanguage) && options.domainSourcePrefix) {
+      urlObj.pathname = `${options.domainSourcePrefix}${urlObj.pathname}`;
+    }
     return urlObj.toString();
   }
 
@@ -375,13 +378,10 @@ async function createLanguageSelect(window, optsArgs = {}) {
                 }
               }
 
-              if (prefix && options.translationMode == "subdirectory") {
-                newUrl.pathname = getUnprefixedPathname(window, prefix, newUrl.pathname);
-                // if (options.originalLanguage == language.lang) {
-                //   newUrl.pathname = getUnprefixedPathname(window, prefix, newUrl.pathname);
-                // } else {
-                //   newUrl.pathname = getUnprefixedPathname(window, prefix, newUrl.pathname);
-                // }
+              if (options.translationMode == "subdirectory") {
+                if (newUrl.pathname.startsWith(`/${selectedLangLowercased}`)) {
+                  newUrl.pathname = newUrl.pathname.replace(`/${selectedLangLowercased}`, "");
+                }
               }
 
               const url = isSelected ? "#" : addOrReplaceLangParam(window, newUrl.href, language.lang);

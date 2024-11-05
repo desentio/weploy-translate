@@ -1,6 +1,6 @@
 const getUnprefixedPathname = require("./utils/translation-mode/getUnprefixedPathname");
 
-function replaceLinks(window, {langParam, lang, translationMode, prefix}) {
+function replaceLinks(window, {langParam, lang, translationMode, prefix, sourceOriginHostname}) {
   // Select all anchor tags
   let anchors = window.document.querySelectorAll('a');
 
@@ -12,7 +12,7 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix}) {
     let anchor = anchors[i];
 
     // assign full url if it's relative path
-    if (!anchor.href.startsWith("http") && (anchor.getAttribute("href") != "#")) {
+    if (!anchor.href.startsWith("http") && (anchor.getAttribute("href") != "#") && !anchor.href.startsWith("tel:") && !anchor.href.startsWith("mailto:")) {
       const currentUrl = new URL(window.location.href);
       const fullHref = `${currentUrl.protocol}//${currentUrl.hostname}${anchor.href}`;
       anchor.href = fullHref;
@@ -21,7 +21,9 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix}) {
     // check for en.domain.com OR www.domain.com OR domain.com
     const isInternal = (anchor.hostname == `${lang}.${domain}`) || (anchor.hostname == `www.${domain}`) || anchor.hostname == window.location.hostname;
 
-    if (!isInternal) {
+    const isInternalForSubdirectory = translationMode == "subdirectory" && (anchor.hostname == sourceOriginHostname || anchor.hostname == `www.${sourceOriginHostname}`);
+
+    if (!isInternal && !isInternalForSubdirectory) {
       // Check if the link is external
       continue;
     }
@@ -46,11 +48,18 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix}) {
       // Create a new URL object
       let url = new URL(anchor.href);
 
+      if (prefix) {
+        url.pathname = getUnprefixedPathname(window, prefix, url.pathname);
+      }
+
+      url.hostname = window.location.hostname;
+
       // append the first slash with lang
       // google.com -> google.com/en
       let pathnames = url.pathname.split('/');
-      pathnames.splice(1, 0, lang);
+      if (lang) pathnames.splice(1, 0, lang); // lang can be undefined for path without prefix
       url.pathname = pathnames.join('/');
+      if (!lang) url.pathname = `${prefix}${url.pathname}`
 
       // Update the href of the anchor tag
       anchor.href = url.href;
