@@ -30,6 +30,7 @@ function collectAllTextContentInsideNode(window, node, shouldExclude = false) {
 
     // if script tag or style tag skip
     if (isIgnoredTagInContext(child.tagName)) return;
+    if (isIgnoredTagInContext(child.parentNode.tagName)) return;
 
     if (child.nodeType === window.Node.TEXT_NODE && child.textContent.trim()) {
 
