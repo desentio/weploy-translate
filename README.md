@@ -31,6 +31,7 @@ Place the following script inside your <head> tag
 - **data-use-browser-language**: Automatically sets the language based on the user's browser language. Set to `false` to disable.
 - **data-exclude-classes**: List CSS class names to exclude from translation, separated by commas (e.g., `chatbot, no-translate`).
 - **data-exclude-ids**: List IDs to exclude from translation, separated by commas (e.g., `user-comment, code-snippet` will prevent translation of elements with ID `user-comment` and `code-snippet`).
+- **data-exclude-paths**: List URL paths to exclude from translation, separated by commas (e.g., `/admin, /blog` will prevent translation of URLs containing `/admin` and `/blog`). NOTE: Each path should start with a `/`.
 
 #### Server Side Rendering Configuration:
 - **data-translation-mode**: Modify the translated pages logic. Set to `subdomain` to point to subdomains (for example: de.domain.com), or `subdirectory` to point to paths (for example: domain.com/de). *DONT USE* if you are not using SSR (SSR only available in higher plans).

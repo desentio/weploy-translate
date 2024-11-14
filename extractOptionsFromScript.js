@@ -71,6 +71,7 @@ function extractOptionsFromScript(window, optsArgs = {
   const DATA_USE_BROWSER_LANG = "data-use-browser-language"; // default: true
   const DATA_EXCLUDE_CLASSES = "data-exclude-classes";
   const DATA_EXCLUDE_IDS = "data-exclude-ids";
+  const DATA_EXCLUDE_PATHS = "data-exclude-paths";
   const DATA_REPLACE_LINKS = "data-replace-links"; // default: true
   const DATA_AUTO_CREATE_SELECTOR = "data-auto-create-selector"; // default: true
   const DATA_DELAY = "data-timeout"; // default: 0
@@ -424,6 +425,13 @@ function extractOptionsFromScript(window, optsArgs = {
   const mergedExcludeIds = [...excludeIdsByComma, ...excludeIdsBySpace];
   const excludeIds = [...new Set(mergedExcludeIds)]; // get unique values
 
+  // exclude paths
+  const excludePathsAttr = (window.translationScriptTag.getAttribute(DATA_EXCLUDE_PATHS) || "").trim()
+  const excludePathsByComma = excludePathsAttr.split(",").filter(path => !!path).map(path => path.trim());
+  const excludePathsBySpace = excludePathsAttr.split(" ").filter(path => !!path).map(path => path.trim().replaceAll(",", ""));
+  const mergedExcludePaths = [...excludePathsByComma, ...excludePathsBySpace];
+  const excludePaths = [...new Set(mergedExcludePaths)]; // get unique values
+
   // exclude contents
   const excludeContentsAttr = (window.translationScriptTag.getAttribute(DATA_EXCLUDE_CONTENTS) || "").trim()
   const splittedContents = getTextInsideBrackets(excludeContentsAttr);
@@ -456,6 +464,7 @@ function extractOptionsFromScript(window, optsArgs = {
     createSelector: createSelector,
     excludeClasses,
     excludeIds,
+    excludePaths,
     excludeContents,
     originalLanguage: originalLang,
     allowedLanguages: allowedLangs,

@@ -3,6 +3,7 @@ const { getLanguageFromLocalStorage } = require("../languages/getSelectedLanguag
 const modifyHtmlStrings = require("./modifyHtmlStrings");
 const { debounce } = require("../debounce");
 const { renderSelectorState } = require("../selector/renderSelectorState");
+const { isExcludedPath } = require("./isExcluded");
 
 async function startTranslationCycle(window, node, apiKey, delay, shouldOptimizeSEO = false) {
   if (window.preventInitialTranslation) {
@@ -10,6 +11,11 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
     return;
   };
   const options = getGlobalseoOptions(window);
+
+  if (isExcludedPath(window)) {
+    renderSelectorState(window, { shouldUpdateActiveLang: true, delay: 0, shouldLog: false })
+    return window;
+  }
 
   if (!window.isWorker && options.translationMode == "subdomain") {      
     await renderSelectorState(window, { shouldUpdateActiveLang: true, delay: 0, shouldLog: false })

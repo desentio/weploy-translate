@@ -20,6 +20,7 @@ function setOptions(window, apiKey, optsArgs) {
     pathOptions: optsArgs.pathOptions || {},
     apiKey,
     excludeIds: optsArgs.excludeIds || [],
+    excludePaths: optsArgs.excludePaths || [],
     excludeClasses: optsArgs.excludeClasses || [],
     excludeContents: optsArgs.excludeContents || [],
     definedLanguages: getDefinedLanguages(optsArgs.originalLanguage, optsArgs.allowedLanguages),

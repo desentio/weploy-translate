@@ -15,3 +15,11 @@ function isExcludedId(window, id) {
   return globalseoOptions.excludeIds.length && globalseoOptions.excludeIds.some(excludeId => excludeId && id.includes(excludeId))
 }
 exports.isExcludedId = isExcludedId;
+
+function isExcludedPath(window) {
+  const globalseoOptions = getGlobalseoOptions(window);
+  const path = window.location.pathname;
+
+  return globalseoOptions.excludePaths.length && globalseoOptions.excludePaths.some(excludePath => excludePath && path.includes(excludePath))
+}
+exports.isExcludedPath = isExcludedPath;
