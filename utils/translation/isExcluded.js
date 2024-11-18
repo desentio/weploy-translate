@@ -19,14 +19,14 @@ exports.isExcludedId = isExcludedId;
 function isExcludedPath(window) {
   const globalseoOptions = getGlobalseoOptions(window);
   const path = window.location.pathname;
+  const isActivePathEndedWithSlash = path.endsWith('/');
+  const withoutSlashPath = isActivePathEndedWithSlash ? path.slice(0, -1) : path;
 
   return globalseoOptions.excludePaths.length && globalseoOptions.excludePaths.some(excludePath => {
     if (!excludePath) return false;
     const isEndedWithStar = excludePath.endsWith('/*');
     if (isEndedWithStar) return path.startsWith(excludePath.slice(0, -1));
-    const isEndedWithSlash = excludePath.endsWith('/');
-    const withoutSlashPath = isEndedWithSlash ? excludePath.slice(0, -1) : excludePath;
-    return (path === excludePath) || (path == withoutSlashPath);
+    return (path === excludePath) || (withoutSlashPath == excludePath);
   })
 }
 exports.isExcludedPath = isExcludedPath;
