@@ -20,6 +20,6 @@ function isExcludedPath(window) {
   const globalseoOptions = getGlobalseoOptions(window);
   const path = window.location.pathname;
 
-  return globalseoOptions.excludePaths.length && globalseoOptions.excludePaths.some(excludePath => excludePath && path.includes(excludePath))
+  return globalseoOptions.excludePaths.length && globalseoOptions.excludePaths.some(excludePath => excludePath && path.startsWith(excludePath))
 }
 exports.isExcludedPath = isExcludedPath;
