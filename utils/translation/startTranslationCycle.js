@@ -53,12 +53,18 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
               const [srcUrl, srcWidth] = src.split(" ");
               const url = new URL(srcUrl, window.location.origin);
               url.hostname = originalWebsiteHostname;
+              if (options.domainSourcePrefix) {
+                url.pathname = `${options.domainSourcePrefix}${url.pathname}`;
+              }
               return `${url.href} ${srcWidth}`;
             }).join(", ");
             el.srcset = newSrcset;
           } else {
             const url = new URL(el[attr]);
             url.hostname = originalWebsiteHostname;
+            if (options.domainSourcePrefix) {
+              url.pathname = `${options.domainSourcePrefix}${url.pathname}`;
+            }
             el[attr] = url.href;
           }
         })
