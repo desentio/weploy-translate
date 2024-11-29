@@ -63,7 +63,7 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix, sourceO
 
       // Update the href of the anchor tag
       anchor.href = url.href;
-    } else if (anchor.href !== `${window.location.href}#`) {
+    } else if ((anchor.href !== `${window.location.href}#`) && (anchor.pathname != window.location.pathname)) {
       // Check if the link is internal and does not contain a hash
 
       // Create a new URL object
