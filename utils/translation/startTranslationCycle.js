@@ -53,18 +53,30 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
               const [srcUrl, srcWidth] = src.split(" ");
               const url = new URL(srcUrl, window.location.origin);
               url.hostname = originalWebsiteHostname;
-              if (options.domainSourcePrefix) {
+
+              // handle path relative to current pathname (that not starts with slash)
+              // if started with slash, it means it's relative to the root
+              // meanwhile if it's not started with slash, it means it's relative to the current pathname
+              const rawAttribute = el.getAttribute(attr);
+              if (options.domainSourcePrefix && !rawAttribute.startsWith("/")) {
                 url.pathname = `${options.domainSourcePrefix}${url.pathname}`;
               }
+
               return `${url.href} ${srcWidth}`;
             }).join(", ");
             el.srcset = newSrcset;
           } else {
             const url = new URL(el[attr]);
             url.hostname = originalWebsiteHostname;
-            if (options.domainSourcePrefix) {
+
+            // handle path relative to current pathname (that not starts with slash)
+              // if started with slash, it means it's relative to the root
+              // meanwhile if it's not started with slash, it means it's relative to the current pathname
+            const rawAttribute = el.getAttribute(attr);
+            if (options.domainSourcePrefix && !rawAttribute.startsWith("/")) {
               url.pathname = `${options.domainSourcePrefix}${url.pathname}`;
             }
+
             el[attr] = url.href;
           }
         })
