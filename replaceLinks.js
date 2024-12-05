@@ -2,7 +2,7 @@ const getUnprefixedPathname = require("./utils/translation-mode/getUnprefixedPat
 
 function replaceLinks(window, {langParam, lang, translationMode, prefix, sourceOriginHostname}) {
   // Select all anchor tags
-  let anchors = window.document.querySelectorAll('a');
+  const anchors = document.querySelectorAll('a:not(.globalseo-ignore-link)');
 
   // domain
   const domain = window.location.hostname.split('.').slice(1).join('.');
