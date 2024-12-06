@@ -19,7 +19,7 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix, sourceO
     const isHashTagInSamePathname = (anchorUrlObj.pathname == window.location.pathname) && anchorUrlObj.href.includes("#");
     
     // anchor.getAttribute("href")?.startsWith?.("#") || (anchor.href == `${window.location.href}#`)
-    if (!isHashTagInSamePathname) {
+    if (isHashTagInSamePathname) {
       // Check if the link is a hash tag
       continue;
     }
