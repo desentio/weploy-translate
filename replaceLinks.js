@@ -11,6 +11,7 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix, sourceO
   for (let i = 0; i < anchors.length; i++) {
     let anchor = anchors[i];
 
+    if (!anchor.href) continue;
     const anchorUrlObj = new URL(anchor.href);
     if (prefix) {
       anchorUrlObj.pathname = getUnprefixedPathname(window, prefix, anchorUrlObj.pathname);
