@@ -11,8 +11,20 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix, sourceO
   for (let i = 0; i < anchors.length; i++) {
     let anchor = anchors[i];
 
+    const anchorUrlObj = new URL(anchor.href);
+    if (prefix) {
+      anchorUrlObj.pathname = getUnprefixedPathname(window, prefix, anchorUrlObj.pathname);
+    }
+    const isHashTagInSamePathname = (anchorUrlObj.pathname == window.location.pathname) && anchorUrlObj.href.includes("#");
+    
+    // anchor.getAttribute("href")?.startsWith?.("#") || (anchor.href == `${window.location.href}#`)
+    if (!isHashTagInSamePathname) {
+      // Check if the link is a hash tag
+      continue;
+    }
+
     // assign full url if it's relative path
-    if (!anchor.href.startsWith("http") && (anchor.getAttribute("href") != "#") && !anchor.href.startsWith("tel:") && !anchor.href.startsWith("mailto:")) {
+    if (!anchor.href.startsWith("http") && !anchor.href.startsWith("tel:") && !anchor.href.startsWith("mailto:")) {
       const currentUrl = new URL(window.location.href);
       const fullHref = `${currentUrl.protocol}//${currentUrl.hostname}${anchor.href}`;
       anchor.href = fullHref;
@@ -63,7 +75,7 @@ function replaceLinks(window, {langParam, lang, translationMode, prefix, sourceO
 
       // Update the href of the anchor tag
       anchor.href = url.href;
-    } else if ((anchor.href !== `${window.location.href}#`) && (anchor.pathname != window.location.pathname)) {
+    } else if (anchor.pathname != window.location.pathname) {
       // Check if the link is internal and does not contain a hash
 
       // Create a new URL object
