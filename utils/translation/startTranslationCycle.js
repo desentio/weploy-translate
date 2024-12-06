@@ -4,6 +4,7 @@ const modifyHtmlStrings = require("./modifyHtmlStrings");
 const { debounce } = require("../debounce");
 const { renderSelectorState } = require("../selector/renderSelectorState");
 const { isExcludedPath } = require("./isExcluded");
+const getUnprefixedPathname = require("../translation-mode/getUnprefixedPathname");
 
 async function startTranslationCycle(window, node, apiKey, delay, shouldOptimizeSEO = false) {
   if (window.preventInitialTranslation) {
@@ -93,7 +94,13 @@ async function startTranslationCycle(window, node, apiKey, delay, shouldOptimize
         const href = link.href;
         const url = new URL(href);
         const origin = url.origin;
-        if (origin == window.location.origin) {
+        
+        if (options.domainSourcePrefix) {
+          url.pathname = getUnprefixedPathname(window, options.domainSourcePrefix, url.pathname);
+        }
+        const isHashTagInSamePathname = url.href ? (url.pathname == window.location.pathname) && url.href.includes("#") : false;
+        
+        if (origin == window.location.origin && !isHashTagInSamePathname) {
           // add onclick
           link.onclick = (e) => {
             e.preventDefault();
